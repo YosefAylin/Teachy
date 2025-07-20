@@ -2,21 +2,15 @@ package io.jos.onlinelearningplatform.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
+@MappedSuperclass
 @Getter @Setter
-@Entity
-@Table(
-        name = "users",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = "username"),
-                @UniqueConstraint(columnNames = "email")
-        }
-)
+@NoArgsConstructor
 public abstract class User {
 
-    public enum role { ADMIN, TEACHER, STUDENT}
+    public enum Role { ADMIN, TEACHER, STUDENT}
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,6 +29,14 @@ public abstract class User {
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
-    private role userRole;
+    private Role userRole;
+
+    public User (String fullName, String username, String email, String passwordHash) {
+        this.fullName = fullName;
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+
+    }
 
 }
