@@ -18,12 +18,12 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
-    public void viewReviewsForCourse(Long courseId) {
+    public void viewReviewsForTeacher(Long userId) {
 
     }
 
     @Override
-    public void viewReviewsByUser(Long userId) {
+    public void viewReviewsByStudent(Long userId) {
 
     }
 

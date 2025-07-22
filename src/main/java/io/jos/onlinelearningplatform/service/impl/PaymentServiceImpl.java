@@ -27,13 +27,4 @@ public class PaymentServiceImpl implements PaymentService {
 
     }
 
-    @Override
-    public void updatePaymentDetails(Long userId, String paymentMethod) {
-
-    }
-
-    @Override
-    public boolean validatePayment(Long userId, Long courseId, double amount) {
-        return false;
-    }
 }

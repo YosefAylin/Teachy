@@ -10,25 +10,6 @@ public class AdminServiceImpl implements AdminService {
     public AdminServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    @Override
-    public void addCourse(String courseName, String description) {
-
-    }
-
-    @Override
-    public void removeCourse(Long courseId) {
-
-    }
-
-    @Override
-    public void updateCourse(Long courseId, String courseName, String description) {
-
-    }
-
-    @Override
-    public void viewAllCourses() {
-
-    }
 
     @Override
     public void manageUsers() {

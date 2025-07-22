@@ -1,16 +1,16 @@
 package io.jos.onlinelearningplatform.model;
 
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor
-@Table(name = "admins")
+@DiscriminatorValue("ADMIN")
 public class Admin extends User {
 
-    public Admin(String fullName, String username, String email, String passwordHash) {
-        super(fullName, username, email, passwordHash);
-        setUserRole(Role.ADMIN);
+    public Admin(String username, String email, String passwordHash) {
+        super(username, email, passwordHash);
     }
 }

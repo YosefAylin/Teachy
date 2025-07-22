@@ -5,19 +5,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@MappedSuperclass
 @Getter @Setter
 @NoArgsConstructor
-public abstract class User {
-
-    public enum Role { ADMIN, TEACHER, STUDENT}
+@Entity
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type", discriminatorType = DiscriminatorType.STRING)
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-
-    @Column(nullable = false)
-    private String fullName;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -28,11 +26,10 @@ public abstract class User {
     @Column(name = "password_hash", nullable = false, length = 60)
     private String passwordHash;
 
-    @Enumerated(EnumType.STRING)
-    private Role userRole;
+    private boolean connected = false;
 
-    public User (String fullName, String username, String email, String passwordHash) {
-        this.fullName = fullName;
+
+    public User (String username, String email, String passwordHash) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;

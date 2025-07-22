@@ -1,5 +1,7 @@
 package io.jos.onlinelearningplatform.service.impl;
 
+import io.jos.onlinelearningplatform.model.Student;
+import io.jos.onlinelearningplatform.model.Teacher;
 import io.jos.onlinelearningplatform.repository.LessonRepository;
 import io.jos.onlinelearningplatform.service.LessonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,9 @@ public class LessonServiceImpl implements LessonService {
     public LessonServiceImpl(LessonRepository lessonRepository) {
         this.lessonRepository = lessonRepository;
     }
-
+    
     @Override
-    public void addLesson(Long courseId, String lessonTitle, String lessonContent) {
+    public void createLesson(Student s, Teacher t, String lessonTitle, String lessonContent) {
 
     }
 
@@ -27,10 +29,6 @@ public class LessonServiceImpl implements LessonService {
 
     }
 
-    @Override
-    public void viewLessonsForCourse(Long courseId) {
-
-    }
 
     @Override
     public void viewLessonDetails(Long lessonId) {

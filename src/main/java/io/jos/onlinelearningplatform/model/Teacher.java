@@ -1,24 +1,22 @@
 package io.jos.onlinelearningplatform.model;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "teachers")
+@DiscriminatorValue("TEACHER")
 @NoArgsConstructor
 
 public class Teacher extends User {
 
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
     private List<Lesson> taughtLessons = new ArrayList<>();
     @OneToMany(mappedBy = "teacher")
     private List<Payment> receivedPayments = new ArrayList<>();
 
-    public Teacher(String fullName, String username, String email, String passwordHash) {
-        super(fullName, username, email, passwordHash);
-        setUserRole(Role.TEACHER);
+    public Teacher(String username, String email, String passwordHash) {
+        super(username, email, passwordHash);
     }
 }
