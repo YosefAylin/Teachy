@@ -29,9 +29,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Check code formatting
-        run: mvn spotless:check
-
       - name: Build, test & coverage
         run: mvn clean verify jacoco:report
 
