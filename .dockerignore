@@ -1,0 +1,38 @@
+# Maven build output
+target/
+!target/*.jar
+
+# IntelliJ, Eclipse, VS Code
+.idea/
+*.iml
+*.iws
+*.classpath
+*.project
+.settings/
+.vscode/
+
+# Maven wrapper artifacts
+.mvn/
+mvnw
+mvnw.cmd
+
+# Git metadata
+.git/
+.gitignore
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Logs, temporary files
+*.log
+*.tmp
+*.swp
+
+# Environment files
+.env
+.env.local
+
+# Dockerfile itself (not strictly necessary to ignore, but prevents recursion)
+Dockerfile
+docker-compose.yml
