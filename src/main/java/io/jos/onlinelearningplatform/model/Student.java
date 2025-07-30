@@ -8,7 +8,6 @@ import java.util.List;
 @Entity
 @DiscriminatorValue("STUDENT")
 @NoArgsConstructor
-
 public class Student extends User {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
@@ -16,9 +15,5 @@ public class Student extends User {
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Payment> payments = new ArrayList<>();
 
-    public Student(String username, String email, String passwordHash) {
-        super(username, email, passwordHash);
-
-    }
 
 }

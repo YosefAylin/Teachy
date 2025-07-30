@@ -1,5 +1,8 @@
 package io.jos.onlinelearningplatform.service.impl;
 
+import io.jos.onlinelearningplatform.model.Admin;
+import io.jos.onlinelearningplatform.model.Student;
+import io.jos.onlinelearningplatform.model.Teacher;
 import io.jos.onlinelearningplatform.model.User;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.UserService;
@@ -11,7 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.management.relation.Role;
 
 @Service
-public class UserServiceImpl implements UserService {
+@Transactional
+public class UserServiceImpl  implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -22,9 +26,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Override
-    @Transactional
     public void loginUser(String username, String password) {
         User u = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
@@ -37,7 +39,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public void logoutUser(String username) {
         User u = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));

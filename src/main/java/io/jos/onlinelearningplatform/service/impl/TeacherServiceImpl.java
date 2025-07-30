@@ -34,17 +34,15 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void acceptBooking(Long lessonId) {
+    public void handleBooking(Long lessonId) {
+        if (lessonId == null) {
+            throw new IllegalArgumentException("Invalid lesson ID");
+        }
+        // Logic to accept a booking for a lesson
+        // This would typically involve updating the Lesson object in the database
+        // For now, we will just print a message
+        System.out.println("Accepting booking for lesson with ID: " + lessonId);
 
     }
 
-    @Override
-    public void rejectBooking(Long lessonId) {
-
-    }
-
-    @Override
-    public void respondToFeedback(Long feedbackId, String responseText) {
-
-    }
 }

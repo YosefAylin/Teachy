@@ -17,17 +17,18 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public void createLesson(Student s, Teacher t, String lessonTitle, String lessonContent) {
 
-    }
-
-    @Override
-    public void removeLesson(Long lessonId) {
 
     }
 
-    @Override
-    public void updateLesson(Long lessonId, String newTitle, String newContent) {
-
-    }
+//    @Override
+//    public void removeLesson(Long lessonId) {
+//
+//    }
+//
+//    @Override
+//    public void updateLesson(Long lessonId, String newTitle, String newContent) {
+//
+//    }
 
 
     @Override

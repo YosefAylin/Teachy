@@ -26,7 +26,11 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 60)
     private String passwordHash;
 
+
+
     private boolean connected = false;
+
+
 
 
     public User (String username, String email, String passwordHash) {

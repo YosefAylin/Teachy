@@ -33,18 +33,32 @@ public class StudentServiceImpl implements StudentService {
         userRepository.save(s);
     }
 
-    @Override
-    public void findTeacherBySubject(String subject) {
-
-    }
+//    @Override
+//    public void findTeacherBySubject(String subject) {
+//
+//    }
 
     @Override
     public void bookTeacher(String teacherId, String dateTime) {
+        if (teacherId == null || teacherId.isBlank() || dateTime == null || dateTime.isBlank()) {
+            throw new IllegalArgumentException("Invalid booking data");
+        }
+        // Logic to book a teacher for a lesson at the specified date and time
+        // This would typically involve creating a Lesson object and saving it to the database
+        // For now, we will just print a message
+        System.out.println("Booking teacher with ID: " + teacherId + " for date and time: " + dateTime);
 
     }
 
     @Override
     public void cancelBooking(String lessonId) {
+        if (lessonId == null || lessonId.isBlank()) {
+            throw new IllegalArgumentException("Invalid lesson ID");
+        }
+        // Logic to cancel a booking for a lesson
+        // This would typically involve finding the Lesson object by ID and removing it from the database
+        // For now, we will just print a message
+        System.out.println("Cancelling booking for lesson with ID: " + lessonId);
 
     }
 

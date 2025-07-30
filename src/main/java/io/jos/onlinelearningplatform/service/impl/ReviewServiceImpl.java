@@ -17,23 +17,23 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-    @Override
-    public void viewReviewsForTeacher(Long userId) {
-
-    }
-
-    @Override
-    public void viewReviewsByStudent(Long userId) {
-
-    }
-
-    @Override
-    public void deleteReview(Long reviewId) {
-
-    }
-
-    @Override
-    public void updateReview(Long reviewId, String newReviewText, int newRating) {
-
-    }
+//    @Override
+//    public void viewReviewsForTeacher(Long userId) {
+//
+//    }
+//
+//    @Override
+//    public void viewReviewsByStudent(Long userId) {
+//
+//    }
+//
+//    @Override
+//    public void deleteReview(Long reviewId) {
+//
+//    }
+//
+//    @Override
+//    public void updateReview(Long reviewId, String newReviewText, int newRating) {
+//
+//    }
 }

@@ -10,7 +10,4 @@ import lombok.NoArgsConstructor;
 @DiscriminatorValue("ADMIN")
 public class Admin extends User {
 
-    public Admin(String username, String email, String passwordHash) {
-        super(username, email, passwordHash);
-    }
 }
