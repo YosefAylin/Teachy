@@ -15,6 +15,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class UserServiceTest {
@@ -81,7 +82,9 @@ class UserServiceTest {
         String password = "password123";
         User mockUser = new User();
         mockUser.setUsername(username);
-        when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
+        mockUser.setPasswordHash("hashedPassword");
+        when(userRepository.findByUsername(eq(username))).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(eq(password), anyString())).thenReturn(true);
 
         // Act
         assertDoesNotThrow(() -> userService.loginUser(username, password));
@@ -153,8 +156,10 @@ class UserServiceTest {
     void changePassword_ValidOldPassword_Success() {
         // Arrange
         User mockUser = new User();
+        mockUser.setPasswordHash("hashedOldPass");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches(eq("oldPass"), any())).thenReturn(true);
+        when(passwordEncoder.matches(anyString(), eq("hashedOldPass"))).thenReturn(true);
+        when(passwordEncoder.encode(anyString())).thenReturn("hashedNewPass");
 
         // Act
         assertDoesNotThrow(() ->
@@ -162,8 +167,24 @@ class UserServiceTest {
         );
 
         // Assert
-        verify(passwordEncoder).encode("newPass");
+        verify(passwordEncoder).encode(eq("newPass"));
         verify(userRepository).save(mockUser);
+    }
+
+    @Test
+    @DisplayName("Change Password - Fails with invalid old password")
+    void changePassword_InvalidOldPassword_ThrowsException() {
+        // Arrange
+        User mockUser = new User();
+        mockUser.setPasswordHash("hashedOldPass");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () ->
+            userService.changePassword(1L, "wrongPass", "newPass")
+        );
+        assertTrue(exception.getMessage().contains("Old password is incorrect"));
     }
 
     @Test
