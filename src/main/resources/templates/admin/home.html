@@ -1,35 +1,63 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <meta charset="UTF-8" />
+    <title>Admin Dashboard - Teachy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
 </head>
 <body>
-<header>
-  <nav>
-    <ul>
-      <li><a th:href="@{/admin/home}">Home</a></li>
-      <li><a th:href="@{/admin/users}">Manage Users</a></li>
-      <li><a th:href="@{/admin/courses}">Manage Courses</a></li>
-      <li><a th:href="@{/logout}">Logout</a></li>
-    </ul>
-  </nav>
-</header>
+    <div class="education-bg"></div>
+    <div class="container">
+        <div class="form-container">
+            <div class="education-icon icon-admin">⚡</div>
+            <h1 class="form-title">Admin Control Center</h1>
+            <p class="text-center text-muted mb-24">
+                Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Administrator</span>!
+                Manage the entire Teachy platform ecosystem.
+            </p>
 
-<main>
-  <h1>Welcome, <span th:text="${#authentication.name}">Admin</span></h1>
-  <p>Use the links above to administer users and courses.</p>
-  <section class="cards">
-    <div class="card">
-      <h2>Total Users</h2>
-      <p th:text="${userCount}">0</p>
+            <div class="role-section" style="background: rgba(144, 19, 254, 0.1); border-left: 4px solid var(--education-purple);">
+                <h2>🔧 Platform Management</h2>
+                <p>Oversee users, monitor system health, manage content, and ensure the best learning experience for everyone.</p>
+
+                <div class="nav-links">
+                    <a th:href="@{/admin/users}">
+                        👥 Manage Users
+                    </a>
+                    <a th:href="@{/admin/courses}">
+                        📚 Course Management
+                    </a>
+                    <a th:href="@{/admin/analytics}">
+                        📊 Platform Analytics
+                    </a>
+                    <a th:href="@{/admin/reports}">
+                        📋 System Reports
+                    </a>
+                    <a th:href="@{/admin/settings}">
+                        ⚙️ Platform Settings
+                    </a>
+                    <a th:href="@{/admin/support}">
+                        🎧 User Support
+                    </a>
+                </div>
+
+                <div class="button-group mt-24">
+                    <a th:href="@{/home}" class="btn btn-secondary">
+                        🏠 Back to Home
+                    </a>
+                    <a th:href="@{/logout}" class="btn btn-accent">
+                        👋 Logout
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-24 text-center">
+                <p class="text-muted">
+                    🚀 "The best leaders are those who empower others to lead." - Admin Wisdom
+                </p>
+            </div>
+        </div>
     </div>
-    <div class="card">
-      <h2>Total Courses</h2>
-      <p th:text="${courseCount}">0</p>
-    </div>
-  </section>
-</main>
 </body>
 </html>

@@ -1,43 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Login - Online Learning Platform</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" th:href="@{/css/modern-style.css}">
+    <title>Login - Teachy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}">
 </head>
 <body>
-  <div class="container">
-    <div class="left-content">
-      <h1 class="app-name">Learning Platform</h1>
-      <p class="app-description">Connect with teachers and access quality education from anywhere in the world.</p>
-    </div>
-    
-    <div class="right-content">
-      <div class="form-container">
-        <form th:action="@{/login}" method="post">
-          <div class="form-group">
-            <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
-          </div>
-          <div class="form-group">
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
-          </div>
-          <div class="form-group">
-            <button type="submit" class="btn btn-primary">Log In</button>
-          </div>
-          <div class="error-message" th:if="${param.error}">Invalid username or password</div>
-          <div class="success-message" th:if="${param.logout}">You've been logged out successfully</div>
-          <div class="success-message" th:if="${param.registered}">Registration successful! Please log in</div>
-        </form>
-        <div class="divider"></div>
-        <div class="text-center">
-          <a th:href="@{/register}" class="btn btn-secondary">Create New Account</a>
+    <div class="education-bg"></div>
+    <div class="container">
+        <div class="left-content">
+            <h1 class="app-name">🎓 Teachy</h1>
+            <p class="app-description">
+                Welcome back to your learning journey! Connect with thousands of educators
+                and learners in our modern educational ecosystem.
+            </p>
+            <div class="education-icon icon-teacher">🖥️</div>
+            <p class="text-muted">
+                💡 Join live video sessions with expert teachers<br>
+                📊 Track your learning progress in real-time<br>
+                🌍 Connect with a global learning community
+            </p>
         </div>
-      </div>
+
+        <div class="right-content">
+            <div class="form-container">
+                <div class="education-icon icon-student">👋</div>
+                <h2 class="form-title">Welcome Back</h2>
+                <p class="text-center text-muted mb-24">
+                    Sign in to continue your educational journey
+                </p>
+
+                <div th:if="${param.error}" class="alert alert-danger">
+                    ⚠️ Invalid username or password. Please try again.
+                </div>
+                <div th:if="${param.logout}" class="alert alert-success">
+                    ✅ You have been logged out successfully.
+                </div>
+                <div th:if="${param.registered}" class="alert alert-success">
+                    🎉 Registration successful! Please log in.
+                </div>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <input type="text" name="username" class="form-control"
+                               placeholder="🔤 Username" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control"
+                               placeholder="🔐 Password" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            🚀 Login to Teachy
+                        </button>
+                    </div>
+                </form>
+
+                <div class="divider" style="margin: 24px 0; text-align: center; color: var(--text-muted);">
+                    ────────────── or ──────────────
+                </div>
+
+                <div class="text-center">
+                    <p class="text-muted">Don't have an account yet?</p>
+                    <a th:href="@{/register}" class="btn btn-secondary" style="width: 100%; margin-top: 12px;">
+                        ✨ Join Teachy Community
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-  
-  <div class="footer">
-    <p>Online Learning Platform © 2025</p>
-  </div>
+
+    <div class="footer" style="position: fixed; bottom: 0; width: 100%; text-align: center; padding: 16px; color: var(--text-muted); font-size: 14px;">
+        <p>Teachy © 2025 - Empowering Education Through Technology 🌟</p>
+    </div>
 </body>
 </html>

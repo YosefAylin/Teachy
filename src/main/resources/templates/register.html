@@ -1,52 +1,81 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Register - Online Learning Platform</title>
+  <title>Join Teachy - Register</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" th:href="@{/css/modern-style.css}">
 </head>
 <body>
+  <div class="education-bg"></div>
   <div class="container">
     <div class="left-content">
-      <h1 class="app-name">Learning Platform</h1>
-      <p class="app-description">Join our community of learners and educators. Create an account to get started.</p>
+      <h1 class="app-name">🎓 Teachy</h1>
+      <p class="app-description">
+        Join our vibrant community of learners and educators. Start your educational
+        journey with interactive courses, live video sessions, and personalized learning paths.
+      </p>
+      <div class="education-icon icon-teacher">👥</div>
+      <p class="text-muted">
+        🎯 Personalized learning experiences<br>
+        🎥 Live video calls with expert teachers<br>
+        📈 Real-time progress tracking<br>
+        🌟 Global learning community
+      </p>
     </div>
     
     <div class="right-content">
       <div class="form-container">
-        <h2 class="form-title">Create a New Account</h2>
+        <div class="education-icon icon-student">✨</div>
+        <h2 class="form-title">Join Teachy Community</h2>
+        <p class="text-center text-muted mb-24">
+          Create your account and start learning today
+        </p>
+
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
         <form th:action="@{/register}" th:object="${dto}" method="post">
           <div class="form-group">
-            <input type="text" th:field="*{username}" class="form-control" placeholder="Username" required>
+            <input type="text" th:field="*{username}" class="form-control"
+                   placeholder="👤 Choose a username" required>
           </div>
           <div class="form-group">
-            <input type="email" th:field="*{email}" class="form-control" placeholder="Email address" required>
+            <input type="email" th:field="*{email}" class="form-control"
+                   placeholder="📧 Your email address" required>
           </div>
           <div class="form-group">
-            <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
+            <input type="password" th:field="*{password}" class="form-control"
+                   placeholder="🔐 Create a password" required>
           </div>
           <div class="form-group">
-            <select th:field="*{role}" class="form-control">
-              <option value="" disabled selected>Select your role</option>
-              <option value="STUDENT">Student</option>
-              <option value="TEACHER">Teacher</option>
+            <select th:field="*{role}" class="form-control" required>
+              <option value="" disabled selected>🎭 Select your role</option>
+              <option value="STUDENT">📚 Student - I want to learn</option>
+              <option value="TEACHER">🎓 Teacher - I want to teach</option>
             </select>
           </div>
           <div class="form-group">
-            <button type="submit" class="btn btn-secondary">Sign Up</button>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              🚀 Create My Teachy Account
+            </button>
           </div>
         </form>
-        <div class="divider"></div>
+
+        <div class="divider" style="margin: 24px 0; text-align: center; color: var(--text-muted);">
+          ────────────── or ──────────────
+        </div>
+
         <div class="text-center">
-          <p>Already have an account? <a th:href="@{/login}" class="link">Log In</a></p>
+          <p class="text-muted">Already have an account?</p>
+          <a th:href="@{/login}" class="btn btn-secondary" style="width: 100%; margin-top: 12px;">
+            👋 Sign In to Teachy
+          </a>
         </div>
       </div>
     </div>
   </div>
   
-  <div class="footer">
-    <p>Online Learning Platform © 2025</p>
+  <div class="footer" style="position: fixed; bottom: 0; width: 100%; text-align: center; padding: 16px; color: var(--text-muted); font-size: 14px;">
+    <p>Teachy © 2025 - Empowering Education Through Technology 🌟</p>
   </div>
 </body>
 </html>

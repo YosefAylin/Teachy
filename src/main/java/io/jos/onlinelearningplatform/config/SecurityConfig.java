@@ -16,6 +16,15 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
+
+    private final LoginSuccessHandler loginSuccessHandler;
+    private final CustomLogoutSuccessHandler logoutSuccessHandler;
+
+    public SecurityConfig(LoginSuccessHandler loginSuccessHandler, CustomLogoutSuccessHandler logoutSuccessHandler) {
+        this.loginSuccessHandler = loginSuccessHandler;
+        this.logoutSuccessHandler = logoutSuccessHandler;
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -43,30 +52,24 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/home",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**",
-                                "/login",      // <–– make sure your login page is permitted
-                                "/register"    // <–– if you have a register page
-                        )
-                        .permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/", "/login", "/home", "/register").permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/student/**").hasRole("STUDENT")
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")       // <–– point to your (or Spring's default) login
+                        .loginPage("/login")
+                        .successHandler(loginSuccessHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/login?logout")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
-                );
+                        .logoutSuccessHandler(logoutSuccessHandler)
+                        .permitAll());
+
         return http.build();
     }
 }

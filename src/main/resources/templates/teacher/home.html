@@ -1,31 +1,60 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <title>Teacher Dashboard</title>
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <meta charset="UTF-8" />
+    <title>Teacher Dashboard - Teachy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
 </head>
 <body>
-<header>
-  <nav>
-    <ul>
-      <li><a th:href="@{/teacher/home}">Home</a></li>
-      <li><a th:href="@{/teacher/courses}">My Classes</a></li>
-      <li><a th:href="@{/teacher/create-course}">Create Course</a></li>
-      <li><a th:href="@{/logout}">Logout</a></li>
-    </ul>
-  </nav>
-</header>
+    <div class="education-bg"></div>
+    <div class="container">
+        <div class="form-container">
+            <div class="education-icon icon-teacher">🎓</div>
+            <h1 class="form-title">Teaching Center</h1>
+            <p class="text-center text-muted mb-24">
+                Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Teacher</span>!
+                Ready to inspire and educate your students?
+            </p>
 
-<main>
-  <h1>Welcome back, <span th:text="${#authentication.name}">Teacher</span></h1>
-  <p>Your current classes:</p>
-  <ul>
-    <li th:each="course : ${courses}">
-      <a th:href="@{|/teacher/courses/${course.id}|}"
-         th:text="${course.title}">Course Title</a>
-    </li>
-  </ul>
-</main>
+            <div class="role-section" style="background: rgba(126, 211, 33, 0.1); border-left: 4px solid var(--education-green);">
+                <h2>🌟 Your Teaching Hub</h2>
+                <p>Manage courses, conduct live video sessions, track student progress, and create engaging content.</p>
+
+                <div class="nav-links">
+                    <a th:href="@{/teacher/courses}">
+                        📚 My Courses
+                    </a>
+                    <a th:href="@{/teacher/students}">
+                        👥 My Students
+                    </a>
+                    <a th:href="@{/teacher/schedule}">
+                        🗓️ Schedule Sessions
+                    </a>
+                    <a th:href="@{/teacher/analytics}">
+                        📈 Analytics
+                    </a>
+                    <a th:href="@{/teacher/content}">
+                        ✏️ Create Content
+                    </a>
+                </div>
+
+                <div class="button-group mt-24">
+                    <a th:href="@{/home}" class="btn btn-secondary">
+                        🏠 Back to Home
+                    </a>
+                    <a th:href="@{/logout}" class="btn btn-accent">
+                        👋 Logout
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-24 text-center">
+                <p class="text-muted">
+                    💡 "Teaching is the profession that teaches all other professions." - Unknown
+                </p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -73,44 +73,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Authenticates a user with the provided credentials and marks them as connected.
-     * 
-     * @param username The username of the user to authenticate
-     * @param password The plain text password to verify
-     * @throws IllegalArgumentException if the username doesn't exist or the password is incorrect
-     */
-    @Override
-    public void loginUser(String username, String password) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
-        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid username or password");
-        }
-        user.setConnected(true);
-        userRepository.save(user);  // Explicitly save the updated connection status
-        logger.info("Login successful for user: {}", username);
-    }
-
-    /**
-     * Logs out a user by marking them as disconnected.
-     * 
-     * @param username The username of the user to log out
-     * @throws RuntimeException if the user doesn't exist
-     * @throws IllegalArgumentException if the user is not currently logged in
-     */
-    @Override
-    public void logoutUser(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found: " + username));
-        if (!user.isConnected()) {
-            throw new IllegalArgumentException("User '" + username + "' is not currently logged in");
-        }
-        user.setConnected(false);
-        userRepository.save(user);  // Explicitly save the updated connection status
-        logger.info("User '{}' has been logged out", username);
-    }
-
-    /**
      * Permanently deletes a user from the system.
      * 
      * @param userId The ID of the user to delete

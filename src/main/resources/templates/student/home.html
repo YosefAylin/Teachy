@@ -1,31 +1,57 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <title>Student Dashboard</title>
-  <link rel="stylesheet" th:href="@{/css/main.css}" />
+    <meta charset="UTF-8" />
+    <title>Student Dashboard - Teachy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
 </head>
 <body>
-<header>
-  <nav>
-    <ul>
-      <li><a th:href="@{/student/home}">Home</a></li>
-      <li><a th:href="@{/student/courses}">My Courses</a></li>
-      <li><a th:href="@{/student/profile}">Profile</a></li>
-      <li><a th:href="@{/logout}">Logout</a></li>
-    </ul>
-  </nav>
-</header>
+    <div class="education-bg"></div>
+    <div class="container">
+        <div class="form-container">
+            <div class="education-icon icon-student">📚</div>
+            <h1 class="form-title">Welcome to Your Study Space</h1>
+            <p class="text-center text-muted mb-24">
+                Hello <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Student</span>!
+                Ready to dive into your learning journey?
+            </p>
 
-<main>
-  <h1>Hello, <span th:text="${#authentication.name}">Student</span></h1>
-  <p>Here are the courses you're enrolled in:</p>
-  <ul>
-    <li th:each="course : ${courses}">
-      <a th:href="@{|/student/courses/${course.id}|}"
-         th:text="${course.title}">Course Title</a>
-    </li>
-  </ul>
-</main>
+            <div class="role-section" style="background: rgba(74, 144, 226, 0.1); border-left: 4px solid var(--education-blue);">
+                <h2>🎯 Your Learning Dashboard</h2>
+                <p>Access your courses, join live video sessions with teachers, and track your progress.</p>
+
+                <div class="nav-links">
+                    <a th:href="@{/student/courses}">
+                        📖 My Courses
+                    </a>
+                    <a th:href="@{/student/lessons}">
+                        🎥 Live Sessions
+                    </a>
+                    <a th:href="@{/student/progress}">
+                        📊 Progress Tracker
+                    </a>
+                    <a th:href="@{/student/assignments}">
+                        ✍️ Assignments
+                    </a>
+                </div>
+
+                <div class="button-group mt-24">
+                    <a th:href="@{/home}" class="btn btn-secondary">
+                        🏠 Back to Home
+                    </a>
+                    <a th:href="@{/logout}" class="btn btn-accent">
+                        👋 Logout
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-24 text-center">
+                <p class="text-muted">
+                    🌟 "Education is the most powerful weapon which you can use to change the world." - Nelson Mandela
+                </p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
