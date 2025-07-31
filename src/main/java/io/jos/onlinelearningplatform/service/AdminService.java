@@ -7,5 +7,5 @@ public interface AdminService {
     void manageUsers();
     void viewFeedback();
 
-    void registerUser(String adminUsername, String adminPassword, String adminEmail);
+  //  void registerUser(String adminUsername, String adminPassword, String adminEmail);
 }

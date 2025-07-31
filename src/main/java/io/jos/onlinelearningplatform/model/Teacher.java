@@ -16,4 +16,7 @@ public class Teacher extends User {
     @OneToMany(mappedBy = "teacher")
     private List<Payment> receivedPayments = new ArrayList<>();
 
+    public Teacher(String username, String email, String hash) {
+        super(username, email, hash, "TEACHER");
+    }
 }

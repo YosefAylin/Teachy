@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teacher Dashboard</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body>
+<header>
+  <nav>
+    <ul>
+      <li><a th:href="@{/teacher/home}">Home</a></li>
+      <li><a th:href="@{/teacher/courses}">My Classes</a></li>
+      <li><a th:href="@{/teacher/create-course}">Create Course</a></li>
+      <li><a th:href="@{/logout}">Logout</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <h1>Welcome back, <span th:text="${#authentication.name}">Teacher</span></h1>
+  <p>Your current classes:</p>
+  <ul>
+    <li th:each="course : ${courses}">
+      <a th:href="@{|/teacher/courses/${course.id}|}"
+         th:text="${course.title}">Course Title</a>
+    </li>
+  </ul>
+</main>
+</body>
+</html>

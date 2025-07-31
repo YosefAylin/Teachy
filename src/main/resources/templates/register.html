@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Register - Online Learning Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/modern-style.css}">
+</head>
+<body>
+  <div class="container">
+    <div class="left-content">
+      <h1 class="app-name">Learning Platform</h1>
+      <p class="app-description">Join our community of learners and educators. Create an account to get started.</p>
+    </div>
+    
+    <div class="right-content">
+      <div class="form-container">
+        <h2 class="form-title">Create a New Account</h2>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <form th:action="@{/register}" th:object="${dto}" method="post">
+          <div class="form-group">
+            <input type="text" th:field="*{username}" class="form-control" placeholder="Username" required>
+          </div>
+          <div class="form-group">
+            <input type="email" th:field="*{email}" class="form-control" placeholder="Email address" required>
+          </div>
+          <div class="form-group">
+            <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
+          </div>
+          <div class="form-group">
+            <select th:field="*{role}" class="form-control">
+              <option value="" disabled selected>Select your role</option>
+              <option value="STUDENT">Student</option>
+              <option value="TEACHER">Teacher</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-secondary">Sign Up</button>
+          </div>
+        </form>
+        <div class="divider"></div>
+        <div class="text-center">
+          <p>Already have an account? <a th:href="@{/login}" class="link">Log In</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>Online Learning Platform © 2025</p>
+  </div>
+</body>
+</html>

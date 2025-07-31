@@ -16,4 +16,7 @@ public class Student extends User {
     private List<Payment> payments = new ArrayList<>();
 
 
+    public Student(String username, String email, String hash) {
+        super(username, email, hash, "STUDENT");
+    }
 }

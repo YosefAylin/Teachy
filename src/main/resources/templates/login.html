@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Login - Online Learning Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/modern-style.css}">
+</head>
+<body>
+  <div class="container">
+    <div class="left-content">
+      <h1 class="app-name">Learning Platform</h1>
+      <p class="app-description">Connect with teachers and access quality education from anywhere in the world.</p>
+    </div>
+    
+    <div class="right-content">
+      <div class="form-container">
+        <form th:action="@{/login}" method="post">
+          <div class="form-group">
+            <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
+          </div>
+          <div class="form-group">
+            <input type="password" name="password" class="form-control" placeholder="Password" required>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Log In</button>
+          </div>
+          <div class="error-message" th:if="${param.error}">Invalid username or password</div>
+          <div class="success-message" th:if="${param.logout}">You've been logged out successfully</div>
+          <div class="success-message" th:if="${param.registered}">Registration successful! Please log in</div>
+        </form>
+        <div class="divider"></div>
+        <div class="text-center">
+          <a th:href="@{/register}" class="btn btn-secondary">Create New Account</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer">
+    <p>Online Learning Platform © 2025</p>
+  </div>
+</body>
+</html>

@@ -1,11 +1,9 @@
-package io.jos.onlinelearningplatform.controller;
+package io.jos.onlinelearningplatform.controller.teacher;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/student")
-public class StudentController {
-
-
+@RequestMapping("/teacher")
+public class TeacherController {
 }

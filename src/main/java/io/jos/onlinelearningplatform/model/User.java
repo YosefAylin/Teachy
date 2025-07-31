@@ -27,7 +27,7 @@ public class User {
     private String passwordHash;
 
 
-
+    @Column(nullable = false)
     private boolean connected = false;
 
 
@@ -37,7 +37,13 @@ public class User {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
-
+        this.connected = false;
     }
 
+    public User(String username, String email, String hash, String role) {
+        this.username = username;
+        this.email = email;
+        this.passwordHash = hash;
+        this.connected = false;
+    }
 }

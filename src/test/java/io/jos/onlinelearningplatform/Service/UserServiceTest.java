@@ -1,4 +1,4 @@
-package io.jos.onlinelearningplatform.Service;
+package io.jos.onlinelearningplatform.service;
 
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.StudentService;
@@ -24,17 +24,14 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
-    @Autowired
-    private StudentService studentService;
-    @Autowired
-    private TeacherService teacherService;
+
 
     @BeforeEach
     public void setUp() {
-        studentService.registerUser("Yosef Aylin", "password123", "aba@gas.com");
-        studentService.registerUser("Ashley", "password123", "eam@exam.com");
-        teacherService.registerUser("Joseph", "password123", "asdd@dsd.com");
-        teacherService.registerUser("Aylin", "password123", "dsa@sd.com");
+        userService.register("Yosef Aylin", "aba@gas.com", "password123", "STUDENT");
+        userService.register("Ashley", "eam@exam.com", "password123", "TEACHER");
+        userService.register("Joseph", "asdd@dsd.com", "password123", "STUDENT");
+        userService.register("Aylin", "dsa@sd.com", "password123", "TEACHER");
         System.out.println("testUsersRegister PASSED");
 
     }
@@ -43,7 +40,7 @@ public class UserServiceTest {
     public void testUsersRegisterWithInvalidData() {
         try {
             // this one should throw
-            studentService.registerUser("", "password123", "dsad.casd.com");
+            userService.register("", "password123", "dsad.casd.com", "STUDENT");
             System.out.println("testUsersRegisterWithInvalidData FAILED → no exception");
             fail("Expected IllegalArgumentException on invalid registration");
         } catch (IllegalArgumentException e) {
