@@ -1,87 +1,194 @@
 package io.jos.onlinelearningplatform.service;
 
+import io.jos.onlinelearningplatform.model.User;
 import io.jos.onlinelearningplatform.repository.UserRepository;
-import io.jos.onlinelearningplatform.service.StudentService;
-import io.jos.onlinelearningplatform.service.TeacherService;
-import io.jos.onlinelearningplatform.service.UserService;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.AfterAll;
+import io.jos.onlinelearningplatform.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.event.annotation.BeforeTestClass;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Scanner;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
-public class UserServiceTest {
+class UserServiceTest {
 
-    @Autowired
+    @Mock
     private UserRepository userRepository;
-    @Autowired
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     private UserService userService;
 
-
     @BeforeEach
-    public void setUp() {
-        userService.register("Yosef Aylin", "aba@gas.com", "password123", "STUDENT");
-        userService.register("Ashley", "eam@exam.com", "password123", "TEACHER");
-        userService.register("Joseph", "asdd@dsd.com", "password123", "STUDENT");
-        userService.register("Aylin", "dsa@sd.com", "password123", "TEACHER");
-        System.out.println("testUsersRegister PASSED");
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        userService = new UserServiceImpl(userRepository, passwordEncoder);
 
+        // Default mock behavior
+        when(passwordEncoder.encode(any())).thenReturn("hashedPassword");
+        when(passwordEncoder.matches(any(), any())).thenReturn(true);
     }
 
     @Test
-    public void testUsersRegisterWithInvalidData() {
-        try {
-            // this one should throw
-            userService.register("", "password123", "dsad.casd.com", "STUDENT");
-            System.out.println("testUsersRegisterWithInvalidData FAILED → no exception");
-            fail("Expected IllegalArgumentException on invalid registration");
-        } catch (IllegalArgumentException e) {
-            System.out.println("testUsersRegisterWithInvalidData PASSED → caught IllegalArgumentException");
-        }
+    @DisplayName("Register - Success with valid input")
+    void register_ValidInput_Success() {
+        // Arrange
+        String username = "testUser";
+        String email = "test@example.com";
+        String password = "password123";
+        String role = "STUDENT";
 
-        userRepository.deleteAll();
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+
+        // Act
+        User result = userService.register(username, email, password, role);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(username, result.getUsername());
+        assertEquals(email, result.getEmail());
+        verify(passwordEncoder).encode(password);
+        verify(userRepository).save(any(User.class));
     }
 
     @Test
-    public void testLoginWithValidCredentials() {
-        userService.loginUser("Yosef Aylin", "password123");
-        userService.loginUser("Joseph", "password123");
-        System.out.println("testLoginWithValidCredentials PASSED");
+    @DisplayName("Register - Fails with duplicate username")
+    void register_DuplicateUsername_ThrowsException() {
+        // Arrange
+        when(userRepository.findByUsername("existingUser")).thenReturn(Optional.of(new User()));
 
-        userRepository.deleteAll();
-
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+            userService.register("existingUser", "test@example.com", "password123", "STUDENT")
+        );
+        assertTrue(exception.getMessage().contains("already taken"));
     }
 
     @Test
-    public void testLoginWithInvalidCredentials() {  try {
-        // should throw for bad password
-        userService.loginUser("Joseph", "wrongpass");
-        System.out.println("testLoginWithInvalidCredentials FAILED → no exception");
-        fail("Expected IllegalArgumentException on bad login");
-    } catch (IllegalArgumentException ex) {
-        System.out.println("testLoginWithInvalidCredentials PASSED → caught IllegalArgumentException");
-        }
-        userRepository.deleteAll();
+    @DisplayName("Login - Success with valid credentials")
+    void loginUser_ValidCredentials_Success() {
+        // Arrange
+        String username = "testUser";
+        String password = "password123";
+        User mockUser = new User();
+        mockUser.setUsername(username);
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(mockUser));
 
+        // Act
+        assertDoesNotThrow(() -> userService.loginUser(username, password));
+
+        // Assert
+        assertTrue(mockUser.isConnected());
+        verify(userRepository).save(mockUser);
     }
 
+    @Test
+    @DisplayName("Login - Fails with invalid username")
+    void loginUser_InvalidUsername_ThrowsException() {
+        // Arrange
+        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+            userService.loginUser("nonexistent", "password123")
+        );
+        assertTrue(exception.getMessage().contains("Invalid username or password"));
+    }
 
     @Test
-    public void testLogoutUser() {
-        userService.loginUser("Yosef Aylin", "password123");
-        userService.loginUser("Joseph", "password123");
-        userService.logoutUser("Yosef Aylin"); // Assuming user with ID 1 exists
-        userService.logoutUser("Joseph"); // Assuming user with ID 2 exists
+    @DisplayName("Login - Fails with wrong password")
+    void loginUser_WrongPassword_ThrowsException() {
+        // Arrange
+        User mockUser = new User();
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
-        userRepository.deleteAll();
+        // Act & Assert
+        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+            userService.loginUser("testUser", "wrongPassword")
+        );
+        assertTrue(exception.getMessage().contains("Invalid username or password"));
+    }
 
+    @Test
+    @DisplayName("Logout - Success for logged in user")
+    void logoutUser_LoggedInUser_Success() {
+        // Arrange
+        User mockUser = new User();
+        mockUser.setConnected(true);
+        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(mockUser));
+
+        // Act
+        userService.logoutUser("testUser");
+
+        // Assert
+        assertFalse(mockUser.isConnected());
+        verify(userRepository).save(mockUser);
+    }
+
+    @Test
+    @DisplayName("Logout - Fails with non-existent user")
+    void logoutUser_NonexistentUser_ThrowsException() {
+        // Arrange
+        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () ->
+            userService.logoutUser("nonexistent")
+        );
+        assertTrue(exception.getMessage().contains("User not found"));
+    }
+
+    @Test
+    @DisplayName("Change Password - Success with valid old password")
+    void changePassword_ValidOldPassword_Success() {
+        // Arrange
+        User mockUser = new User();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.matches(eq("oldPass"), any())).thenReturn(true);
+
+        // Act
+        assertDoesNotThrow(() ->
+            userService.changePassword(1L, "oldPass", "newPass")
+        );
+
+        // Assert
+        verify(passwordEncoder).encode("newPass");
+        verify(userRepository).save(mockUser);
+    }
+
+    @Test
+    @DisplayName("View Profile - Success for existing user")
+    void viewProfile_ExistingUser_Success() {
+        // Arrange
+        User mockUser = new User();
+        mockUser.setUsername("testUser");
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+
+        // Act & Assert
+        assertDoesNotThrow(() -> userService.viewProfile(1L));
+    }
+
+    @Test
+    @DisplayName("Delete User - Success for existing user")
+    void deleteUser_ExistingUser_Success() {
+        // Arrange
+        User mockUser = new User();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+
+        // Act
+        userService.deleteUser(1L);
+
+        // Assert
+        verify(userRepository).delete(mockUser);
     }
 }
