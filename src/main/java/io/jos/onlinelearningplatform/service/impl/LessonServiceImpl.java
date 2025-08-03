@@ -25,6 +25,33 @@ public class LessonServiceImpl implements LessonService {
         logger.debug("Lesson content length: {} characters", lessonContent.length());
     }
 
+    @Override
+    public void removeLesson(Long lessonId) {
+        logger.info("Removing lesson with ID: {}", lessonId);
+        // ... existing removal logic ...
+        if (lessonRepository.existsById(lessonId)) {
+            lessonRepository.deleteById(lessonId);
+            logger.debug("Lesson with ID {} successfully removed", lessonId);
+        } else {
+            logger.warn("Attempted to remove non-existent lesson with ID: {}", lessonId);
+        }
+
+    }
+
+    @Override
+    public void updateLesson(Long lessonId, String newTitle, String newContent) {
+        logger.info("Updating lesson with ID: {}", lessonId);
+        // ... existing update logic ...
+        if (lessonRepository.existsById(lessonId)) {
+            // Assuming a method to find and update the lesson exists
+
+            logger.debug("Lesson with ID {} successfully updated to title '{}'", lessonId, newTitle);
+        } else {
+            logger.warn("Attempted to update non-existent lesson with ID: {}", lessonId);
+        }
+
+    }
+
 
     @Override
     public void viewLessonDetails(Long lessonId) {

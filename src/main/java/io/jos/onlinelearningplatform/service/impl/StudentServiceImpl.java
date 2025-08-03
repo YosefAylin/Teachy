@@ -19,6 +19,11 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public void findTeacherBySubject(String subject) {
+
+    }
+
+    @Override
     public void bookTeacher(String teacherId, String dateTime) {
         logger.info("Student attempting to book teacher ID: {} for {}", teacherId, dateTime);
         if (teacherId == null || teacherId.isBlank() || dateTime == null || dateTime.isBlank()) {
@@ -42,5 +47,10 @@ public class StudentServiceImpl implements StudentService {
         // This would typically involve finding the Lesson object by ID and removing it from the database
         // For now, we will just print a message
         logger.info("Successfully cancelled booking {}", lessonId);
+    }
+
+    @Override
+    public void makePayment(String lessonId, String paymentMethod) {
+
     }
 }

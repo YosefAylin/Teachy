@@ -19,8 +19,15 @@ public class PaymentServiceImpl implements PaymentService {
     public void processPayment(Long studentId, Long teacherId, double amount) {
         logger.info("Processing payment of {} from student {} to teacher {}",
             amount, studentId, teacherId);
+
+
         logger.debug("Payment transaction details: Amount={}, StudentId={}, TeacherId={}",
             amount, studentId, teacherId);
+    }
+
+    @Override
+    public void viewPaymentHistory(Long userId) {
+
     }
 
 }

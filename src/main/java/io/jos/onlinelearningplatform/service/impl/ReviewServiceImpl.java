@@ -22,4 +22,14 @@ public class ReviewServiceImpl implements ReviewService {
                 rating, reviewText != null ? reviewText.length() : 0);
         logger.info("Review successfully submitted for teacher {}", teacherId);
     }
+
+    @Override
+    public void deleteReview(Long reviewId) {
+
+    }
+
+    @Override
+    public void updateReview(Long reviewId, String newReviewText, int newRating) {
+
+    }
 }

@@ -53,19 +53,11 @@ public class UserServiceImpl implements UserService {
                          String rawPassword,
                          String role) {
         String hash = passwordEncoder.encode(rawPassword);
-        User u;
-        switch(role.toUpperCase()) {
-            case "ADMIN":
-                u = new Admin(username, email, hash);
-                break;
-            case "TEACHER":
-                u = new Teacher(username, email, hash);
-                break;
-            case "STUDENT":
-            default:
-                u = new Student(username, email, hash);
-                break;
-        }
+        User u = switch (role.toUpperCase()) {
+            case "ADMIN" -> new Admin(username, email, hash);
+            case "TEACHER" -> new Teacher(username, email, hash);
+            default -> new Student(username, email, hash);
+        };
         if (userRepository.findByUsername(username).isPresent()) {
             throw new IllegalArgumentException("Username '" + username + "' is already taken");
         }
@@ -92,10 +84,11 @@ public class UserServiceImpl implements UserService {
      * @throws RuntimeException if the user doesn't exist
      */
     @Override
-    public void viewProfile(Long userId) {
+    public User viewProfile(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
         logger.debug("User Profile: {}", user);
+        return user;
     }
 
     /**
@@ -107,12 +100,13 @@ public class UserServiceImpl implements UserService {
      * @throws RuntimeException if the user doesn't exist or the old password is incorrect
      */
     @Override
-    public void changePassword(Long userId, String oldPassword, String newPassword) {
+    public Boolean changePassword(Long userId, String oldPassword, String newPassword) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         if (passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
             user.setPasswordHash(passwordEncoder.encode(newPassword));
             userRepository.save(user);
             logger.info("Password changed successfully for user: {}", user.getUsername());
+            return true;
         } else {
             throw new RuntimeException("Old password is incorrect");
         }

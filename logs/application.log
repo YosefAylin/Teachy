@@ -3058,3 +3058,40 @@ java.lang.IllegalStateException: Ambiguous handler methods mapped for '/home': {
 2025-07-31T05:53:39.699+03:00  INFO 12644 --- [online-learning-platform] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
 2025-07-31T05:53:39.700+03:00  INFO 12644 --- [online-learning-platform] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
 2025-07-31T05:53:39.702+03:00  INFO 12644 --- [online-learning-platform] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2025-08-03T21:10:45.646+03:00  INFO 6412 --- [online-learning-platform] [main] i.j.o.OnlineLearningPlatformApplication  : Starting OnlineLearningPlatformApplication using Java 17.0.14 with PID 6412 (/Users/yosefaylin/Developer/Git/MyShit/online-learning-platform/target/classes started by yosefaylin in /Users/yosefaylin/Developer/Git/MyShit/online-learning-platform)
+2025-08-03T21:10:45.648+03:00 DEBUG 6412 --- [online-learning-platform] [main] i.j.o.OnlineLearningPlatformApplication  : Running with Spring Boot v3.5.3, Spring v6.2.8
+2025-08-03T21:10:45.649+03:00  INFO 6412 --- [online-learning-platform] [main] i.j.o.OnlineLearningPlatformApplication  : No active profile set, falling back to 1 default profile: "default"
+2025-08-03T21:10:46.012+03:00  INFO 6412 --- [online-learning-platform] [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-08-03T21:10:46.041+03:00  INFO 6412 --- [online-learning-platform] [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 25 ms. Found 5 JPA repository interfaces.
+2025-08-03T21:10:46.298+03:00  INFO 6412 --- [online-learning-platform] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2025-08-03T21:10:46.305+03:00  INFO 6412 --- [online-learning-platform] [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2025-08-03T21:10:46.305+03:00  INFO 6412 --- [online-learning-platform] [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.42]
+2025-08-03T21:10:46.325+03:00  INFO 6412 --- [online-learning-platform] [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2025-08-03T21:10:46.325+03:00  INFO 6412 --- [online-learning-platform] [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 648 ms
+2025-08-03T21:10:46.373+03:00  INFO 6412 --- [online-learning-platform] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2025-08-03T21:10:46.418+03:00  INFO 6412 --- [online-learning-platform] [main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@76437e9b
+2025-08-03T21:10:46.419+03:00  INFO 6412 --- [online-learning-platform] [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2025-08-03T21:10:46.457+03:00  INFO 6412 --- [online-learning-platform] [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-08-03T21:10:46.482+03:00  INFO 6412 --- [online-learning-platform] [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.18.Final
+2025-08-03T21:10:46.496+03:00  INFO 6412 --- [online-learning-platform] [main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2025-08-03T21:10:46.651+03:00  INFO 6412 --- [online-learning-platform] [main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-08-03T21:10:46.703+03:00  INFO 6412 --- [online-learning-platform] [main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (HikariPool-1)']
+	Database driver: undefined/unknown
+	Database version: 14.18
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2025-08-03T21:10:47.209+03:00  INFO 6412 --- [online-learning-platform] [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-08-03T21:10:47.466+03:00  INFO 6412 --- [online-learning-platform] [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-08-03T21:10:47.643+03:00  WARN 6412 --- [online-learning-platform] [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-08-03T21:10:47.661+03:00  INFO 6412 --- [online-learning-platform] [main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2025-08-03T21:10:47.929+03:00  INFO 6412 --- [online-learning-platform] [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path '/'
+2025-08-03T21:10:47.935+03:00  INFO 6412 --- [online-learning-platform] [main] i.j.o.OnlineLearningPlatformApplication  : Started OnlineLearningPlatformApplication in 2.626 seconds (process running for 3.137)
+2025-08-03T21:10:48.006+03:00  INFO 6412 --- [online-learning-platform] [main] i.j.o.config.AdminInitializer            : ⚠️ Bootstrap: ADMIN user 'Jos' already exists, skipping creation
+2025-08-03T21:10:50.625+03:00  INFO 6412 --- [online-learning-platform] [SpringApplicationShutdownHook] o.s.b.w.e.tomcat.GracefulShutdown        : Commencing graceful shutdown. Waiting for active requests to complete
+2025-08-03T21:10:52.643+03:00  INFO 6412 --- [online-learning-platform] [tomcat-shutdown] o.s.b.w.e.tomcat.GracefulShutdown        : Graceful shutdown complete
+2025-08-03T21:10:52.648+03:00  INFO 6412 --- [online-learning-platform] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-08-03T21:10:52.650+03:00  INFO 6412 --- [online-learning-platform] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2025-08-03T21:10:52.654+03:00  INFO 6412 --- [online-learning-platform] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
