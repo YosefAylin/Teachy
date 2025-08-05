@@ -9,15 +9,18 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private double amount;
-    private String description;
-    private LocalDateTime timestamp = LocalDateTime.now();
+
     @ManyToOne
     @JoinColumn(name = "student_id")
     private Student student;
+
     @ManyToOne
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
+
+    private double amount;
+    private String description;
+    private LocalDateTime timestamp = LocalDateTime.now();
 
     public Payment() {
         // Default constructor for JPA

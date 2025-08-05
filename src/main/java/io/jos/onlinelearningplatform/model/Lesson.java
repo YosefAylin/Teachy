@@ -15,24 +15,25 @@ public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String CourseName;
-    private String title;
-    private String contentUrl; // URL to the lesson content (video, document, etc.)
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id", nullable = false)
+    private Course course;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "student_id")
     private Student student;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "teacher_id")
     private Teacher teacher;
+
+
+    private String title;
+    private String contentUrl; // URL to the lesson content (video, document, etc.)
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime timestamp = LocalDateTime.now();
-    @ManyToMany
-    @JoinTable(name = "enrolled_students",
-            joinColumns = @JoinColumn(name = "lesson_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id"))
-    private List<Student> enrolledStudents;
-
 
 
 

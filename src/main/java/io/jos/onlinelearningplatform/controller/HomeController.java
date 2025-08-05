@@ -1,4 +1,4 @@
-package io.jos.onlinelearningplatform.controller.home;
+package io.jos.onlinelearningplatform.controller;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
