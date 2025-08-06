@@ -31,10 +31,8 @@ public class Lesson {
 
     private String title;
     private String contentUrl; // URL to the lesson content (video, document, etc.)
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDate Date;
     private LocalDateTime timestamp = LocalDateTime.now();
-
-
-
+    String status; // e.g., "PENDING", "REJECTED", "ACCEPTED"
 }
+

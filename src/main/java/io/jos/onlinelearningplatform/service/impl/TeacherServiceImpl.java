@@ -1,10 +1,9 @@
 package io.jos.onlinelearningplatform.service.impl;
 
-import io.jos.onlinelearningplatform.model.Course;
-import io.jos.onlinelearningplatform.model.Lesson;
-import io.jos.onlinelearningplatform.model.Teacher;
+import io.jos.onlinelearningplatform.model.*;
 import io.jos.onlinelearningplatform.repository.CourseRepository;
 import io.jos.onlinelearningplatform.repository.LessonRepository;
+import io.jos.onlinelearningplatform.repository.TeacherCourseRepository;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.TeacherService;
 import org.slf4j.Logger;
@@ -24,11 +23,13 @@ public class TeacherServiceImpl implements TeacherService {
     private final UserRepository userRepository;
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
+    private final TeacherCourseRepository teacherCourseRepository;
 
-    public TeacherServiceImpl(UserRepository userRepository, CourseRepository courseRepository, LessonRepository lessonRepository, PasswordEncoder passwordEncoder) {
+    public TeacherServiceImpl(UserRepository userRepository, CourseRepository courseRepository, LessonRepository lessonRepository, PasswordEncoder passwordEncoder, TeacherCourseRepository teacherCourseRepository) {
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
         this.lessonRepository = lessonRepository;
+        this.teacherCourseRepository = teacherCourseRepository;
     }
 
     @Override
@@ -43,44 +44,6 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
 
-    @Override
-    @Transactional
-    public void addCourse(Long teacherId, Long courseId) {
-        logger.info("Adding course for teacher ID: {}", teacherId);
-        if (teacherId == null || courseId == null) {
-            logger.warn("Attempted to add course with null teacherId or courseId");
-            throw new IllegalArgumentException("Invalid teacher ID or course ID");
-        }
-        Teacher teacher = (Teacher) userRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found with ID: " + teacherId));
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found with ID: " + courseId));
-
-        course.getTeachers().add(teacher);
-        courseRepository.save(course);
-
-        teacher.getCourses().add(course);
-        userRepository.save(teacher);
-
-        logger.info("Successfully added course with ID: {} to teacher with ID: {}", courseId, teacherId);
-    }
-
-    @Override
-    public List<Course> getTeacherCourses(Long teacherId) {
-        logger.info("Fetching courses for teacher ID: {}", teacherId);
-
-        if (teacherId == null) {
-            logger.warn("Attempted to get courses with null teacherId");
-            throw new IllegalArgumentException("Invalid teacher ID");
-        }
-
-        Teacher teacher = (Teacher) userRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found with ID: " + teacherId));
-
-        List<Course> courses = teacher.getCourses();
-        logger.info("Found {} courses for teacher ID: {}", courses.size(), teacherId);
-
-        return courses;    }
 
     @Override
     public List<Lesson> getUpcomingLessons(Long teacherId) {
@@ -92,7 +55,7 @@ public class TeacherServiceImpl implements TeacherService {
         }
 
         // Get teacher's courses
-        List<Course> teacherCourses = getTeacherCourses(teacherId);
+        List<Course> teacherCourses = getTeachableCourses(teacherId);
 
         // Get upcoming lessons for all teacher's courses
         List<Lesson> upcomingLessons = lessonRepository.findUpcomingLessonsByCourseIds(
@@ -104,6 +67,102 @@ public class TeacherServiceImpl implements TeacherService {
 
         logger.info("Found {} upcoming lessons for teacher ID: {}", upcomingLessons.size(), teacherId);
         return upcomingLessons;
+    }
+
+    @Override
+    public List<Student> getStudents(Long teacherId) {
+        logger.info("Fetching students for teacher ID: {}", teacherId);
+
+        if (teacherId == null) {
+            logger.warn("Attempted to get students with null teacherId");
+            throw new IllegalArgumentException("Invalid teacher ID");
+        }
+
+        // Get lessons for this teacher
+        List<Lesson> teacherLessons = lessonRepository.findByTeacherId(teacherId);
+
+        // Extract unique students from one-on-one lessons
+        List<Student> enrolledStudents = teacherLessons.stream()
+                .map(Lesson::getStudent)
+                .distinct()
+                .collect(Collectors.toList());
+
+        logger.info("Found {} unique students for teacher ID: {}", enrolledStudents.size(), teacherId);
+        return enrolledStudents;
+    }
+
+    @Override
+    public Long getTeacherIdByUsername(String teacherName) {
+        logger.info("Finding teacher ID for username: {}", teacherName);
+
+        if (teacherName == null || teacherName.trim().isEmpty()) {
+            logger.warn("Attempted to get teacher ID with null or empty username");
+            throw new IllegalArgumentException("Invalid username");
+        }
+
+        Teacher teacher = (Teacher) userRepository.findByUsername(teacherName)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher not found with username: " + teacherName));
+
+        logger.info("Found teacher ID: {} for username: {}", teacher.getId(), teacherName);
+        return teacher.getId();
+    }
+
+    @Override
+    public List<Course> getAvailableCourses() {
+        return courseRepository.findAll();
+    }
+
+    @Override
+    @Transactional
+    public void addTeachableCourse(Long teacherId, Long courseId) {
+        Teacher teacher = (Teacher) userRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        if (teacherCourseRepository.existsByTeacherIdAndCourseId(teacherId, courseId)) {
+            throw new IllegalStateException("Course already added for this teacher");
+        }
+
+        TeacherCourse teacherCourse = new TeacherCourse();
+        teacherCourse.setTeacher(teacher);
+        teacherCourse.setCourse(course);
+        teacherCourseRepository.save(teacherCourse);
+    }
+
+    @Override
+    @Transactional
+    public void removeTeachableCourse(Long teacherId, Long courseId) {
+        teacherCourseRepository.deleteByTeacherIdAndCourseId(teacherId, courseId);
+    }
+
+    @Override
+    public List<Course> getTeachableCourses(Long teacherId) {
+        return teacherCourseRepository.findByTeacherId(teacherId).stream()
+                .map(TeacherCourse::getCourse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Lesson> getAcceptedLessons(Long teacherId) {
+        return lessonRepository.findByTeacherIdAndStatus(teacherId, "ACCEPTED");
+
+    }
+
+    @Override
+    public List<Lesson> getPendingLessons(Long teacherId) {
+        return lessonRepository.findByTeacherIdAndStatus(teacherId,"PENDING");
+    }
+
+    @Override
+    public int countPendingLessons(Long teacherId) {
+        return lessonRepository.countByTeacherIdAndStatus(teacherId, "PENDING");
+    }
+
+    @Override
+    public Teacher getTeacherProfile(Long teacherId) {
+        return (Teacher) userRepository.findById(teacherId).orElse(null);
     }
 }
 

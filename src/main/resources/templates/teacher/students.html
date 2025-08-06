@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Students - Teachy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+  <div class="form-container">
+    <div class="education-icon icon-teacher">👥</div>
+    <h1 class="form-title">My Students</h1>
+
+    <div class="role-section">
+      <div th:if="${students != null and !students.empty}">
+        <div th:each="student : ${students}" class="student-item">
+          <h3 th:text="${student.name}">Student Name</h3>
+          <p th:text="${student.email}">student@email.com</p>
+        </div>
+      </div>
+      <div th:if="${students == null or students.empty}" class="text-center">
+        <p>No enrolled students yet.</p>
+      </div>
+
+      <div class="button-group mt-24">
+        <a th:href="@{/teacher/home}" class="btn btn-secondary">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

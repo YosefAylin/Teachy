@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -21,11 +23,8 @@ public class Course {
     @Column(length = 500)
     private String description;
 
-    @ManyToMany
-    @JoinTable(
-            name = "course_teachers",
-            joinColumns = @JoinColumn(name = "course_id"),
-            inverseJoinColumns = @JoinColumn(name = "teacher_id")
-    )
-    private List<User> teachers;
+
+
+
 }
+

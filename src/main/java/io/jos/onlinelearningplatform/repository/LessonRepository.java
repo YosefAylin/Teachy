@@ -13,9 +13,14 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     select l
       from Lesson l
      where l.course.id in :courseIds
-       and l.startDate > :from
+       and l.Date > :from
     """)
     List<Lesson> findUpcomingLessonsByCourseIds(
             @Param("courseIds") List<Long> courseIds,
             @Param("from")       LocalDateTime from
-    );}
+    );
+
+    List<Lesson> findByTeacherId(Long teacherId);
+    List<Lesson> findByTeacherIdAndStatus(Long teacherId, String status);
+    int countByTeacherIdAndStatus(Long teacherId, String status);
+}

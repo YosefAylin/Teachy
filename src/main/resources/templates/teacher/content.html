@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Content - Teachy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+  <div class="form-container">
+    <div class="education-icon icon-teacher">✏️</div>
+    <h1 class="form-title">Create Content</h1>
+
+    <div class="role-section">
+      <form class="content-form">
+        <div class="form-group">
+          <label for="title">Content Title</label>
+          <input type="text" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="content">Content</label>
+          <textarea id="content" name="content" rows="8"></textarea>
+        </div>
+      </form>
+
+      <div class="button-group mt-24">
+        <button type="submit" class="btn btn-primary">Save Content</button>
+        <a th:href="@{/teacher/home}" class="btn btn-secondary">Back to Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

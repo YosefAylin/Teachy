@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Active Lessons - Teachy</title>
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+</head>
+<body>
+    <div class="education-bg"></div>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="form-title">🟢 Active Lessons</h1>
+            <div th:if="${lessons != null and #lists.isNotEmpty(lessons)}">
+                <ul>
+                    <li th:each="lesson : ${lessons}">
+                        <span th:text="${lesson.title}">Lesson Title</span>
+                        - <span th:text="${lesson.scheduledTime}">Time</span>
+                        - <span th:text="${lesson.student.name}">Student</span>
+                    </li>
+                </ul>
+            </div>
+            <div th:if="${lessons == null or #lists.isEmpty(lessons)}">
+                <p>No active lessons found.</p>
+            </div>
+            <div class="button-group mt-24">
+                <a th:href="@{/teacher/home}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

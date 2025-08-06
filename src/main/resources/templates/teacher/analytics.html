@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Analytics - Teachy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+</head>
+<body>
+    <div class="education-bg"></div>
+    <div class="container">
+        <div class="form-container">
+            <div class="education-icon icon-teacher">📈</div>
+            <h1 class="form-title">Teaching Analytics</h1>
+
+            <div class="role-section">
+                <div th:if="${analytics != null}" class="analytics-dashboard">
+                    <div class="stat-card">
+                        <h3>Total Students</h3>
+                        <p th:text="${analytics.totalStudents}">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Courses</h3>
+                        <p th:text="${analytics.activeCourses}">0</p>
+                    </div>
+                </div>
+
+                <div class="button-group mt-24">
+                    <a th:href="@{/teacher/home}" class="btn btn-secondary">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

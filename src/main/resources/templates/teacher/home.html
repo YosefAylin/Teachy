@@ -22,8 +22,12 @@
                 <p>Manage courses, conduct live video sessions, track student progress, and create engaging content.</p>
 
                 <div class="nav-links">
-                    <a th:href="@{/teacher/courses}">
-                        📚 My Courses
+                    <a th:href="@{/teacher/lessons/active}">
+                        🟢 Active Lessons
+                    </a>
+                    <a th:href="@{/teacher/lessons/pending}">
+                        🕒 Pending Lessons
+                        <span th:if="${newLessonRequestCount > 0}" class="badge" th:text="${newLessonRequestCount}"></span>
                     </a>
                     <a th:href="@{/teacher/students}">
                         👥 My Students
@@ -36,6 +40,9 @@
                     </a>
                     <a th:href="@{/teacher/content}">
                         ✏️ Create Content
+                    </a>
+                    <a th:href="@{/teacher/profile}">
+                        👤 Profile Overview
                     </a>
                 </div>
 
