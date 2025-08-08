@@ -7,61 +7,70 @@
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
 </head>
 <body>
-    <div class="education-bg"></div>
-    <div class="container">
-        <div class="form-container">
-            <div class="education-icon icon-teacher">🎓</div>
-            <h1 class="form-title">Teaching Center</h1>
-            <p class="text-center text-muted mb-24">
-                Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Teacher</span>!
-                Ready to inspire and educate your students?
-            </p>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <div class="education-icon icon-teacher">🎓</div>
+        <h1 class="form-title">Teaching Center</h1>
 
-            <div class="role-section" style="background: rgba(126, 211, 33, 0.1); border-left: 4px solid var(--education-green);">
-                <h2>🌟 Your Teaching Hub</h2>
-                <p>Manage courses, conduct live video sessions, track student progress, and create engaging content.</p>
+        <p class="text-center text-muted mb-24">
+            Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Teacher</span>!
+            Manage your lessons and specializations from here.
+        </p>
 
-                <div class="nav-links">
-                    <a th:href="@{/teacher/lessons/active}">
-                        🟢 Active Lessons
-                    </a>
-                    <a th:href="@{/teacher/lessons/pending}">
-                        🕒 Pending Lessons
-                        <span th:if="${newLessonRequestCount > 0}" class="badge" th:text="${newLessonRequestCount}"></span>
-                    </a>
-                    <a th:href="@{/teacher/students}">
-                        👥 My Students
-                    </a>
-                    <a th:href="@{/teacher/schedule}">
-                        🗓️ Schedule Sessions
-                    </a>
-                    <a th:href="@{/teacher/analytics}">
-                        📈 Analytics
-                    </a>
-                    <a th:href="@{/teacher/content}">
-                        ✏️ Create Content
-                    </a>
-                    <a th:href="@{/teacher/profile}">
-                        👤 Profile Overview
-                    </a>
-                </div>
+        <!-- Main hub -->
+        <div class="role-section" style="background: rgba(12,211,33,0.1); border-left: 4px solid var(--education-green);">
+            <h2>🌟 Your Teaching Hub</h2>
+            <p>One place for all your lessons and professional profile.</p>
 
-                <div class="button-group mt-24">
-                    <a th:href="@{/home}" class="btn btn-secondary">
-                        🏠 Back to Home
-                    </a>
-                    <a th:href="@{/logout}" class="btn btn-accent">
-                        👋 Logout
-                    </a>
-                </div>
+            <!-- Primary navigation -->
+            <div class="nav-links">
+                <a th:href="@{/teacher/lessons}">
+                    📚 All Lessons
+                    <span class="badge" th:if="${lessonCount > 0}" th:text="${lessonCount}">0</span>
+                </a>
+
+                <a th:href="@{/teacher/profile}">
+                    👤 Profile &amp; Specializations
+                </a>
+
+                <a th:href="@{/teacher/content}">
+                    ✏️ Create Content
+                </a>
             </div>
 
-            <div class="mt-24 text-center">
-                <p class="text-muted">
-                    💡 "Teaching is the profession that teaches all other professions." - Unknown
-                </p>
+            <!-- Next Lesson card -->
+            <div class="card mt-16" style="padding: 12px; background: rgba(255,255,255,0.06); border-radius: 12px;">
+                <h3 class="mb-8">⏭️ Next Lesson</h3>
+
+                <div th:if="${nextLesson != null}">
+                    <div><strong th:text="${nextLesson.title}">Lesson Title</strong></div>
+                    <div class="text-muted">
+                        <span th:text="${#temporals.format(nextLesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
+                        • with <span th:text="${nextLesson.student.username}">Student</span>
+                        • <span class="badge" th:text="${nextLesson.status}">STATUS</span>
+                    </div>
+                    <div class="mt-8">
+                        <a th:href="@{/teacher/lessons}" class="btn btn-primary btn-sm">Open Lessons</a>
+                    </div>
+                </div>
+
+                <p th:if="${nextLesson == null}" class="text-muted">No upcoming lessons.</p>
+            </div>
+
+            <!-- Actions -->
+            <div class="button-group mt-24">
+                <a th:href="@{/home}" class="btn btn-secondary">🏠 Back to Home</a>
+                <a th:href="@{/logout}" class="btn btn-accent">👋 Logout</a>
             </div>
         </div>
+
+        <div class="mt-24 text-center">
+            <p class="text-muted">
+                💡 "Teaching is the profession that teaches all other professions." - Unknown
+            </p>
+        </div>
     </div>
+</div>
 </body>
 </html>

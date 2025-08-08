@@ -7,6 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/teacher")
 public class TeacherController {
@@ -23,26 +26,18 @@ public class TeacherController {
     }
 
     @GetMapping("/home")
-    public String teacherHome() {
+    public String teacherHome(Model model) {
+        Long tid = getCurrentTeacherId();
+        model.addAttribute("nextLesson", teacherService.getNextLesson(tid));
+        model.addAttribute("lessonCount", teacherService.getLessonCount(tid));
         return "teacher/home";
     }
 
-    @GetMapping("/courses")
-    public String viewCourses(Model model) {
-        model.addAttribute("courses", teacherService.getTeachableCourses(getCurrentTeacherId()));
-        return "teacher/courses";
-    }
 
     @GetMapping("/students")
     public String viewStudents(Model model) {
         model.addAttribute("students", teacherService.getStudents(getCurrentTeacherId()));
         return "teacher/students";
-    }
-
-    @GetMapping("/schedule")
-    public String viewSchedule(Model model) {
-        model.addAttribute("sessions", teacherService.getUpcomingLessons(getCurrentTeacherId()));
-        return "teacher/schedule";
     }
 
 
@@ -51,16 +46,12 @@ public class TeacherController {
         return "teacher/content";
     }
 
-    @GetMapping("/lessons/active")
-    public String viewActiveLessons(Model model) {
-        model.addAttribute("lessons", teacherService.getAcceptedLessons(getCurrentTeacherId()));
-        return "teacher/lessons_accepted";
-    }
-
-    @GetMapping("/lessons/pending")
-    public String viewPendingLessons(Model model) {
-        model.addAttribute("lessons", teacherService.getPendingLessons(getCurrentTeacherId()));
-        return "teacher/lessons_pending";
+    @GetMapping("/lessons")
+    public String viewAllLessons(Model model) {
+        model.addAttribute("lessons",
+                Optional.ofNullable(teacherService.getAllLessonsOrdered(getCurrentTeacherId()))
+                        .orElse(Collections.emptyList()));
+        return "teacher/lessons";
     }
 
     @ModelAttribute("newLessonRequestCount")
@@ -71,8 +62,31 @@ public class TeacherController {
     @GetMapping("/profile")
     public String viewProfile(Model model) {
         Long teacherId = getCurrentTeacherId();
-        model.addAttribute("teacher", teacherService.getTeacherProfile(teacherId));
-        model.addAttribute("courses", teacherService.getTeachableCourses(teacherId));
+
+        var teacher  = teacherService.getTeacherProfile(teacherId);
+        var current  = teacherService.getTeachableCourses(teacherId);
+        var all      = teacherService.getAvailableCourses();
+
+        var available = all.stream()
+                .filter(c -> current.stream().noneMatch(cc -> cc.getId().equals(c.getId())))
+                .toList();
+
+        model.addAttribute("teacher", teacher);
+        model.addAttribute("courses", current);            // teachable courses
+        model.addAttribute("availableCourses", available); // for the dropdown
         return "teacher/profile";
     }
+
+    @PostMapping("/courses/add")
+    public String addTeachableCourse(@RequestParam Long courseId) {
+        teacherService.addTeachableCourse(getCurrentTeacherId(), courseId);
+        return "redirect:/teacher/profile?updated";
+    }
+
+    @PostMapping("/courses/{courseId}/remove")
+    public String removeTeachableCourse(@PathVariable Long courseId) {
+        teacherService.removeTeachableCourse(getCurrentTeacherId(), courseId);
+        return "redirect:/teacher/profile?updated";
+    }
+
 }

@@ -115,20 +115,21 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public void addTeachableCourse(Long teacherId, Long courseId) {
-        Teacher teacher = (Teacher) userRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
+        if (teacherCourseRepository.existsByTeacherIdAndCourseId(teacherId, courseId)) return;
 
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
-
-        if (teacherCourseRepository.existsByTeacherIdAndCourseId(teacherId, courseId)) {
-            throw new IllegalStateException("Course already added for this teacher");
+        var user = userRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + teacherId));
+        if (!(user instanceof Teacher teacher)) {
+            throw new IllegalArgumentException("User is not a Teacher: " + teacherId);
         }
 
-        TeacherCourse teacherCourse = new TeacherCourse();
-        teacherCourse.setTeacher(teacher);
-        teacherCourse.setCourse(course);
-        teacherCourseRepository.save(teacherCourse);
+        var course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+
+        var tc = new TeacherCourse();
+        tc.setTeacher(teacher);
+        tc.setCourse(course);
+        teacherCourseRepository.save(tc);
     }
 
     @Override
@@ -141,7 +142,7 @@ public class TeacherServiceImpl implements TeacherService {
     public List<Course> getTeachableCourses(Long teacherId) {
         return teacherCourseRepository.findByTeacherId(teacherId).stream()
                 .map(TeacherCourse::getCourse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -162,7 +163,39 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public Teacher getTeacherProfile(Long teacherId) {
-        return (Teacher) userRepository.findById(teacherId).orElse(null);
+        User user = userRepository.findById(teacherId).orElse(null);
+        if (user == null) {
+            logger.error("No user found with ID: {}", teacherId);
+            return null;
+        }
+        if (!(user instanceof Teacher)) {
+            logger.error("User with ID: {} is not a Teacher", teacherId);
+            return null;
+        }
+        return (Teacher) user;
     }
+
+    @Override
+    public List<Lesson> getAllLessonsOrdered(Long teacherId) {
+        return lessonRepository.findAllByTeacherIdOrderByTimestamp(teacherId);
+    }
+
+    @Override
+    public Lesson getNextLesson(Long teacherId) {
+        return lessonRepository.findUpcomingByTeacher(teacherId, LocalDateTime.now())
+                .stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public int getLessonCount(Long teacherId) {
+        return lessonRepository.countByTeacherId(teacherId);
+    }
+
+    @Override
+    public List<Teacher> findTeachersByCourse(Long courseId) {
+        if (courseId == null) throw new IllegalArgumentException("courseId is required");
+        return teacherCourseRepository.findTeachersByCourseId(courseId);
+    }
+
 }
 

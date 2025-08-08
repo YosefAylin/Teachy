@@ -20,5 +20,10 @@ public interface TeacherService {
     List<Lesson> getPendingLessons(Long teacherId);
     int countPendingLessons(Long teacherId);
     Teacher getTeacherProfile(Long teacherId);
+    List<Lesson> getAllLessonsOrdered(Long teacherId);
+    Lesson getNextLesson(Long teacherId);
+    int getLessonCount(Long teacherId);
+    List<Teacher> findTeachersByCourse(Long courseId);
+
 
 }

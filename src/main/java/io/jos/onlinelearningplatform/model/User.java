@@ -31,15 +31,6 @@ public class User {
     private boolean connected = false;
 
 
-
-
-    public User (String username, String email, String passwordHash) {
-        this.username = username;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.connected = false;
-    }
-
     public User(String username, String email, String hash, String role) {
         this.username = username;
         this.email = email;
@@ -47,3 +38,4 @@ public class User {
         this.connected = false;
     }
 }
+

@@ -18,13 +18,14 @@ public class Course {
     private Long id;
 
     @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
     private String subject;
 
     @Column(length = 500)
     private String description;
 
-
-
+    private LocalDateTime createdAt = LocalDateTime.now();
 
 }
-
