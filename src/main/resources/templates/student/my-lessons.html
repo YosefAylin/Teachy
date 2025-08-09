@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <title>My Lessons</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}"/>
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">📚 My Lessons</h1>
+        <p th:if="${param.requested}" class="alert success">Lesson requested. You’ll see it here when the teacher responds.</p>
+
+        <h2 class="mt-8">Upcoming</h2>
+        <ul th:if="${upcoming != null && !#lists.isEmpty(upcoming)}" class="list">
+            <li th:each="l : ${upcoming}" class="list-item">
+                <div>
+                    <strong th:text="${l.course.title}">Course</strong>
+                    <span class="text-muted"> • with </span>
+                    <a th:href="@{|/teachers/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
+                    <div class="text-muted">
+                        <span th:text="${#temporals.format(l.scheduledAt, 'yyyy-MM-dd HH:mm')}">Time</span>
+                        <span class="badge" th:text="${l.status}">PENDING</span>
+                    </div>
+                    <div th:if="${l.note}" class="text-muted">Note: <span th:text="${l.note}">note</span></div>
+                </div>
+            </li>
+        </ul>
+        <p th:if="${upcoming == null || #lists.isEmpty(upcoming)}" class="text-muted">No upcoming lessons yet.</p>
+
+        <h2 class="mt-16">Past</h2>
+        <ul th:if="${past != null && !#lists.isEmpty(past)}" class="list">
+            <li th:each="l : ${past}" class="list-item">
+                <div>
+                    <strong th:text="${l.course.title}">Course</strong>
+                    <span class="text-muted"> • with </span>
+                    <a th:href="@{|/teachers/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
+                    <div class="text-muted">
+                        <span th:text="${#temporals.format(l.scheduledAt, 'yyyy-MM-dd HH:mm')}">Time</span>
+                        <span class="badge" th:text="${l.status}">COMPLETED</span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <p th:if="${past == null || #lists.isEmpty(past)}" class="text-muted">No past lessons yet.</p>
+
+        <div class="button-group mt-24">
+            <a th:href="@{/student/home}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

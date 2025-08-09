@@ -1,5 +1,6 @@
 package io.jos.onlinelearningplatform.controller.teacher;
 
+import io.jos.onlinelearningplatform.repository.LessonRepository;
 import io.jos.onlinelearningplatform.service.TeacherService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,10 +15,12 @@ import java.util.Optional;
 @RequestMapping("/teacher")
 public class TeacherController {
     private final TeacherService teacherService;
+    private final LessonRepository lessonRepository;
 
 
-    public TeacherController(TeacherService teacherService) {
+    public TeacherController(TeacherService teacherService, LessonRepository lessonRepository) {
         this.teacherService = teacherService;
+        this.lessonRepository = lessonRepository;
     }
 
     private Long getCurrentTeacherId() {
@@ -88,5 +91,24 @@ public class TeacherController {
         teacherService.removeTeachableCourse(getCurrentTeacherId(), courseId);
         return "redirect:/teacher/profile?updated";
     }
+
+    @PostMapping("/teacher/lessons/{id}/accept")
+    public String accept(@PathVariable Long id) {
+        io.jos.onlinelearningplatform.model.Lesson l =
+                lessonRepository.findById(id).orElseThrow();
+        l.setStatus("ACCEPTED");
+        lessonRepository.save(l);
+        return "redirect:/teacher/home?accepted";
+    }
+
+    @PostMapping("/teacher/lessons/{id}/reject")
+    public String reject(@PathVariable Long id) {
+        io.jos.onlinelearningplatform.model.Lesson l =
+                lessonRepository.findById(id).orElseThrow();
+        l.setStatus("REJECTED");
+        lessonRepository.save(l);
+        return "redirect:/teacher/home?rejected";
+    }
+
 
 }

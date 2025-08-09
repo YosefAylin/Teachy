@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/home", "/register").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/student/**").hasRole("STUDENT")
+                        .requestMatchers("/teachers/**").authenticated()  // public read-only teacher pages
                         .requestMatchers("/teacher/**").hasRole("TEACHER")
                         .anyRequest().authenticated()
                 )
@@ -72,4 +73,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }

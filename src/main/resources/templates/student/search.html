@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Find Teachers by Course</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}"/>
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">🔎 Find Teachers by Course</h1>
+
+        <form th:action="@{/student/search}" method="get" class="form-inline mb-16">
+            <label for="courseId"><strong>Course</strong></label>
+            <select id="courseId" name="courseId" required>
+                <option value="" th:unless="${selectedCourseId != null}" selected disabled>Select a course…</option>
+                <option th:each="c : ${courses}"
+                        th:value="${c.id}"
+                        th:selected="${selectedCourseId} == ${c.id}"
+                        th:text="${c.title}">
+                    Course
+                </option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        </form>
+
+        <div th:if="${selectedCourseId != null}">
+            <h2 class="mb-8">Results</h2>
+            <ul th:if="${teachers != null and !#lists.isEmpty(teachers)}" class="list">
+                <li th:each="t : ${teachers}" class="list-item">
+                    <div>
+                        <strong th:text="${t.username}">Teacher</strong>
+                        <span class="text-muted" th:if="${t.email}"> • <span th:text="${t.email}">email</span></span>
+                    </div>
+                    <div class="mt-4">
+                        <a th:href="@{/student/teacher/{id}(id=${t.id})}" class="btn btn-secondary btn-xs">View Profile</a>
+                        <!-- If you already have a request-lesson flow, link it: -->
+                        <a th:href="@{|/student/lessons/request?teacherId=${t.id}&courseId=${selectedCourseId}|}" class="btn btn-primary btn-xs">Request Lesson</a>
+                    </div>
+                </li>
+            </ul>
+            <p th:if="${teachers == null or #lists.isEmpty(teachers)}" class="text-muted">
+                No teachers found for this course.
+            </p>
+        </div>
+
+        <div class="button-group mt-24">
+            <a th:href="@{/student/home}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

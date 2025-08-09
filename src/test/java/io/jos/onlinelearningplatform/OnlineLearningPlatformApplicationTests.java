@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-@SpringBootTest
+@SpringBootTest(properties = "app.seed-admin.enabled=false")
 class OnlineLearningPlatformApplicationTests {
 
     // This test will simply check if the application context loads successfully

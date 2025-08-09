@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Request a Lesson</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+  <div class="form-container">
+    <h1 class="form-title">📝 Request a Lesson</h1>
+
+    <div th:if="${teacher != null}">
+      <p>Teacher: <a th:href="@{|/teachers/${teacher.id}|}" th:text="${teacher.username}">Teacher</a></p>
+    </div>
+
+      <form th:action="@{/student/lessons/request}" method="post" class="mt-12">
+          <input th:if="${_csrf != null}" sec:csrfInput />
+
+          <input type="hidden" name="teacherId" th:value="${teacher.id}"/>
+
+          <label for="courseId"><strong>Course</strong></label>
+          <select id="courseId" name="courseId" required>
+              <option value="" th:unless="${selectedCourseId != null}" selected disabled>Select a course…</option>
+              <option th:each="c : ${teacherCourses}"
+                      th:value="${c.id}"
+                      th:selected="${selectedCourseId != null and selectedCourseId == c.id}"
+                      th:text="${c.title}">
+                  Course
+              </option>
+          </select>
+
+          <label for="date" class="mt-12"><strong>Date</strong></label>
+          <input id="date" name="date" type="date" required/>
+
+          <button type="submit" class="btn btn-primary mt-12">Request</button>
+      </form>
+  </div>
+</div>
+</body>
+</html>

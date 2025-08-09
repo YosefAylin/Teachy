@@ -1,61 +1,88 @@
+// src/main/java/io/jos/onlinelearningplatform/service/impl/LessonServiceImpl.java
 package io.jos.onlinelearningplatform.service.impl;
 
-import io.jos.onlinelearningplatform.model.Student;
-import io.jos.onlinelearningplatform.model.Teacher;
+import io.jos.onlinelearningplatform.model.*;
+import io.jos.onlinelearningplatform.repository.CourseRepository;
 import io.jos.onlinelearningplatform.repository.LessonRepository;
+import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.LessonService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class LessonServiceImpl implements LessonService {
-    private static final Logger logger = LoggerFactory.getLogger(LessonServiceImpl.class);
-    private final LessonRepository lessonRepository;
 
-    public LessonServiceImpl(LessonRepository lessonRepository) {
-        this.lessonRepository = lessonRepository;
-    }
-    
-    @Override
-    public void createLesson(Student student, Teacher teacher, String lessonTitle, String lessonContent) {
-        logger.info("Creating lesson '{}' by teacher {} for student {}",
-            lessonTitle, teacher.getUsername(), student.getUsername());
-        // ... existing lesson creation logic ...
-        logger.debug("Lesson content length: {} characters", lessonContent.length());
-    }
+    private final LessonRepository lessonRepo;
+    private final UserRepository userRepo;
+    private final CourseRepository courseRepo;
 
+    public LessonServiceImpl(LessonRepository lessonRepo, UserRepository userRepo, CourseRepository courseRepo) {
+        this.lessonRepo = lessonRepo;
+        this.userRepo = userRepo;
+        this.courseRepo = courseRepo;
+    }
     @Override
-    public void removeLesson(Long lessonId) {
-        logger.info("Removing lesson with ID: {}", lessonId);
-        // ... existing removal logic ...
-        if (lessonRepository.existsById(lessonId)) {
-            lessonRepository.deleteById(lessonId);
-            logger.debug("Lesson with ID {} successfully removed", lessonId);
-        } else {
-            logger.warn("Attempted to remove non-existent lesson with ID: {}", lessonId);
+    @Transactional
+    public void requestLesson(Long studentId, Long teacherId, Long courseId,
+                                java.time.LocalDateTime when, String noteUnused) {
+        io.jos.onlinelearningplatform.model.Student student =
+                (io.jos.onlinelearningplatform.model.Student) userRepo.findById(studentId)
+                        .orElseThrow(() -> new IllegalArgumentException("Student not found: " + studentId));
+
+        io.jos.onlinelearningplatform.model.Teacher teacher =
+                (io.jos.onlinelearningplatform.model.Teacher) userRepo.findById(teacherId)
+                        .orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + teacherId));
+
+        io.jos.onlinelearningplatform.model.Course course =
+                courseRepo.findById(courseId)
+                        .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+
+        if (when == null || when.toLocalDate().isBefore(java.time.LocalDate.now())) {
+            throw new IllegalArgumentException("Scheduled date must be today or in the future.");
         }
 
+        Lesson l = new Lesson();
+        l.setStudent(student);
+        l.setTeacher(teacher);
+        l.setCourse(course);
+        l.setDate(when.toLocalDate());
+        l.setStatus("PENDING");
+        lessonRepo.save(l);
     }
 
     @Override
-    public void updateLesson(Long lessonId, String newTitle, String newContent) {
-        logger.info("Updating lesson with ID: {}", lessonId);
-        // ... existing update logic ...
-        if (lessonRepository.existsById(lessonId)) {
-            // Assuming a method to find and update the lesson exists
-
-            logger.debug("Lesson with ID {} successfully updated to title '{}'", lessonId, newTitle);
-        } else {
-            logger.warn("Attempted to update non-existent lesson with ID: {}", lessonId);
-        }
-
+    public java.util.List<Lesson> getUpcomingForStudent(Long studentId) {
+        java.util.List<String> statuses = java.util.Arrays.asList("PENDING", "ACCEPTED");
+        java.time.LocalDate today = java.time.LocalDate.now();
+        return lessonRepo.findByStudent_IdAndStatusInAndDateGreaterThanEqualOrderByDateAsc(
+                studentId, statuses, today
+        );
     }
-
 
     @Override
-    public void viewLessonDetails(Long lessonId) {
-        logger.info("Viewing details for lesson with ID: {}", lessonId);
-        // ... existing view logic ...
+    public java.util.List<Lesson> getPastForStudent(Long studentId) {
+        java.time.LocalDate today = java.time.LocalDate.now();
+
+        // accepted lessons that already happened
+        java.util.List<String> acceptedOnly = java.util.Collections.singletonList("ACCEPTED");
+        java.util.List<Lesson> acceptedPast =
+                lessonRepo.findByStudent_IdAndStatusInAndDateLessThanOrderByDateDesc(
+                        studentId, acceptedOnly, today
+                );
+
+        // any rejected lesson (any date)
+        java.util.List<Lesson> rejectedAnyDate =
+                lessonRepo.findByStudent_IdAndStatusOrderByDateDesc(studentId, "REJECTED");
+
+        java.util.ArrayList<Lesson> out = new java.util.ArrayList<>(acceptedPast);
+        out.addAll(rejectedAnyDate);
+        out.sort(java.util.Comparator.comparing(Lesson::getDate).reversed());
+        return out;
     }
+
 }
+

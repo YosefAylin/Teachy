@@ -43,8 +43,5 @@ public class AdminInitializer implements ApplicationRunner {
             log.info("⚠️ Bootstrap: ADMIN user '{}' already exists, skipping creation", adminUsername);
         }
 
-//        userService.register("alice", "alice@foo.com", "alicePass", "STUDENT");
-//        userService.register("bob",   "bob@foo.com",   "bobPass",   "TEACHER");
-//        userService.register("carol", "carol@foo.com", "carolPass", "ADMIN");
     }
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Teacher Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" th:href="@{/css/modern-style.css}"/>
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+  <div class="form-container">
+    <h1 class="form-title">👩‍🏫 Teacher Profile</h1>
+
+    <div th:if="${teacher != null}">
+      <p><strong>Name:</strong> <span th:text="${teacher.username}">Name</span></p>
+      <p th:if="${teacher.email}"><strong>Email:</strong> <span th:text="${teacher.email}">Email</span></p>
+
+      <h2 class="mt-16">Teaches</h2>
+      <ul th:if="${courses != null and !#lists.isEmpty(courses)}">
+        <li th:each="c : ${courses}">
+          <strong th:text="${c.title}">Course</strong>
+          <span class="text-muted" th:if="${c.subject}"> • <span th:text="${c.subject}">Subject</span></span>
+        </li>
+      </ul>
+      <p th:if="${courses == null or #lists.isEmpty(courses)}" class="text-muted">No courses listed yet.</p>
+
+      <div class="button-group mt-24">
+        <a th:href="@{|/student/lessons/request?teacherId=${teacher.id}|}" class="btn btn-primary">Request a Lesson</a>
+        <a th:href="@{/student/search}" class="btn btn-secondary">Back to Search</a>
+      </div>
+    </div>
+
+    <p th:if="${teacher == null}" class="alert">Teacher not found.</p>
+  </div>
+</div>
+</body>
+</html>

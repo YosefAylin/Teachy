@@ -34,5 +34,6 @@ public class Lesson {
     private LocalDate date;
     private LocalDateTime timestamp = LocalDateTime.now();
     private String status; // e.g., "PENDING", "REJECTED", "ACCEPTED"
+
 }
 
