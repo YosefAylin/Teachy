@@ -92,22 +92,19 @@ public class TeacherController {
         return "redirect:/teacher/profile?updated";
     }
 
-    @PostMapping("/teacher/lessons/{id}/accept")
+    @PostMapping("/lessons/{id}/accept")
     public String accept(@PathVariable Long id) {
-        io.jos.onlinelearningplatform.model.Lesson l =
-                lessonRepository.findById(id).orElseThrow();
-        l.setStatus("ACCEPTED");
-        lessonRepository.save(l);
-        return "redirect:/teacher/home?accepted";
+        teacherService.acceptLesson(id);
+        return "redirect:/home?accepted";
     }
 
-    @PostMapping("/teacher/lessons/{id}/reject")
+    @PostMapping("/lessons/{id}/reject")
     public String reject(@PathVariable Long id) {
         io.jos.onlinelearningplatform.model.Lesson l =
                 lessonRepository.findById(id).orElseThrow();
         l.setStatus("REJECTED");
         lessonRepository.save(l);
-        return "redirect:/teacher/home?rejected";
+        return "redirect:/home?rejected";
     }
 
 

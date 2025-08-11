@@ -17,13 +17,13 @@
       <p th:if="${teacher.email}"><strong>Email:</strong> <span th:text="${teacher.email}">Email</span></p>
 
       <h2 class="mt-16">Teaches</h2>
-      <ul th:if="${courses != null and !#lists.isEmpty(courses)}">
-        <li th:each="c : ${courses}">
+      <ul th:if="${teacherCourses != null and !#lists.isEmpty(teacherCourses)}">
+        <li th:each="c : ${teacherCourses}">
           <strong th:text="${c.title}">Course</strong>
           <span class="text-muted" th:if="${c.subject}"> • <span th:text="${c.subject}">Subject</span></span>
         </li>
       </ul>
-      <p th:if="${courses == null or #lists.isEmpty(courses)}" class="text-muted">No courses listed yet.</p>
+      <p th:if="${teacherCourses == null or #lists.isEmpty(teacherCourses)}" class="text-muted">No courses listed yet.</p>
 
       <div class="button-group mt-24">
         <a th:href="@{|/student/lessons/request?teacherId=${teacher.id}|}" class="btn btn-primary">Request a Lesson</a>

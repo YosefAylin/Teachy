@@ -20,12 +20,11 @@
                 <div>
                     <strong th:text="${l.course.title}">Course</strong>
                     <span class="text-muted"> • with </span>
-                    <a th:href="@{|/teachers/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
+                    <a th:href="@{|/teacher/profile/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
                     <div class="text-muted">
-                        <span th:text="${#temporals.format(l.scheduledAt, 'yyyy-MM-dd HH:mm')}">Time</span>
+                        <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
                         <span class="badge" th:text="${l.status}">PENDING</span>
                     </div>
-                    <div th:if="${l.note}" class="text-muted">Note: <span th:text="${l.note}">note</span></div>
                 </div>
             </li>
         </ul>
@@ -37,9 +36,9 @@
                 <div>
                     <strong th:text="${l.course.title}">Course</strong>
                     <span class="text-muted"> • with </span>
-                    <a th:href="@{|/teachers/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
+                    <a th:href="@{|/teacher/profile/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
                     <div class="text-muted">
-                        <span th:text="${#temporals.format(l.scheduledAt, 'yyyy-MM-dd HH:mm')}">Time</span>
+                        <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
                         <span class="badge" th:text="${l.status}">COMPLETED</span>
                     </div>
                 </div>

@@ -17,26 +17,29 @@
       <p>Teacher: <a th:href="@{|/teachers/${teacher.id}|}" th:text="${teacher.username}">Teacher</a></p>
     </div>
 
-      <form th:action="@{/student/lessons/request}" method="post" class="mt-12">
-          <input th:if="${_csrf != null}" sec:csrfInput />
+      <form th:action="@{/student/lessons/request}" method="post">
+          <input type="hidden" name="teacherId" th:value="${teacher.id}" />
+          <input type="hidden" name="courseId" th:value="${selectedCourseId}" />
 
-          <input type="hidden" name="teacherId" th:value="${teacher.id}"/>
-
-          <label for="courseId"><strong>Course</strong></label>
-          <select id="courseId" name="courseId" required>
-              <option value="" th:unless="${selectedCourseId != null}" selected disabled>Select a course…</option>
-              <option th:each="c : ${teacherCourses}"
-                      th:value="${c.id}"
-                      th:selected="${selectedCourseId != null and selectedCourseId == c.id}"
-                      th:text="${c.title}">
-                  Course
-              </option>
+          <label for="month">Month:</label>
+          <select id="month" name="month">
+              <option th:each="m : ${#numbers.sequence(1, 12)}"
+                      th:value="${m}" th:text="${#temporals.format(#temporals.create(2025, m, 1), 'MMMM')}"></option>
           </select>
 
-          <label for="date" class="mt-12"><strong>Date</strong></label>
-          <input id="date" name="date" type="date" required/>
+          <label for="day">Day:</label>
+          <select id="day" name="day">
+              <option th:each="d : ${#numbers.sequence(1, 31)}"
+                      th:value="${d}" th:text="${d}"></option>
+          </select>
 
-          <button type="submit" class="btn btn-primary mt-12">Request</button>
+          <label for="hour">Hour:</label>
+          <select id="hour" name="hour">
+              <option th:each="h : ${#numbers.sequence(0, 23)}"
+                      th:value="${h}" th:text="${h}"></option>
+          </select>
+
+          <button type="submit">Request Lesson</button>
       </form>
   </div>
 </div>

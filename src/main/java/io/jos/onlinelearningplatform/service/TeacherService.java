@@ -24,6 +24,7 @@ public interface TeacherService {
     Lesson getNextLesson(Long teacherId);
     int getLessonCount(Long teacherId);
     List<Teacher> findTeachersByCourse(Long courseId);
+    void acceptLesson(Long lessonId);
 
 
 

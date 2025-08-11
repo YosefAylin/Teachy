@@ -8,13 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface LessonService {
-//    void createLesson(Student s, Teacher t, String lessonTitle, String lessonContent);
-//    void removeLesson(Long lessonId);
-//    void updateLesson(Long lessonId, String newTitle, String newContent);
-//    void viewLessonDetails(Long lessonId);
-//    List<Lesson> getAllForStudent(Long studentId);
+    Lesson requestLesson(Long studentId, Long teacherId, Long courseId, LocalDateTime timestamp);
     List<Lesson> getUpcomingForStudent(Long studentId);
     List<Lesson> getPastForStudent(Long studentId);
-
-    void requestLesson(Long currentStudentId, Long teacherId, Long courseId, LocalDateTime scheduledAt, String note);
 }

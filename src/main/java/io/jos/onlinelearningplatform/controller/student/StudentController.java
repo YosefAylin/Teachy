@@ -1,20 +1,19 @@
 // src/main/java/io/jos/onlinelearningplatform/controller/student/StudentController.java
 package io.jos.onlinelearningplatform.controller.student;
 
-import io.jos.onlinelearningplatform.model.Student;
-import io.jos.onlinelearningplatform.model.User;
+import io.jos.onlinelearningplatform.model.*;
 import io.jos.onlinelearningplatform.repository.CourseRepository;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.LessonService;
 import io.jos.onlinelearningplatform.service.StudentService;
 import io.jos.onlinelearningplatform.service.TeacherService;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/student")
@@ -39,8 +38,8 @@ public class StudentController {
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam(required = false) Long courseId, org.springframework.ui.Model model) {
-        java.util.List<io.jos.onlinelearningplatform.model.Course> courses = courseRepository.findAll();
+    public String search(@RequestParam(required=false) Long courseId , Model model) {
+        List<Course> courses = courseRepository.findAll();
         model.addAttribute("courses", courses);
         model.addAttribute("selectedCourseId", courseId);
 
@@ -53,12 +52,10 @@ public class StudentController {
     }
 
     @GetMapping("/lessons")
-    public String myLessons(org.springframework.ui.Model model) {
+    public String myLessons(Model model) {
         Long studentId = getCurrentStudentId();
-        java.util.List<io.jos.onlinelearningplatform.model.Lesson> upcoming =
-                lessonService.getUpcomingForStudent(studentId);
-        java.util.List<io.jos.onlinelearningplatform.model.Lesson> past =
-                lessonService.getPastForStudent(studentId);
+        List<Lesson> upcoming = lessonService.getUpcomingForStudent(studentId);
+        List<Lesson> past = lessonService.getPastForStudent(studentId);
         model.addAttribute("upcoming", upcoming);
         model.addAttribute("past", past);
         return "student/my-lessons";
@@ -66,7 +63,7 @@ public class StudentController {
 
 
 
-    @GetMapping("/teacher/{id}")
+    @GetMapping("/teacher/profile/{id}")
     public String viewTeacher(@PathVariable Long id, org.springframework.ui.Model model) {
         io.jos.onlinelearningplatform.model.Teacher teacher = teacherService.getTeacherProfile(id);
         model.addAttribute("teacher", teacher);
@@ -77,12 +74,9 @@ public class StudentController {
     }
 
     @GetMapping("/lessons/request")
-    public String requestLessonForm(@RequestParam Long teacherId,
-                                    @RequestParam(required=false) Long courseId,
-                                    org.springframework.ui.Model model) {
-        io.jos.onlinelearningplatform.model.Teacher teacher = teacherService.getTeacherProfile(teacherId);
-        java.util.List<io.jos.onlinelearningplatform.model.Course> teacherCourses =
-                teacherService.getTeachableCourses(teacherId);
+    public String requestLessonForm(@RequestParam Long teacherId,@RequestParam Long courseId, Model model) {
+        Teacher teacher = teacherService.getTeacherProfile(teacherId);
+        List<Course> teacherCourses = teacherService.getTeachableCourses(teacherId);
         model.addAttribute("teacher", teacher);
         model.addAttribute("teacherCourses", teacherCourses);
         model.addAttribute("selectedCourseId", courseId);
@@ -90,23 +84,13 @@ public class StudentController {
     }
 
     @PostMapping("/lessons/request")
-    public String submitLessonRequest(@RequestParam Long teacherId,
-                                      @RequestParam Long courseId,
-                                      @RequestParam("scheduledAt")
-                                      @org.springframework.format.annotation.DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-                                      java.time.LocalDateTime scheduledAt,
-                                      @RequestParam(required = false) String note,
-                                      org.springframework.web.servlet.mvc.support.RedirectAttributes ra) {
+    public String submitLessonRequest(@RequestParam Long teacherId, @RequestParam Long courseId,
+                                      @RequestParam int month, @RequestParam int day, @RequestParam int hour) {
+
+        LocalDateTime date = LocalDateTime.of(2025, month, day, hour, 0);
         Long studentId = getCurrentStudentId();
-        try {
-            lessonService.requestLesson(studentId, teacherId, courseId, scheduledAt, note);
-            ra.addFlashAttribute("toast", "Lesson request sent.");
-            return "redirect:/student/lessons";
-        } catch (IllegalArgumentException | IllegalStateException ex) {
-            ra.addFlashAttribute("error", ex.getMessage());
-            return "redirect:/student/lessons/request?teacherId=" + teacherId +
-                    (courseId != null ? "&courseId=" + courseId : "");
-        }
+        lessonService.requestLesson(studentId, teacherId, courseId, date);
+        return "redirect:/student/lessons?requested=1";
     }
 
 
@@ -125,4 +109,6 @@ public class StudentController {
 
         return user.getId(); // id is on User base class
     }
+
+
 }

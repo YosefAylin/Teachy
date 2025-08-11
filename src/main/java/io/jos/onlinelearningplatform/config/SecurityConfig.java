@@ -6,6 +6,7 @@ import io.jos.onlinelearningplatform.model.Teacher;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -58,8 +59,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/home", "/register").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/student/**").hasRole("STUDENT")
-                        .requestMatchers("/teachers/**").authenticated()  // public read-only teacher pages
-                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+                        .requestMatchers("/teacher/profile/**").permitAll()
+                        .requestMatchers("/teacher/**").hasRole("TEACHER") // Allow teachers to access their endpoints
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

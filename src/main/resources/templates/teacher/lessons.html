@@ -14,11 +14,14 @@
         <div th:if="${lessons != null and !#lists.isEmpty(lessons)}">
             <ul>
                 <li th:each="lesson : ${lessons}">
-                    <strong th:text="${lesson.title}">Lesson</strong>
+                    <strong th:text="${lesson.description}">Lesson</strong>
                     • <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
                     • <span th:text="${lesson.student.username}">Student</span>
                     • <span class="badge"
                             th:text="${lesson.status}">STATUS</span>
+                    <form th:action="@{/teacher/lessons/{id}/accept(id=${lesson.id})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-success" th:disabled="${lesson.status == 'ACCEPTED'}">Accept</button>
+                    </form>
                 </li>
             </ul>
         </div>

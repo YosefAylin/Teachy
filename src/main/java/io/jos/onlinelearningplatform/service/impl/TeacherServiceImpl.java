@@ -197,5 +197,13 @@ public class TeacherServiceImpl implements TeacherService {
         return teacherCourseRepository.findTeachersByCourseId(courseId);
     }
 
+    @Override
+    public void acceptLesson(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found: " + lessonId));
+        lesson.setStatus("ACCEPTED");
+        lessonRepository.save(lesson);
+    }
+
 }
 

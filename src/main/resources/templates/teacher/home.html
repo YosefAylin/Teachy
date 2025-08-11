@@ -44,7 +44,7 @@
                 <h3 class="mb-8">⏭️ Next Lesson</h3>
 
                 <div th:if="${nextLesson != null}">
-                    <div><strong th:text="${nextLesson.title}">Lesson Title</strong></div>
+                    <div><strong th:text="${nextLesson.description}">Lesson Title</strong></div>
                     <div class="text-muted">
                         <span th:text="${#temporals.format(nextLesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
                         • with <span th:text="${nextLesson.student.username}">Student</span>

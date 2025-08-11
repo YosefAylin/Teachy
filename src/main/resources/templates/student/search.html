@@ -35,7 +35,7 @@
                         <span class="text-muted" th:if="${t.email}"> • <span th:text="${t.email}">email</span></span>
                     </div>
                     <div class="mt-4">
-                        <a th:href="@{/student/teacher/{id}(id=${t.id})}" class="btn btn-secondary btn-xs">View Profile</a>
+                        <a th:href="@{/teacher/profile/{id}(id=${t.id})}" class="btn btn-secondary btn-xs">View Profile</a>
                         <!-- If you already have a request-lesson flow, link it: -->
                         <a th:href="@{|/student/lessons/request?teacherId=${t.id}&courseId=${selectedCourseId}|}" class="btn btn-primary btn-xs">Request Lesson</a>
                     </div>

@@ -10,6 +10,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -27,21 +29,17 @@ public class LessonServiceImpl implements LessonService {
     }
     @Override
     @Transactional
-    public void requestLesson(Long studentId, Long teacherId, Long courseId,
-                                java.time.LocalDateTime when, String noteUnused) {
-        io.jos.onlinelearningplatform.model.Student student =
-                (io.jos.onlinelearningplatform.model.Student) userRepo.findById(studentId)
-                        .orElseThrow(() -> new IllegalArgumentException("Student not found: " + studentId));
+    public Lesson requestLesson(Long studentId, Long teacherId, Long courseId, LocalDateTime timestamp) {
+        Student student = (Student) userRepo.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found: " + studentId));
 
-        io.jos.onlinelearningplatform.model.Teacher teacher =
-                (io.jos.onlinelearningplatform.model.Teacher) userRepo.findById(teacherId)
-                        .orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + teacherId));
+        Teacher teacher = (Teacher) userRepo.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher not found: " + teacherId));
 
-        io.jos.onlinelearningplatform.model.Course course =
-                courseRepo.findById(courseId)
-                        .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
 
-        if (when == null || when.toLocalDate().isBefore(java.time.LocalDate.now())) {
+        if (timestamp == null || timestamp.toLocalDate ().isBefore(java.time.LocalDate.now())) {
             throw new IllegalArgumentException("Scheduled date must be today or in the future.");
         }
 
@@ -49,40 +47,40 @@ public class LessonServiceImpl implements LessonService {
         l.setStudent(student);
         l.setTeacher(teacher);
         l.setCourse(course);
-        l.setDate(when.toLocalDate());
+        l.setTimestamp(timestamp);
         l.setStatus("PENDING");
-        lessonRepo.save(l);
+        return lessonRepo.save(l);
     }
 
     @Override
     public java.util.List<Lesson> getUpcomingForStudent(Long studentId) {
         java.util.List<String> statuses = java.util.Arrays.asList("PENDING", "ACCEPTED");
-        java.time.LocalDate today = java.time.LocalDate.now();
-        return lessonRepo.findByStudent_IdAndStatusInAndDateGreaterThanEqualOrderByDateAsc(
-                studentId, statuses, today
-        );
+        java.time.LocalDateTime today = java.time.LocalDate.now().atStartOfDay();
+        return lessonRepo.findByStudent_IdAndStatusInAndTimestampGreaterThanEqualOrderByTimestampAsc(studentId, statuses, today);
     }
 
     @Override
     public java.util.List<Lesson> getPastForStudent(Long studentId) {
-        java.time.LocalDate today = java.time.LocalDate.now();
+        LocalDateTime today = java.time.LocalDate.now().atStartOfDay();
 
         // accepted lessons that already happened
         java.util.List<String> acceptedOnly = java.util.Collections.singletonList("ACCEPTED");
         java.util.List<Lesson> acceptedPast =
-                lessonRepo.findByStudent_IdAndStatusInAndDateLessThanOrderByDateDesc(
+                lessonRepo.findByStudent_IdAndStatusInAndTimestampLessThanOrderByTimestampDesc(
                         studentId, acceptedOnly, today
                 );
 
         // any rejected lesson (any date)
-        java.util.List<Lesson> rejectedAnyDate =
-                lessonRepo.findByStudent_IdAndStatusOrderByDateDesc(studentId, "REJECTED");
+        List<Lesson> rejectedAnyTimestamp =
+                lessonRepo.findByStudent_IdAndStatusOrderByTimestampDesc(studentId, "REJECTED");
 
-        java.util.ArrayList<Lesson> out = new java.util.ArrayList<>(acceptedPast);
-        out.addAll(rejectedAnyDate);
-        out.sort(java.util.Comparator.comparing(Lesson::getDate).reversed());
+        List<Lesson> out = new ArrayList<>(acceptedPast);
+        out.addAll(rejectedAnyTimestamp);
+        out.sort(Comparator.comparing(Lesson::getTimestamp).reversed());
         return out;
     }
+
+
 
 }
 
