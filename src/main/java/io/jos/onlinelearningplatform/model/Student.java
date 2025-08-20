@@ -12,8 +12,6 @@ public class Student extends User {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
     private List<Lesson> attendedLessons = new ArrayList<>();
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<Payment> payments = new ArrayList<>();
 
 
     public Student(String username, String email, String hash) {

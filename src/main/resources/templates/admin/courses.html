@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Manage Courses - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">📚 Course Management</h1>
+
+        <!-- Create New Course -->
+        <div class="card mb-24">
+            <h3 class="mb-16">➕ Add New Course</h3>
+            <form th:action="@{/admin/courses}" th:object="${newCourse}" method="post">
+                <div class="form-group">
+                    <label for="name">Course Name</label>
+                    <input type="text" id="name" th:field="*{title}" required class="form-control"
+                           placeholder="e.g., Advanced Mathematics" />
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" th:field="*{description}" class="form-control" rows="3"
+                              placeholder="Course description..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-success">Create Course</button>
+            </form>
+        </div>
+
+        <!-- Existing Courses -->
+        <div class="card">
+            <h3 class="mb-16">📋 Existing Courses</h3>
+
+            <div th:if="${#lists.isEmpty(courses)}" class="text-muted">
+                No courses created yet.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(courses)}">
+                <table style="width: 100%; border-collapse: collapse; color: white;">
+                    <thead>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                        <th style="padding: 12px; text-align: left;">Course Name</th>
+                        <th style="padding: 12px; text-align: left;">Description</th>
+                        <th style="padding: 12px; text-align: left;">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="course : ${courses}" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 12px;" th:text="${course.title}">Course Name</td>
+                        <td style="padding: 12px;" th:text="${course.description}">Description</td>
+                        <td style="padding: 12px;">
+                            <form th:action="@{/admin/courses/{id}/delete(id=${course.id})}" method="post"
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Are you sure you want to delete this course?');">
+                                <button type="submit" class="btn btn-accent btn-sm">🗑️ Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="button-group mt-24">
+            <a th:href="@{/admin/home}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

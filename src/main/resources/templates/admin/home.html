@@ -7,57 +7,107 @@
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
 </head>
 <body>
-    <div class="education-bg"></div>
-    <div class="container">
-        <div class="form-container">
-            <div class="education-icon icon-admin">⚡</div>
-            <h1 class="form-title">Admin Control Center</h1>
-            <p class="text-center text-muted mb-24">
-                Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Administrator</span>!
-                Manage the entire Teachy platform ecosystem.
-            </p>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <div class="education-icon icon-admin">⚡</div>
+        <h1 class="form-title">Admin Control Center</h1>
 
-            <div class="role-section" style="background: rgba(144, 19, 254, 0.1); border-left: 4px solid var(--education-purple);">
-                <h2>🔧 Platform Management</h2>
-                <p>Oversee users, monitor system health, manage content, and ensure the best learning experience for everyone.</p>
+        <p class="text-center text-muted mb-24">
+            Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Admin</span>!
+            Manage the entire Teachy platform from here.
+        </p>
 
-                <div class="nav-links">
-                    <a th:href="@{/admin/users}">
-                        👥 Manage Users
-                    </a>
-                    <a th:href="@{/admin/courses}">
-                        📚 Course Management
-                    </a>
-                    <a th:href="@{/admin/analytics}">
-                        📊 Platform Analytics
-                    </a>
-                    <a th:href="@{/admin/reports}">
-                        📋 System Reports
-                    </a>
-                    <a th:href="@{/admin/settings}">
-                        ⚙️ Platform Settings
-                    </a>
-                    <a th:href="@{/admin/support}">
-                        🎧 User Support
-                    </a>
+        <!-- Platform Overview Section -->
+        <div class="role-section" style="background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--education-purple);">
+            <h2>📊 Platform Overview</h2>
+            <p>Monitor system health and user activity across the platform.</p>
+
+            <!-- Statistics Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 16px 0;">
+                <div class="card" style="padding: 16px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; text-align: center;">
+                    <h3 style="color: #10b981; margin-bottom: 8px;">👨‍🎓 Students</h3>
+                    <div style="font-size: 24px; font-weight: bold; color: white;" th:text="${totalStudents ?: 0}">0</div>
                 </div>
 
-                <div class="button-group mt-24">
-                    <a th:href="@{/home}" class="btn btn-secondary">
-                        🏠 Back to Home
-                    </a>
-                    <a th:href="@{/logout}" class="btn btn-accent">
-                        👋 Logout
-                    </a>
+                <div class="card" style="padding: 16px; background: rgba(245, 158, 11, 0.1); border-radius: 8px; text-align: center;">
+                    <h3 style="color: #f59e0b; margin-bottom: 8px;">👩‍🏫 Teachers</h3>
+                    <div style="font-size: 24px; font-weight: bold; color: white;" th:text="${totalTeachers ?: 0}">0</div>
+                </div>
+
+                <div class="card" style="padding: 16px; background: rgba(99, 102, 241, 0.1); border-radius: 8px; text-align: center;">
+                    <h3 style="color: #6366f1; margin-bottom: 8px;">📚 Courses</h3>
+                    <div style="font-size: 24px; font-weight: bold; color: white;" th:text="${totalCourses ?: 0}">0</div>
+                </div>
+
+                <div class="card" style="padding: 16px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; text-align: center;">
+                    <h3 style="color: #ef4444; margin-bottom: 8px;">🎯 Lessons</h3>
+                    <div style="font-size: 24px; font-weight: bold; color: white;" th:text="${totalLessons ?: 0}">0</div>
                 </div>
             </div>
 
-            <div class="mt-24 text-center">
-                <p class="text-muted">
-                    🚀 "The best leaders are those who empower others to lead." - Admin Wisdom
+            <!-- Recent Activity Section -->
+            <div class="card mt-16" style="padding: 16px; background: rgba(255,255,255,0.06); border-radius: 12px;">
+                <h3 class="mb-8">📈 Recent Activity</h3>
+
+                <div th:if="${recentLessons != null and !#lists.isEmpty(recentLessons)}">
+                    <div style="max-height: 200px; overflow-y: auto;">
+                        <div th:each="lesson : ${recentLessons}" style="padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong th:text="${lesson.description}">Lesson</strong>
+                                <span style="color: #9ca3af; font-size: 12px; margin-left: 8px;"
+                                      th:text="'by ' + ${lesson.teacher.username} + ' with ' + ${lesson.student.username}">Teacher with Student</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="badge" th:text="${lesson.status}" th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}">STATUS</span>
+                                <span style="color: #9ca3af; font-size: 12px;" th:text="${#temporals.format(lesson.timestamp, 'MM-dd HH:mm')}">Time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <p th:if="${recentLessons == null or #lists.isEmpty(recentLessons)}" class="text-muted">
+                    No recent lesson activity.
                 </p>
             </div>
+
+            <!-- Quick Actions -->
+            <div class="nav-links mt-16">
+                <a th:href="@{/admin/users}">👥 Manage Users</a>
+                <a th:href="@{/admin/courses}">📚 Manage Courses</a>
+                <a th:href="@{/admin/lessons}">🎯 View All Lessons</a>
+                <a th:href="@{/admin/reports}">📊 System Reports</a>
+            </div>
+
+            <!-- System Health Status -->
+            <div class="card mt-16" style="padding: 12px; background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981;">
+                <h3 class="mb-8">🔧 System Status</h3>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <div style="color: #10b981;">
+                        <span style="font-weight: bold;">✅ Database:</span> Online
+                    </div>
+                    <div style="color: #10b981;">
+                        <span style="font-weight: bold;">✅ File Storage:</span> Available
+                    </div>
+                    <div style="color: #10b981;">
+                        <span style="font-weight: bold;">✅ Active Sessions:</span> <span th:text="${activeSessions ?: 'N/A'}">N/A</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="button-group mt-24">
+                <a th:href="@{/home}" class="btn btn-secondary">🏠 Back to Home</a>
+                <a th:href="@{/logout}" class="btn btn-accent">👋 Logout</a>
+            </div>
+        </div>
+
+        <div class="mt-24 text-center">
+            <p class="text-muted">
+                🛡️ "With great power comes great responsibility." - Admin Dashboard
+            </p>
         </div>
     </div>
+</div>
 </body>
 </html>

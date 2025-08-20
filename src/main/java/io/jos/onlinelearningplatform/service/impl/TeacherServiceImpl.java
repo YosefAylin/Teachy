@@ -1,10 +1,7 @@
 package io.jos.onlinelearningplatform.service.impl;
 
 import io.jos.onlinelearningplatform.model.*;
-import io.jos.onlinelearningplatform.repository.CourseRepository;
-import io.jos.onlinelearningplatform.repository.LessonRepository;
-import io.jos.onlinelearningplatform.repository.TeacherCourseRepository;
-import io.jos.onlinelearningplatform.repository.UserRepository;
+import io.jos.onlinelearningplatform.repository.*;
 import io.jos.onlinelearningplatform.service.TeacherService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +21,14 @@ public class TeacherServiceImpl implements TeacherService {
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
     private final TeacherCourseRepository teacherCourseRepository;
+    private final ScheduleRepository scheduleRepository;
 
-    public TeacherServiceImpl(UserRepository userRepository, CourseRepository courseRepository, LessonRepository lessonRepository, PasswordEncoder passwordEncoder, TeacherCourseRepository teacherCourseRepository) {
+    public TeacherServiceImpl(UserRepository userRepository, CourseRepository courseRepository, LessonRepository lessonRepository, PasswordEncoder passwordEncoder, TeacherCourseRepository teacherCourseRepository, ScheduleRepository scheduleRepository) {
         this.userRepository = userRepository;
         this.courseRepository = courseRepository;
         this.lessonRepository = lessonRepository;
         this.teacherCourseRepository = teacherCourseRepository;
+        this.scheduleRepository = scheduleRepository;
     }
 
     @Override
@@ -205,5 +204,45 @@ public class TeacherServiceImpl implements TeacherService {
         lessonRepository.save(lesson);
     }
 
+    @Override
+    public List<Schedule> getTeacherSchedule(Long teacherId) {
+        return scheduleRepository.findByTeacherIdOrderByScheduledTimeAsc(teacherId);
+    }
+
+    @Override
+    public List<Schedule> getUpcomingSchedule(Long teacherId) {
+        return scheduleRepository.findByTeacherIdAndScheduledTimeAfterOrderByScheduledTimeAsc(
+                teacherId, LocalDateTime.now());
+    }
+
+    @Override
+    public List<Schedule> getSchedulesForMonth(Long teacherId, LocalDateTime start, LocalDateTime end) {
+        // Get lessons for the month and convert to schedules
+        List<Lesson> lessons = lessonRepository.findByTeacherIdAndTimestampBetweenOrderByTimestampAsc(
+                teacherId, start, end);
+
+        // Convert lessons to schedules for display
+        return lessons.stream()
+                .map(lesson -> {
+                    Schedule schedule = new Schedule();
+                    schedule.setTeacher(lesson.getTeacher());
+                    schedule.setStudent(lesson.getStudent());
+                    schedule.setLesson(lesson);
+                    schedule.setScheduledTime(lesson.getTimestamp());
+                    schedule.setStatus(lesson.getStatus());
+                    return schedule;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Lesson> getUpcomingLessonsForTeacher(Long teacherId) {
+        return lessonRepository.findUpcomingByTeacher(teacherId, LocalDateTime.now());
+    }
+
+    @Override
+    public List<Lesson> getPastLessonsForTeacher(Long teacherId) {
+        return lessonRepository.findPastByTeacher(teacherId, LocalDateTime.now());
+    }
 }
 

@@ -62,6 +62,18 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     // Convenience: all REJECTED for student (any date)
     List<Lesson> findByStudent_IdAndStatusOrderByTimestampDesc(Long studentId, String status);
+    List<Lesson> findByTeacherIdAndTimestampBetweenOrderByTimestampAsc(Long teacherId, LocalDateTime start, LocalDateTime end);
 
+
+    List<Lesson> findByStudentIdAndTimestampBetweenOrderByTimestampAsc(Long studentId, LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId AND l.timestamp > :now ORDER BY l.timestamp ASC")
+    List<Lesson> findUpcomingByStudent(@Param("studentId") Long studentId, @Param("now") LocalDateTime now);
+
+    @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.timestamp < :now ORDER BY l.timestamp DESC")
+    List<Lesson> findPastByTeacher(@Param("teacherId") Long teacherId, @Param("now") LocalDateTime now);
+
+
+    long countByStatus(String status);
 }
 

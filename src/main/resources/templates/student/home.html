@@ -13,23 +13,50 @@
     <div class="form-container">
         <h1 class="form-title">🎒 Student Center</h1>
 
-        <p class="text-muted mb-16">
-            Find teachers by course and request lessons.
+        <p class="text-center text-muted mb-24">
+            Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Student</span>!
+            Continue your learning journey.
         </p>
 
         <div class="nav-links">
             <a th:href="@{/student/search}">🔎 Find Teachers by Course</a>
             <a th:href="@{/student/lessons}">📚 My Lessons</a>
-            <a th:href="@{/home}">🏠 Back to Home</a>
+            <a th:href="@{/student/schedule}">📅 Schedule</a>
             <a th:href="@{/logout}">👋 Logout</a>
         </div>
 
+        <!-- Next Lesson card -->
+        <div class="card mt-16" style="padding: 12px; background: rgba(255,255,255,0.06); border-radius: 12px;">
+            <h3 class="mb-8">⏰ Next Lesson</h3>
 
-        <div class="card mt-16">
-            <strong th:text="${courseCount}">0</strong> courses available.
-            <div class="mt-8">
-                <a th:href="@{/student/search}" class="btn btn-primary btn-sm">Start Searching</a>
+            <div th:if="${nextLesson != null}">
+                <div><strong th:text="${nextLesson.description}">Lesson Title</strong></div>
+                <div class="text-muted">
+                    <span th:text="${#temporals.format(nextLesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
+                    • with <span th:text="${nextLesson.teacher.username}">Teacher</span>
+                </div>
+
+                <!-- Countdown by days -->
+                <div class="mt-8" th:with="daysUntil=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), nextLesson.timestamp)}">
+                    <div th:if="${daysUntil >= 0}" class="countdown-display" style="background: rgba(16, 185, 129, 0.2); padding: 8px; border-radius: 6px; text-align: center;">
+                        <span th:if="${daysUntil == 0}" style="color: #10b981; font-weight: bold;">📅 Today!</span>
+                        <span th:if="${daysUntil == 1}" style="color: #10b981; font-weight: bold;">📅 Tomorrow</span>
+                        <span th:if="${daysUntil > 1}" style="color: #10b981; font-weight: bold;" th:text="'📅 In ' + ${daysUntil} + ' days'">In X days</span>
+                    </div>
+                    <div th:if="${daysUntil < 0}" class="countdown-display" style="background: rgba(239, 68, 68, 0.2); padding: 8px; border-radius: 6px; text-align: center;">
+                        <span style="color: #ef4444; font-weight: bold;">⚠️ Past due</span>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <a th:href="@{/student/lessons}" class="btn btn-primary btn-sm">View All Lessons</a>
+                </div>
             </div>
+
+            <p th:if="${nextLesson == null}" class="text-muted">No upcoming lessons scheduled.</p>
+        </div>
+
+            <p th:if="${nextLesson == null}" class="text-muted">No upcoming lessons scheduled.</p>
         </div>
     </div>
 </div>

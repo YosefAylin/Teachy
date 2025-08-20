@@ -1,4 +1,5 @@
 package io.jos.onlinelearningplatform.model;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,26 +10,22 @@ import java.time.LocalDateTime;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
-@Table(name = "schedules")
-public class Schedule {
+@Table(name = "messages")
+public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "teacher_id")
-    private Teacher teacher;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "student_id")
-    private Student student;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     private Lesson lesson;
 
-    private LocalDateTime scheduledTime;
-    private String status; // SCHEDULED, COMPLETED, CANCELLED
-    private String notes;
-}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender_id")
+    private User sender;
 
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
+    private LocalDateTime sentAt = LocalDateTime.now();
+}

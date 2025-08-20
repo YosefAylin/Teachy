@@ -16,12 +16,10 @@ public class Teacher extends User {
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
     private List<Lesson> meetings;
 
-    @OneToMany(mappedBy = "teacher")
-    private List<Payment> receivedPayments;
 
     public Teacher(String username, String email, String hash) {
         super(username, email, hash, "TEACHER");
         this.meetings = new ArrayList<>();
-        this.receivedPayments = new ArrayList<>();
+
     }
 }

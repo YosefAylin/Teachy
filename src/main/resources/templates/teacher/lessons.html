@@ -2,32 +2,86 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>Lessons - Teachy</title>
+    <title>My Lessons - Teachy</title>
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
 </head>
 <body>
 <div class="education-bg"></div>
 <div class="container">
     <div class="form-container">
-        <h1 class="form-title">📚 All Lessons</h1>
+        <h1 class="form-title">📚 My Teaching Lessons</h1>
 
-        <div th:if="${lessons != null and !#lists.isEmpty(lessons)}">
-            <ul>
-                <li th:each="lesson : ${lessons}">
-                    <strong th:text="${lesson.description}">Lesson</strong>
-                    • <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
-                    • <span th:text="${lesson.student.username}">Student</span>
-                    • <span class="badge"
-                            th:text="${lesson.status}">STATUS</span>
-                    <form th:action="@{/teacher/lessons/{id}/accept(id=${lesson.id})}" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-success" th:disabled="${lesson.status == 'ACCEPTED'}">Accept</button>
-                    </form>
-                </li>
-            </ul>
+        <!-- Upcoming Lessons -->
+        <div class="card mt-16" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--education-green);">
+            <h3 class="mb-8">⏰ Upcoming Lessons</h3>
+
+            <div th:if="${upcoming != null and !#lists.isEmpty(upcoming)}">
+                <ul class="lesson-list">
+                    <li th:each="lesson : ${upcoming}" class="lesson-item">
+                        <div class="lesson-header">
+                            <strong th:text="${lesson.description}">Lesson</strong>
+                            <span class="badge" th:text="${lesson.status}" th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}">STATUS</span>
+                        </div>
+                        <div class="lesson-details">
+                            <span>📅 <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
+                            <span>👨‍🎓 <span th:text="${lesson.student.username}">Student</span></span>
+                        </div>
+
+                        <div class="lesson-actions mt-8">
+                            <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}" class="btn btn-primary btn-sm">👁️ View Details</a>
+                            <!-- existing accept/reject buttons -->
+                        </div>
+
+                        <!-- Actions only if status == PENDING -->
+                        <div th:if="${lesson.status == 'PENDING'}" class="lesson-actions mt-8">
+                            <form th:action="@{/teacher/lessons/{id}/accept(id=${lesson.id})}" method="post" style="display:inline;">
+                                <input type="hidden" th:if="${_csrf != null}"
+                                       th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                                <button type="submit" class="btn btn-success btn-sm">✅ Accept</button>
+                            </form>
+
+                            <form th:action="@{/teacher/lessons/{id}/reject(id=${lesson.id})}" method="post" style="display:inline; margin-left:6px;">
+                                <input type="hidden" th:if="${_csrf != null}"
+                                       th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                                <button type="submit" class="btn btn-accent btn-sm">❌ Reject</button>
+                            </form>
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+
+            <p th:if="${upcoming == null or #lists.isEmpty(upcoming)}" class="text-muted">
+                No upcoming lessons scheduled.
+            </p>
         </div>
 
-        <div th:if="${lessons == null or #lists.isEmpty(lessons)}">
-            <p>No lessons yet.</p>
+        <!-- Past Lessons -->
+        <div class="card mt-16" style="background: rgba(107, 114, 128, 0.1); border-left: 4px solid #6b7280;">
+            <h3 class="mb-8">📋 Past Lessons</h3>
+
+            <div th:if="${past != null and !#lists.isEmpty(past)}">
+                <ul class="lesson-list">
+                    <li th:each="lesson : ${past}" class="lesson-item">
+                        <div class="lesson-header">
+                            <strong th:text="${lesson.description}">Lesson</strong>
+                            <span class="badge" th:text="${lesson.status}" th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}">STATUS</span>
+                        </div>
+                        <div class="lesson-details">
+                            <span>📅 <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
+                            <span>👨‍🎓 <span th:text="${lesson.student.username}">Student</span></span>
+                        </div>
+                        <div class="lesson-actions mt-8">
+                            <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}" class="btn btn-primary btn-sm">👁️ View Details</a>
+                            <!-- existing accept/reject buttons -->
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <p th:if="${past == null or #lists.isEmpty(past)}" class="text-muted">
+                No past lessons yet.
+            </p>
         </div>
 
         <div class="button-group mt-24">

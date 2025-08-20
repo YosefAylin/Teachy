@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Manage Lessons - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">📖 Lesson Management</h1>
+
+        <div class="card">
+            <table style="width: 100%; border-collapse: collapse; color: white;">
+                <thead>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                    <th style="padding: 12px; text-align: left;">Description</th>
+                    <th style="padding: 12px; text-align: left;">Teacher</th>
+                    <th style="padding: 12px; text-align: left;">Student</th>
+                    <th style="padding: 12px; text-align: left;">Date/Time</th>
+                    <th style="padding: 12px; text-align: left;">Status</th>
+                    <th style="padding: 12px; text-align: left;">Course</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="lesson : ${lessons.content}" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 12px;" th:text="${lesson.description}">Lesson Description</td>
+                    <td style="padding: 12px;" th:text="${lesson.teacher.username}">Teacher</td>
+                    <td style="padding: 12px;" th:text="${lesson.student.username}">Student</td>
+                    <td style="padding: 12px;" th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Date</td>
+                    <td style="padding: 12px;">
+                            <span th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}"
+                                  th:text="${lesson.status}">Status</span>
+                    </td>
+                    <td style="padding: 12px;" th:text="${lesson.course.title}">Course</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div style="margin-top: 20px; text-align: center;" th:if="${totalPages > 1}">
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/admin/lessons(page=${currentPage - 1})}"
+                   class="btn btn-secondary btn-sm">‹ Previous</a>
+
+                <span style="margin: 0 15px; color: white;">
+                    Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
+                </span>
+
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{/admin/lessons(page=${currentPage + 1})}"
+                   class="btn btn-secondary btn-sm">Next ›</a>
+            </div>
+        </div>
+
+        <div class="button-group mt-24">
+            <a th:href="@{/admin/home}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -25,6 +25,9 @@
                         <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
                         <span class="badge" th:text="${l.status}">PENDING</span>
                     </div>
+                    <div class="lesson-actions mt-8">
+                        <a th:href="@{/student/lessons/{id}(id=${l.id})}" class="btn btn-primary btn-sm">👁️ View Details</a>
+                    </div>
                 </div>
             </li>
         </ul>
@@ -40,6 +43,9 @@
                     <div class="text-muted">
                         <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
                         <span class="badge" th:text="${l.status}">COMPLETED</span>
+                    </div>
+                    <div class="lesson-actions mt-8">
+                        <a th:href="@{/student/lessons/{id}(id=${l.id})}" class="btn btn-primary btn-sm">👁️ View Details</a>
                     </div>
                 </div>
             </li>

@@ -34,8 +34,8 @@
                     👤 Profile &amp; Specializations
                 </a>
 
-                <a th:href="@{/teacher/content}">
-                    ✏️ Create Content
+                <a th:href="@{/teacher/schedule}" class="btn btn-primary">
+                    📅 View Schedule
                 </a>
             </div>
 
@@ -48,8 +48,28 @@
                     <div class="text-muted">
                         <span th:text="${#temporals.format(nextLesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
                         • with <span th:text="${nextLesson.student.username}">Student</span>
-                        • <span class="badge" th:text="${nextLesson.status}">STATUS</span>
                     </div>
+
+                    <!-- Countdown by days -->
+                    <div class="mt-8" th:with="daysUntil=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), nextLesson.timestamp)}">
+                        <div th:if="${daysUntil == 0}"
+                             style="background: rgba(245, 158, 11, 0.2); padding: 6px 12px; border-radius: 6px; color: #fbbf24; font-weight: bold;">
+                            📅 Today!
+                        </div>
+                        <div th:if="${daysUntil == 1}"
+                             style="background: rgba(16, 185, 129, 0.2); padding: 6px 12px; border-radius: 6px; color: #10b981; font-weight: bold;">
+                            📅 Tomorrow
+                        </div>
+                        <div th:if="${daysUntil > 1}"
+                             style="background: rgba(99, 102, 241, 0.2); padding: 6px 12px; border-radius: 6px; color: #6366f1; font-weight: bold;">
+                            📅 In <span th:text="${daysUntil}">X</span> days
+                        </div>
+                        <div th:if="${daysUntil < 0}"
+                             style="background: rgba(239, 68, 68, 0.2); padding: 6px 12px; border-radius: 6px; color: #ef4444; font-weight: bold;">
+                            ⚠️ Past due
+                        </div>
+                    </div>
+
                     <div class="mt-8">
                         <a th:href="@{/teacher/lessons}" class="btn btn-primary btn-sm">Open Lessons</a>
                     </div>

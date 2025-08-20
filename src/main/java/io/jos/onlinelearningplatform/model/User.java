@@ -30,6 +30,10 @@ public class User {
     @Column(nullable = false)
     private boolean connected = false;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean active = true; // Initialize with default value
+
+
 
     public User(String username, String email, String hash, String role) {
         this.username = username;

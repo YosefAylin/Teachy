@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 public class SecurityConfig {
@@ -60,7 +61,10 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/student/**").hasRole("STUDENT")
                         .requestMatchers("/teacher/profile/**").permitAll()
-                        .requestMatchers("/teacher/**").hasRole("TEACHER") // Allow teachers to access their endpoints
+                        .requestMatchers("/teacher/**").hasRole("TEACHER")
+                        .requestMatchers("/student/materials/**", "/teacher/materials/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/student/lessons/*/upload", "/teacher/lessons/*/upload").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/student/materials/*/download", "/teacher/materials/*/download").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -69,6 +73,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
                 .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                         .logoutSuccessHandler(logoutSuccessHandler)
                         .permitAll());
 

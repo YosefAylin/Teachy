@@ -1,11 +1,18 @@
 package io.jos.onlinelearningplatform.service;
 
-import org.springframework.stereotype.Service;
+import io.jos.onlinelearningplatform.model.*;
+import java.util.List;
 
-@Service
 public interface AdminService {
-    void manageUsers();
-    void viewFeedback();
-
-  //  void registerUser(String adminUsername, String adminPassword, String adminEmail);
+    long getTotalStudents();
+    long getTotalTeachers();
+    long getTotalCourses();
+    long getTotalLessons();
+    List<User> getRecentUsers(int limit);
+    List<User> getAllUsers();
+    List<Course> getAllCourses();
+    List<Lesson> getAllLessons();
+    void createCourse(String name, String description);
+    void deleteCourse(Long courseId);
+    void toggleUserActive(Long userId);
 }
