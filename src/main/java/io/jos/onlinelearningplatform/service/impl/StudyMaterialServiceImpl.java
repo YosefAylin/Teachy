@@ -83,7 +83,17 @@ public class StudyMaterialServiceImpl implements StudyMaterialService {
 
     @Override
     public byte[] downloadMaterial(Long materialId) {
-        return new byte[0];
+        logger.info("Downloading study material with ID: {}", materialId);
+
+        StudyMaterial material = studyMaterialRepository.findById(materialId)
+                .orElseThrow(() -> new IllegalArgumentException("Study material not found"));
+
+        if (material.getFileData() == null || material.getFileData().length == 0) {
+            throw new IllegalStateException("File data not available for material ID: " + materialId);
+        }
+
+        logger.info("Successfully retrieved file data for material: {}", material.getFileName());
+        return material.getFileData();
     }
 
     @Override
