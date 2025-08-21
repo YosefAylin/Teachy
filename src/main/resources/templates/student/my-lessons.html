@@ -15,41 +15,47 @@
         <p th:if="${param.requested}" class="alert success">Lesson requested. You’ll see it here when the teacher responds.</p>
 
         <h2 class="mt-8">Upcoming</h2>
-        <ul th:if="${upcoming != null && !#lists.isEmpty(upcoming)}" class="list">
-            <li th:each="l : ${upcoming}" class="list-item">
-                <div>
-                    <strong th:text="${l.course.title}">Course</strong>
-                    <span class="text-muted"> • with </span>
-                    <a th:href="@{|/teacher/profile/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
-                    <div class="text-muted">
-                        <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
-                        <span class="badge" th:text="${l.status}">PENDING</span>
+        <div th:if="${upcoming != null && !#lists.isEmpty(upcoming)}">
+            <div class="lessons-grid">
+                <div th:each="l : ${upcoming}" class="lesson-card">
+                    <span class="lesson-status badge" th:text="${l.status}" th:class="'badge ' + ${#strings.toLowerCase(l.status)}">STATUS</span>
+
+                    <div class="lesson-title" th:text="${l.course.title}">Course</div>
+
+                    <div class="lesson-details">
+                        <span>👨‍🏫 <a th:href="@{|/teacher/profile/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a></span>
+                        <span>📅 <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
+                        <span th:if="${l.description}">📝 <span th:text="${l.description}">Description</span></span>
                     </div>
-                    <div class="lesson-actions mt-8">
-                        <a th:href="@{/student/lessons/{id}(id=${l.id})}" class="btn btn-primary btn-sm">👁️ View Details</a>
+
+                    <div class="lesson-actions">
+                        <a th:href="@{/student/lessons/{id}(id=${l.id})}" class="btn-subtle btn-action">👁️ View Details</a>
                     </div>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </div>
         <p th:if="${upcoming == null || #lists.isEmpty(upcoming)}" class="text-muted">No upcoming lessons yet.</p>
 
         <h2 class="mt-16">Past</h2>
-        <ul th:if="${past != null && !#lists.isEmpty(past)}" class="list">
-            <li th:each="l : ${past}" class="list-item">
-                <div>
-                    <strong th:text="${l.course.title}">Course</strong>
-                    <span class="text-muted"> • with </span>
-                    <a th:href="@{|/teacher/profile/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a>
-                    <div class="text-muted">
-                        <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
-                        <span class="badge" th:text="${l.status}">COMPLETED</span>
+        <div th:if="${past != null && !#lists.isEmpty(past)}">
+            <div class="lessons-grid">
+                <div th:each="l : ${past}" class="lesson-card">
+                    <span class="lesson-status badge" th:text="${l.status}" th:class="'badge ' + ${#strings.toLowerCase(l.status)}">STATUS</span>
+
+                    <div class="lesson-title" th:text="${l.course.title}">Course</div>
+
+                    <div class="lesson-details">
+                        <span>👨‍🏫 <a th:href="@{|/teacher/profile/${l.teacher.id}|}" th:text="${l.teacher.username}">Teacher</a></span>
+                        <span>📅 <span th:text="${#temporals.format(l.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
+                        <span th:if="${l.description}">📝 <span th:text="${l.description}">Description</span></span>
                     </div>
-                    <div class="lesson-actions mt-8">
-                        <a th:href="@{/student/lessons/{id}(id=${l.id})}" class="btn btn-primary btn-sm">👁️ View Details</a>
+
+                    <div class="lesson-actions">
+                        <a th:href="@{/student/lessons/{id}(id=${l.id})}" class="btn-subtle btn-action">👁️ View Details</a>
                     </div>
                 </div>
-            </li>
-        </ul>
+            </div>
+        </div>
         <p th:if="${past == null || #lists.isEmpty(past)}" class="text-muted">No past lessons yet.</p>
 
         <div class="button-group mt-24">

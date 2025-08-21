@@ -379,3 +379,365 @@ body::before {
 .badge-pending { color: #facc15; }
 .badge-accepted { color: #22c55e; }
 .badge-rejected { color: #ef4444; }
+
+/* Teacher-specific styling improvements */
+
+/* Teacher Home - Next Lesson styling */
+.teacher-next-lesson {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(29, 161, 242, 0.1), rgba(29, 161, 242, 0.05));
+    border: 2px solid rgba(29, 161, 242, 0.2);
+    border-radius: var(--radius-lg);
+    padding: var(--box-xl);
+    margin: var(--box-lg) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.teacher-next-lesson::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.teacher-next-lesson h3 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: var(--box-md);
+    font-weight: 700;
+}
+
+.teacher-next-lesson .lesson-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--box-sm);
+    padding: var(--box-sm) var(--box-md);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    display: inline-block;
+}
+
+.teacher-next-lesson .lesson-meta {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--box-md);
+}
+
+.teacher-next-lesson .lesson-countdown {
+    display: inline-block;
+    padding: var(--box-sm) var(--box-md);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: var(--box-md);
+}
+
+/* Teacher Lessons - Grid layout instead of vertical list */
+.lessons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--box-lg);
+    margin: var(--box-lg) 0;
+}
+
+.lesson-card {
+    background: var(--box-primary);
+    border: 1px solid var(--box-border);
+    border-radius: var(--radius-lg);
+    padding: var(--box-lg);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.lesson-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.lesson-card .lesson-status {
+    position: absolute;
+    top: var(--box-sm);
+    right: var(--box-sm);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.lesson-card .lesson-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--box-sm);
+    padding-right: 60px; /* Space for status badge */
+}
+
+.lesson-card .lesson-details {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: var(--box-md);
+    line-height: 1.4;
+}
+
+.lesson-card .lesson-details span {
+    display: block;
+    margin-bottom: 4px;
+}
+
+/* Subtle buttons for lessons and profile */
+.btn-subtle {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--box-border);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-subtle:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+}
+
+.btn-subtle.btn-action {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary-color);
+    border-color: rgba(37, 99, 235, 0.2);
+}
+
+.btn-subtle.btn-action:hover {
+    background: rgba(37, 99, 235, 0.15);
+    border-color: var(--primary-color);
+}
+
+.btn-subtle.btn-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--secondary-color);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.btn-subtle.btn-success:hover {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: var(--secondary-color);
+}
+
+.btn-subtle.btn-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.btn-subtle.btn-danger:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+}
+
+/* Teacher Profile - Improved course list */
+.course-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--box-sm);
+    margin: var(--box-md) 0;
+}
+
+.course-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--box-sm) var(--box-md);
+    background: var(--box-secondary);
+    border: 1px solid var(--box-border);
+    border-radius: var(--radius-md);
+    transition: all 0.2s ease;
+}
+
+.course-item:hover {
+    background: var(--bg-hover);
+    border-color: var(--primary-light);
+}
+
+.course-item .course-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.course-actions {
+    display: flex;
+    gap: var(--box-sm);
+    align-items: center;
+}
+
+/* Form styling for teacher profile */
+.teacher-form-inline {
+    display: flex;
+    gap: var(--box-sm);
+    align-items: center;
+    margin: var(--box-md) 0;
+    padding: var(--box-md);
+    background: var(--box-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--box-border);
+}
+
+.teacher-form-inline select {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Status badges */
+.badge {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge.pending {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+
+.badge.accepted {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.badge.completed {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+}
+
+.badge.cancelled {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+/* Student Search - Modern teacher results */
+.teacher-results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--box-lg);
+    margin: var(--box-lg) 0;
+}
+
+.teacher-card {
+    background: var(--box-primary);
+    border: 1px solid var(--box-border);
+    border-radius: var(--radius-lg);
+    padding: var(--box-lg);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.teacher-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.teacher-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-color);
+}
+
+.teacher-card:hover::before {
+    transform: scaleX(1);
+}
+
+.teacher-card .teacher-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: var(--box-md);
+    border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.teacher-card .teacher-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--box-sm);
+}
+
+.teacher-card .teacher-email {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: var(--box-md);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.teacher-card .teacher-actions {
+    display: flex;
+    gap: var(--box-sm);
+    justify-content: space-between;
+    margin-top: var(--box-md);
+}
+
+.search-form-modern {
+    background: var(--box-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--box-lg);
+    margin-bottom: var(--box-xl);
+    border: 1px solid var(--box-border);
+    display: flex;
+    gap: var(--box-md);
+    align-items: end;
+    flex-wrap: wrap;
+}
+
+.search-form-modern .form-group {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0;
+}
+
+.search-form-modern .form-group label {
+    display: block;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--box-sm);
+    font-size: 0.9rem;
+}
+
+.search-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--box-lg);
+}
+
+.search-results-count {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}

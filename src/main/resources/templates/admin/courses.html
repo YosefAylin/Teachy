@@ -22,6 +22,12 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" th:field="*{subject}" required class="form-control"
+                           placeholder="e.g., Mathematics, Science, Computer Science" />
+                </div>
+
+                <div class="form-group">
                     <label for="description">Description</label>
                     <textarea id="description" th:field="*{description}" class="form-control" rows="3"
                               placeholder="Course description..."></textarea>
@@ -44,6 +50,7 @@
                     <thead>
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
                         <th style="padding: 12px; text-align: left;">Course Name</th>
+                        <th style="padding: 12px; text-align: left;">Subject</th>
                         <th style="padding: 12px; text-align: left;">Description</th>
                         <th style="padding: 12px; text-align: left;">Actions</th>
                     </tr>
@@ -51,6 +58,7 @@
                     <tbody>
                     <tr th:each="course : ${courses}" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                         <td style="padding: 12px;" th:text="${course.title}">Course Name</td>
+                        <td style="padding: 12px;" th:text="${course.subject}">Subject</td>
                         <td style="padding: 12px;" th:text="${course.description}">Description</td>
                         <td style="padding: 12px;">
                             <form th:action="@{/admin/courses/{id}/delete(id=${course.id})}" method="post"

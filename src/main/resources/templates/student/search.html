@@ -12,38 +12,50 @@
     <div class="form-container">
         <h1 class="form-title">🔎 Find Teachers by Course</h1>
 
-        <form th:action="@{/student/search}" method="get" class="form-inline mb-16">
-            <label for="courseId"><strong>Course</strong></label>
-            <select id="courseId" name="courseId" required>
-                <option value="" th:unless="${selectedCourseId != null}" selected disabled>Select a course…</option>
-                <option th:each="c : ${courses}"
-                        th:value="${c.id}"
-                        th:selected="${selectedCourseId} == ${c.id}"
-                        th:text="${c.title}">
-                    Course
-                </option>
-            </select>
-            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+        <form th:action="@{/student/search}" method="get" class="search-form-modern">
+            <div class="form-group">
+                <label for="courseId">Course</label>
+                <select id="courseId" name="courseId" required class="form-control">
+                    <option value="" th:unless="${selectedCourseId != null}" selected disabled>Select a course…</option>
+                    <option th:each="c : ${courses}"
+                            th:value="${c.id}"
+                            th:selected="${selectedCourseId} == ${c.id}"
+                            th:text="${c.title}">
+                        Course
+                    </option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">🔍 Search Teachers</button>
         </form>
 
         <div th:if="${selectedCourseId != null}">
-            <h2 class="mb-8">Results</h2>
-            <ul th:if="${teachers != null and !#lists.isEmpty(teachers)}" class="list">
-                <li th:each="t : ${teachers}" class="list-item">
-                    <div>
-                        <strong th:text="${t.username}">Teacher</strong>
-                        <span class="text-muted" th:if="${t.email}"> • <span th:text="${t.email}">email</span></span>
+            <div class="search-results-header">
+                <h2>🎓 Available Teachers</h2>
+                <span class="search-results-count" th:if="${teachers != null}" th:text="${#lists.size(teachers)} + ' teacher(s) found'">X teachers found</span>
+            </div>
+
+            <div th:if="${teachers != null and !#lists.isEmpty(teachers)}" class="teacher-results-grid">
+                <div th:each="t : ${teachers}" class="teacher-card">
+                    <div class="teacher-avatar" th:text="${#strings.substring(t.username, 0, 1).toUpperCase()}">T</div>
+
+                    <div class="teacher-name" th:text="${t.username}">Teacher</div>
+
+                    <div class="teacher-email" th:if="${t.email}">
+                        📧 <span th:text="${t.email}">email</span>
                     </div>
-                    <div class="mt-4">
-                        <a th:href="@{/teacher/profile/{id}(id=${t.id})}" class="btn btn-secondary btn-xs">View Profile</a>
-                        <!-- If you already have a request-lesson flow, link it: -->
-                        <a th:href="@{|/student/lessons/request?teacherId=${t.id}&courseId=${selectedCourseId}|}" class="btn btn-primary btn-xs">Request Lesson</a>
+
+                    <div class="teacher-actions">
+                        <a th:href="@{/teacher/profile/{id}(id=${t.id})}" class="btn-subtle btn-action">👁️ View Profile</a>
+                        <a th:href="@{|/student/lessons/request?teacherId=${t.id}&courseId=${selectedCourseId}|}" class="btn-subtle btn-success">📚 Request Lesson</a>
                     </div>
-                </li>
-            </ul>
-            <p th:if="${teachers == null or #lists.isEmpty(teachers)}" class="text-muted">
-                No teachers found for this course.
-            </p>
+                </div>
+            </div>
+
+            <div th:if="${teachers == null or #lists.isEmpty(teachers)}" class="text-center" style="padding: var(--box-xxl);">
+                <div class="education-icon" style="margin: 0 auto var(--box-lg); opacity: 0.5;">🔍</div>
+                <p class="text-muted" style="font-size: 1.1rem;">No teachers found for this course.</p>
+                <p class="text-secondary" style="font-size: 0.9rem;">Try selecting a different course or check back later.</p>
+            </div>
         </div>
 
         <div class="button-group mt-24">

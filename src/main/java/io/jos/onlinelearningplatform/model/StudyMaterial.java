@@ -28,7 +28,7 @@ public class StudyMaterial {
     private Long fileSize;
     private String description;
 
-    @Lob
+    @Column(columnDefinition = "bytea")
     private byte[] fileData;
 
     private LocalDateTime uploadedAt;

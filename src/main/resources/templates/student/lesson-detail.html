@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8" />
     <title>Lesson Details - Teachy</title>
@@ -47,7 +47,8 @@
             </div>
 
             <!-- Send Message Form -->
-            <form th:action="@{'/teacher/lessons/' + ${lesson.id} + '/message'}" method="post">
+            <form th:action="@{'/student/lessons/' + ${lesson.id} + '/message'}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="form-group">
                     <textarea name="content" placeholder="Type your message..." required class="form-control"></textarea>
                 </div>
@@ -56,22 +57,39 @@
         </div>
 
         <!-- Study Materials Section -->
-        <!-- In both student/lesson-detail.html and teacher/lesson-detail.html -->
-        <form th:action="@{/student/lessons/{id}/upload(id=${lesson.id})}" method="post" enctype="multipart/form-data">
+        <div class="card mt-16">
+            <h3>📎 Study Materials</h3>
 
-            <div class="form-group">
-                <label for="file">📎 Upload Study Material</label>
-                <input type="file" id="file" name="file" class="form-control" required>
+            <!-- Display existing materials -->
+            <div th:if="${materials != null and !#lists.isEmpty(materials)}">
+                <div th:each="material : ${materials}" class="material-item" style="padding: 8px; margin: 8px 0; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;">
+                    <div style="font-weight: bold;" th:text="${material.fileName}">File Name</div>
+                    <div style="font-size: 12px; color: #ccc;" th:text="${material.description}">Description</div>
+                    <div style="font-size: 12px; color: #ccc;">
+                        Uploaded by <span th:text="${material.uploader.username}">User</span>
+                        on <span th:text="${#temporals.format(material.uploadedAt, 'MMM dd, yyyy HH:mm')}">Date</span>
+                    </div>
+                    <a th:href="@{/student/materials/{id}/download(id=${material.id})}" class="btn btn-secondary btn-sm">📥 Download</a>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="description">📝 Description (optional)</label>
-                <input type="text" id="description" name="description" class="form-control"
-                       placeholder="Brief description of the material">
-            </div>
+            <!-- Upload Form -->
+            <form th:action="@{/student/lessons/{id}/upload(id=${lesson.id})}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="form-group">
+                    <label for="file">📎 Upload Study Material</label>
+                    <input type="file" id="file" name="file" class="form-control" required>
+                </div>
 
-            <button type="submit" class="btn btn-primary">📤 Upload</button>
-        </form>
+                <div class="form-group">
+                    <label for="description">📝 Description (optional)</label>
+                    <input type="text" id="description" name="description" class="form-control"
+                           placeholder="Brief description of the material">
+                </div>
+
+                <button type="submit" class="btn btn-primary">📤 Upload</button>
+            </form>
+        </div>
 
         <div class="button-group mt-24">
             <a th:href="@{/student/lessons}" class="btn btn-secondary">Back to Lessons</a>

@@ -25,20 +25,19 @@
             <!-- Teachable Courses -->
             <h2 class="mt-16">Teachable Courses</h2>
 
-            <ul th:if="${courses != null and !#lists.isEmpty(courses)}" class="list">
-                <li th:each="course : ${courses}" class="list-item">
-                    <span>
-                        <strong th:text="${course.title}">Course</strong>
-                        </span>
-                    </span>
-                    <form th:action="@{|/teacher/courses/${course.id}/remove|}"
-                          method="post" style="display:inline;">
-                        <!-- Guard CSRF to avoid null access -->
-                        <input th:if="${_csrf != null}" sec:csrfInput />
-                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-                    </form>
-                </li>
-            </ul>
+            <div th:if="${courses != null and !#lists.isEmpty(courses)}" class="course-list">
+                <div th:each="course : ${courses}" class="course-item">
+                    <span class="course-name" th:text="${course.title}">Course</span>
+                    <div class="course-actions">
+                        <form th:action="@{|/teacher/courses/${course.id}/remove|}"
+                              method="post" style="display:inline;">
+                            <!-- Guard CSRF to avoid null access -->
+                            <input th:if="${_csrf != null}" sec:csrfInput />
+                            <button type="submit" class="btn-subtle btn-danger">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             <p th:if="${courses == null or #lists.isEmpty(courses)}" class="text-muted">
                 No teachable courses yet.
             </p>
@@ -46,16 +45,16 @@
             <!-- Add new teachable course -->
             <h3 class="mt-16">Add Teachable Course</h3>
             <form th:if="${availableCourses != null and !#lists.isEmpty(availableCourses)}"
-                  th:action="@{/teacher/courses/add}" method="post" class="form-inline">
+                  th:action="@{/teacher/courses/add}" method="post" class="teacher-form-inline">
                 <!-- Guard CSRF to avoid null access -->
                 <input th:if="${_csrf != null}" sec:csrfInput />
-                <select name="courseId" required>
+                <select name="courseId" required class="form-control">
                     <option value="" disabled selected>Select a course…</option>
                     <option th:each="c : ${availableCourses}"
                             th:value="${c.id}"
                             th:text="${c.title}">Course</option>
                 </select>
-                <button type="submit" class="btn btn-primary btn-sm">Add</button>
+                <button type="submit" class="btn-subtle btn-success">Add</button>
             </form>
             <p th:if="${availableCourses == null or #lists.isEmpty(availableCourses)}" class="text-muted">
                 No more courses to add.
