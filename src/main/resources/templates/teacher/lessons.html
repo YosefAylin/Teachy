@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <title>My Lessons - Teachy</title>
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+    <style>
+        .student-link { color: var(--education-green); text-decoration: none; font-weight: 600; }
+        .student-link:hover { color: var(--education-purple); }
+    </style>
 </head>
 <body>
 <div class="education-bg"></div>
@@ -24,11 +28,12 @@
 
                         <div class="lesson-details">
                             <span>📅 <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
-                            <span>👨‍🎓 <span th:text="${lesson.student.username}">Student</span></span>
+                            <span>👨‍🎓 <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" th:text="${lesson.student.username}" class="student-link">Student</a></span>
                         </div>
 
                         <div class="lesson-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
                             <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}" class="btn-subtle btn-action">👁️ View Details</a>
+                            <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" class="btn-subtle btn-action">👨‍🎓 Profile</a>
 
                             <!-- Actions only if status == PENDING -->
                             <div th:if="${lesson.status == 'PENDING'}" style="display: flex; gap: 6px;">
@@ -67,11 +72,12 @@
 
                         <div class="lesson-details">
                             <span>📅 <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
-                            <span>👨‍🎓 <span th:text="${lesson.student.username}">Student</span></span>
+                            <span>👨‍🎓 <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" th:text="${lesson.student.username}" class="student-link">Student</a></span>
                         </div>
 
-                        <div class="lesson-actions">
+                        <div class="lesson-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                             <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}" class="btn-subtle btn-action">👁️ View Details</a>
+                            <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" class="btn-subtle btn-action">👨‍🎓 Profile</a>
                         </div>
                     </div>
                 </div>

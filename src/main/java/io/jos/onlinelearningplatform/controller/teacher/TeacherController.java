@@ -1,12 +1,10 @@
 package io.jos.onlinelearningplatform.controller.teacher;
 
-import io.jos.onlinelearningplatform.model.Lesson;
-import io.jos.onlinelearningplatform.model.Message;
-import io.jos.onlinelearningplatform.model.Schedule;
-import io.jos.onlinelearningplatform.model.StudyMaterial;
+import io.jos.onlinelearningplatform.model.*;
 import io.jos.onlinelearningplatform.repository.LessonRepository;
 import io.jos.onlinelearningplatform.repository.MessageRepository;
 import io.jos.onlinelearningplatform.repository.StudyMaterialRepository;
+import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.TeacherService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.web.multipart.MultipartFile;
 
 @Controller
@@ -30,12 +27,14 @@ public class TeacherController {
     private final LessonRepository lessonRepository;
     private final MessageRepository messageRepository;
     private final StudyMaterialRepository studyMaterialRepository;
+    private final UserRepository userRepository;
 
-    public TeacherController(TeacherService teacherService, LessonRepository lessonRepository, MessageRepository messageRepository, StudyMaterialRepository studyMaterialRepository) {
+    public TeacherController(TeacherService teacherService, LessonRepository lessonRepository, MessageRepository messageRepository, StudyMaterialRepository studyMaterialRepository, UserRepository userRepository) {
         this.teacherService = teacherService;
         this.lessonRepository = lessonRepository;
         this.messageRepository = messageRepository;
         this.studyMaterialRepository = studyMaterialRepository;
+        this.userRepository = userRepository;
     }
 
     private Long getCurrentTeacherId() {
@@ -238,4 +237,64 @@ public class TeacherController {
                 .body(material.getFileData());
     }
 
+    // Student Profile for Teacher View
+    @GetMapping("/students/{id}/profile")
+    public String viewStudentProfile(@PathVariable Long id, Model model) {
+        Long currentTeacherId = getCurrentTeacherId();
+
+        // Get the student
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        if (!(user instanceof Student)) {
+            throw new IllegalArgumentException("User is not a student");
+        }
+
+        Student student = (Student) user;
+
+        // Get all lessons for this student
+        List<Lesson> allStudentLessons = lessonRepository.findByStudentIdOrderByTimestampDesc(student.getId());
+
+        // Filter lessons to only show those involving the current teacher
+        List<Lesson> lessonsWithThisTeacher = allStudentLessons.stream()
+                .filter(lesson -> lesson.getTeacher().getId().equals(currentTeacherId))
+                .collect(Collectors.toList());
+
+        // Get recent lessons with this teacher (last 10)
+        List<Lesson> recentLessons = lessonsWithThisTeacher.stream()
+                .limit(10)
+                .collect(Collectors.toList());
+
+        // Calculate statistics for lessons with this teacher
+        long totalLessonsWithTeacher = lessonsWithThisTeacher.size();
+        long completedLessons = lessonsWithThisTeacher.stream()
+                .filter(lesson -> "ACCEPTED".equals(lesson.getStatus()))
+                .count();
+        long pendingLessons = lessonsWithThisTeacher.stream()
+                .filter(lesson -> "PENDING".equals(lesson.getStatus()))
+                .count();
+
+        // Get unique courses this student has taken with this teacher
+        Set<Course> coursesSet = new HashSet<>();
+        for (Lesson lesson : lessonsWithThisTeacher) {
+            coursesSet.add(lesson.getCourse());
+        }
+        List<Course> courses = new ArrayList<>(coursesSet);
+
+        // Verify teacher has taught this student
+        if (totalLessonsWithTeacher == 0) {
+            throw new IllegalArgumentException("You have not taught this student");
+        }
+
+        model.addAttribute("student", student);
+        model.addAttribute("allLessons", lessonsWithThisTeacher);
+        model.addAttribute("recentLessons", recentLessons);
+        model.addAttribute("totalLessons", totalLessonsWithTeacher);
+        model.addAttribute("completedLessons", completedLessons);
+        model.addAttribute("pendingLessons", pendingLessons);
+        model.addAttribute("courses", courses);
+        model.addAttribute("currentTeacher", teacherService.getTeacherProfile(currentTeacherId));
+
+        return "teacher/student-profile";
+    }
 }

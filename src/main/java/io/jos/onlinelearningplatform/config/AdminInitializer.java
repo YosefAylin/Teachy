@@ -1,5 +1,6 @@
 package io.jos.onlinelearningplatform.config;
 
+import io.jos.onlinelearningplatform.dto.RegisterDto;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.UserService;
 import org.slf4j.Logger;
@@ -15,9 +16,7 @@ public class AdminInitializer implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(AdminInitializer.class);
     private final UserService userService;
     private final UserRepository userRepository;
-    private final String adminUsername;
-    private final String adminPassword;
-    private final String adminEmail;
+    private final RegisterDto dto = null;
 
     public AdminInitializer(
             UserService userService,
@@ -28,19 +27,19 @@ public class AdminInitializer implements ApplicationRunner {
     ) {
         this.userService    = userService;
         this.userRepository  = userRepository;
-        this.adminUsername   = adminUsername;
-        this.adminPassword   = adminPassword;
-        this.adminEmail      = adminEmail;
+        this.dto.setUsername(adminUsername);
+        this.dto.setPassword(adminPassword);
+        this.dto.setEmail(adminEmail);
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         // You might check "does admin already exist?" to avoid duplicates
-        if (userRepository.findByUsername(adminUsername).isEmpty()) {
-            userService.register(adminUsername, adminPassword, adminEmail, "ADMIN");
-            log.info("✅ Bootstrap: created initial ADMIN user '{}'", adminUsername);
+        if (userRepository.findByUsername(dto.getUsername()).isEmpty()) {
+            userService.register(dto);
+            log.info("✅ Bootstrap: created initial ADMIN user '{}'", dto.getUsername());
         } else {
-            log.info("⚠️ Bootstrap: ADMIN user '{}' already exists, skipping creation", adminUsername);
+            log.info("⚠️ Bootstrap: ADMIN user '{}' already exists, skipping creation", dto.getUsername());
         }
 
     }

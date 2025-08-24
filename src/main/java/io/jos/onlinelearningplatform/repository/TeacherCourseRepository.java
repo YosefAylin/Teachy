@@ -21,6 +21,6 @@ public interface TeacherCourseRepository extends JpaRepository<TeacherCourse, Lo
          where tc.course.id = :courseId
     """)
     List<Teacher> findTeachersByCourseId(@Param("courseId") Long courseId);
-
+    List<TeacherCourse> findByCourseId(Long courseId);
+    void deleteByCourseId(Long courseId);
 }
-

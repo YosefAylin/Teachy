@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 public class Admin extends User {
 
     public Admin(String username, String email, String hash) {
+        super(username, email, hash, "ADMIN");
     }
 }

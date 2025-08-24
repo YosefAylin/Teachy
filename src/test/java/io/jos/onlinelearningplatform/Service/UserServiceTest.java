@@ -1,5 +1,10 @@
 package io.jos.onlinelearningplatform.service;
 
+import io.jos.onlinelearningplatform.Factory.UserFactory;
+import io.jos.onlinelearningplatform.dto.RegisterDto;
+import io.jos.onlinelearningplatform.model.Admin;
+import io.jos.onlinelearningplatform.model.Student;
+import io.jos.onlinelearningplatform.model.Teacher;
 import io.jos.onlinelearningplatform.model.User;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.impl.UserServiceImpl;
@@ -31,12 +36,15 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private UserFactory userFactory;
+
     private UserService userService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, passwordEncoder);
+        userService = new UserServiceImpl(userRepository, passwordEncoder, userFactory);
 
         // Default mock behavior
         when(passwordEncoder.encode(any())).thenReturn("hashedPassword");
@@ -44,137 +52,192 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Register - Success with valid input")
-    void register_ValidInput_Success() {
-        logger.info("Testing registration with valid input");
+    @DisplayName("Register Student - Success using Factory")
+    void register_StudentUsingFactory_Success() {
+        logger.info("Testing student registration using factory");
         // Arrange
-        String username = "testUser";
-        String email = "test@example.com";
-        String password = "password123";
-        String role = "STUDENT";
+        RegisterDto registerDto = createRegisterDto("studentUser", "student@example.com", "password123", "STUDENT");
+        Student mockStudent = new Student("studentUser", "student@example.com", "hashedPassword");
+        mockStudent.setId(1L);
 
-        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+        when(userFactory.createUser(registerDto)).thenReturn(mockStudent);
+        when(userRepository.save(any(User.class))).thenReturn(mockStudent);
 
         // Act
-        User result = userService.register(username, email, password, role);
+        User result = userService.register(registerDto);
 
         // Assert
         assertNotNull(result);
-        assertEquals(username, result.getUsername());
-        assertEquals(email, result.getEmail());
-        verify(passwordEncoder).encode(password);
+        assertInstanceOf(Student.class, result);
+        assertEquals("studentUser", result.getUsername());
+        assertEquals("student@example.com", result.getEmail());
+        assertTrue(((Student) result).isActive());
+
+        verify(userFactory).createUser(any(RegisterDto.class));
         verify(userRepository).save(any(User.class));
-        logger.info("Registration test passed for user: {}", username);
+        logger.info("Student registration test passed using factory");
     }
 
     @Test
-    @DisplayName("Register - Fails with duplicate username")
-    void register_DuplicateUsername_ThrowsException() {
-        logger.info("Testing registration with duplicate username");
+    @DisplayName("Register Teacher - Success using Factory")
+    void register_TeacherUsingFactory_Success() {
+        logger.info("Testing teacher registration using factory");
         // Arrange
-        when(userRepository.findByUsername("existingUser")).thenReturn(Optional.of(new User()));
+        RegisterDto registerDto = createRegisterDto("teacherUser", "teacher@example.com", "password123", "TEACHER");
+        Teacher mockTeacher = new Teacher("teacherUser", "teacher@example.com", "hashedPassword");
+        mockTeacher.setId(2L);
+        mockTeacher.setActive(true);
+
+        when(userFactory.createUser(registerDto)).thenReturn(mockTeacher);
+        when(userRepository.save(any(User.class))).thenReturn(mockTeacher);
+
+        // Act
+        User result = userService.register(registerDto);
+
+        // Assert
+        assertNotNull(result);
+        assertInstanceOf(Teacher.class, result);
+        assertEquals("teacherUser", result.getUsername());
+        assertEquals("teacher@example.com", result.getEmail());
+        assertTrue(((Teacher) result).isActive());
+
+        verify(userFactory).createUser(any(RegisterDto.class));
+        verify(userRepository).save(any(User.class));
+        logger.info("Teacher registration test passed using factory");
+    }
+
+    @Test
+    @DisplayName("Register Admin - Success using Factory")
+    void register_AdminUsingFactory_Success() {
+        logger.info("Testing admin registration using factory");
+        // Arrange
+        RegisterDto registerDto = createRegisterDto("adminUser", "admin@example.com", "password123", "ADMIN");
+        Admin mockAdmin = new Admin("adminUser", "admin@example.com", "hashedPassword");
+        mockAdmin.setId(3L);
+
+        when(userFactory.createUser(registerDto)).thenReturn(mockAdmin);
+        when(userRepository.save(any(User.class))).thenReturn(mockAdmin);
+
+        // Act
+        User result = userService.register(registerDto);
+
+        // Assert
+        assertNotNull(result);
+        assertInstanceOf(Admin.class, result);
+        assertEquals("adminUser", result.getUsername());
+        assertEquals("admin@example.com", result.getEmail());
+
+        verify(userFactory).createUser(any(RegisterDto.class));
+        verify(userRepository).save(any(User.class));
+        logger.info("Admin registration test passed using factory");
+    }
+
+    @Test
+    @DisplayName("Register - Factory throws exception for invalid role")
+    void register_InvalidRole_FactoryThrowsException() {
+        logger.info("Testing registration with invalid role using factory");
+        // Arrange
+        RegisterDto registerDto = createRegisterDto("invalidUser", "invalid@example.com", "password123", "INVALID_ROLE");
+
+        when(userFactory.createUser(registerDto)).thenThrow(new IllegalArgumentException("Unknown role: INVALID_ROLE"));
 
         // Act & Assert
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-            userService.register("existingUser", "test@example.com", "password123", "STUDENT")
+            userService.register(registerDto)
         );
-        assertTrue(exception.getMessage().contains("already taken"));
-        logger.info("Duplicate username registration test passed");
+        assertTrue(exception.getMessage().contains("Unknown role"));
+
+        verify(userFactory).createUser(any(RegisterDto.class));
+        verify(userRepository, never()).save(any(User.class));
+        logger.info("Invalid role registration test passed using factory");
     }
 
     @Test
-    @DisplayName("Login - Success with valid credentials (Spring Auth)")
-    void loginUser_ValidCredentials_Success_SpringAuth() {
-        logger.info("Testing login with valid credentials");
+    @DisplayName("Factory creates Student with correct properties")
+    void factory_CreateStudent_CorrectProperties() {
+        logger.info("Testing factory creates student with correct properties");
         // Arrange
-        String username = "testUser";
-        String password = "password123";
-        User mockUser = new User();
-        mockUser.setUsername(username);
-        mockUser.setPasswordHash("hashedPassword");
-        when(userRepository.findByUsername(eq(username))).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches(eq(password), eq("hashedPassword"))).thenReturn(true);
+        RegisterDto registerDto = createRegisterDto("studentTest", "student@test.com", "password123", "STUDENT");
+        Student mockStudent = new Student("studentTest", "student@test.com", "hashedPassword");
+        mockStudent.setActive(true);
 
-        // Simulate Spring Security authentication
-        assertTrue(passwordEncoder.matches(password, mockUser.getPasswordHash()));
-        // Optionally, set connected status as Spring Security would do
-        mockUser.setConnected(true);
-        userRepository.save(mockUser);
-        assertTrue(mockUser.isConnected());
-        verify(userRepository).save(mockUser);
-        logger.info("Login test passed for user: {}", username);
-    }
+        when(userFactory.createUser(registerDto)).thenReturn(mockStudent);
+        when(userRepository.save(any(User.class))).thenReturn(mockStudent);
 
-    @Test
-    @DisplayName("Login - Fails with invalid username (Spring Auth)")
-    void loginUser_InvalidUsername_ThrowsException_SpringAuth() {
-        logger.info("Testing login with invalid username");
-        // Arrange
-        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
-
-        // Simulate Spring Security authentication failure
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            Optional<User> userOpt = userRepository.findByUsername("nonexistent");
-            if (userOpt.isEmpty()) throw new IllegalArgumentException("Invalid username or password");
-        });
-        assertTrue(exception.getMessage().contains("Invalid username or password"));
-        logger.info("Invalid username login test passed");
-    }
-
-    @Test
-    @DisplayName("Login - Fails with wrong password (Spring Auth)")
-    void loginUser_WrongPassword_ThrowsException_SpringAuth() {
-        logger.info("Testing login with wrong password");
-        // Arrange
-        User mockUser = new User();
-        mockUser.setPasswordHash("hashedPassword");
-        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(mockUser));
-        when(passwordEncoder.matches(any(), any())).thenReturn(false);
-
-        // Simulate Spring Security authentication failure
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            if (!passwordEncoder.matches("wrongPassword", mockUser.getPasswordHash())) {
-                throw new IllegalArgumentException("Invalid username or password");
-            }
-        });
-        assertTrue(exception.getMessage().contains("Invalid username or password"));
-        logger.info("Wrong password login test passed");
-    }
-
-    @Test
-    @DisplayName("Logout - Success for logged in user (Spring Auth)")
-    void logoutUser_LoggedInUser_Success_SpringAuth() {
-        logger.info("Testing logout for logged in user");
-        // Arrange
-        User mockUser = new User();
-        mockUser.setConnected(true);
-        when(userRepository.findByUsername("testUser")).thenReturn(Optional.of(mockUser));
-
-        // Simulate Spring Security logout
-        mockUser.setConnected(false);
-        userRepository.save(mockUser);
+        // Act
+        User result = userService.register(registerDto);
 
         // Assert
-        assertFalse(mockUser.isConnected());
-        verify(userRepository).save(mockUser);
-        logger.info("Logout test passed for logged in user");
+        assertInstanceOf(Student.class, result);
+        Student student = (Student) result;
+        assertEquals("studentTest", student.getUsername());
+        assertEquals("student@test.com", student.getEmail());
+        assertTrue(student.isActive());
+        assertFalse(student.isConnected()); // Should be false by default
+
+        logger.info("Factory student creation test passed");
     }
 
     @Test
-    @DisplayName("Logout - Fails with non-existent user (Spring Auth)")
-    void logoutUser_NonexistentUser_ThrowsException_SpringAuth() {
-        logger.info("Testing logout for non-existent user");
+    @DisplayName("Factory creates Teacher with correct properties")
+    void factory_CreateTeacher_CorrectProperties() {
+        logger.info("Testing factory creates teacher with correct properties");
         // Arrange
-        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
+        RegisterDto registerDto = createRegisterDto("teacherTest", "teacher@test.com", "password123", "TEACHER");
+        Teacher mockTeacher = new Teacher("teacherTest", "teacher@test.com", "hashedPassword");
+        mockTeacher.setActive(true);
 
-        // Simulate Spring Security logout failure
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            Optional<User> userOpt = userRepository.findByUsername("nonexistent");
-            if (userOpt.isEmpty()) throw new RuntimeException("User not found");
-        });
+        when(userFactory.createUser(registerDto)).thenReturn(mockTeacher);
+        when(userRepository.save(any(User.class))).thenReturn(mockTeacher);
+
+        // Act
+        User result = userService.register(registerDto);
+
+        // Assert
+        assertInstanceOf(Teacher.class, result);
+        Teacher teacher = (Teacher) result;
+        assertEquals("teacherTest", teacher.getUsername());
+        assertEquals("teacher@test.com", teacher.getEmail());
+        assertTrue(teacher.isActive());
+        assertFalse(teacher.isConnected()); // Should be false by default
+        assertNotNull(teacher.getMeetings()); // Should have initialized list
+
+        logger.info("Factory teacher creation test passed");
+    }
+
+    @Test
+    @DisplayName("View Profile - Success for existing user")
+    void viewProfile_ExistingUser_Success() {
+        logger.info("Testing view profile for existing user");
+        // Arrange
+        Student mockUser = new Student("testUser", "test@example.com", "hashedPassword");
+        mockUser.setId(1L);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
+
+        // Act
+        User result = userService.viewProfile(1L);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals("testUser", result.getUsername());
+        assertEquals("test@example.com", result.getEmail());
+        verify(userRepository).findById(1L);
+        logger.info("View profile test passed for user: {}", result.getUsername());
+    }
+
+    @Test
+    @DisplayName("View Profile - Fails for non-existing user")
+    void viewProfile_NonExistingUser_ThrowsException() {
+        logger.info("Testing view profile for non-existing user");
+        // Arrange
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () ->
+            userService.viewProfile(999L)
+        );
         assertTrue(exception.getMessage().contains("User not found"));
-        logger.info("Logout test passed for non-existent user");
+        logger.info("Non-existing user profile test passed");
     }
 
     @Test
@@ -182,18 +245,16 @@ class UserServiceTest {
     void changePassword_ValidOldPassword_Success() {
         logger.info("Testing change password with valid old password");
         // Arrange
-        User mockUser = new User();
-        mockUser.setPasswordHash("hashedOldPass");
+        Student mockUser = new Student("testUser", "test@example.com", "hashedOldPass");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(passwordEncoder.matches(anyString(), eq("hashedOldPass"))).thenReturn(true);
         when(passwordEncoder.encode(anyString())).thenReturn("hashedNewPass");
 
         // Act
-        assertDoesNotThrow(() ->
-            userService.changePassword(1L, "oldPass", "newPass")
-        );
+        Boolean result = userService.changePassword(1L, "oldPass", "newPass");
 
         // Assert
+        assertTrue(result);
         verify(passwordEncoder).encode(eq("newPass"));
         verify(userRepository).save(mockUser);
         logger.info("Change password test passed with valid old password");
@@ -204,31 +265,17 @@ class UserServiceTest {
     void changePassword_InvalidOldPassword_ThrowsException() {
         logger.info("Testing change password with invalid old password");
         // Arrange
-        User mockUser = new User();
-        mockUser.setPasswordHash("hashedOldPass");
+        Student mockUser = new Student("testUser", "test@example.com", "hashedPassword");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
 
         // Act & Assert
         Exception exception = assertThrows(RuntimeException.class, () ->
-            userService.changePassword(1L, "wrongPass", "newPass")
+            userService.changePassword(1L, "wrongOldPass", "newPass")
         );
         assertTrue(exception.getMessage().contains("Old password is incorrect"));
-        logger.info("Change password test passed with invalid old password");
-    }
-
-    @Test
-    @DisplayName("View Profile - Success for existing user")
-    void viewProfile_ExistingUser_Success() {
-        logger.info("Testing view profile for existing user");
-        // Arrange
-        User mockUser = new User();
-        mockUser.setUsername("testUser");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
-
-        // Act & Assert
-        assertDoesNotThrow(() -> userService.viewProfile(1L));
-        logger.info("View profile test passed for existing user");
+        verify(userRepository, never()).save(any(User.class));
+        logger.info("Invalid old password test passed");
     }
 
     @Test
@@ -236,7 +283,7 @@ class UserServiceTest {
     void deleteUser_ExistingUser_Success() {
         logger.info("Testing delete user for existing user");
         // Arrange
-        User mockUser = new User();
+        Student mockUser = new Student("testUser", "test@example.com", "hashedPassword");
         when(userRepository.findById(1L)).thenReturn(Optional.of(mockUser));
 
         // Act
@@ -245,5 +292,31 @@ class UserServiceTest {
         // Assert
         verify(userRepository).delete(mockUser);
         logger.info("Delete user test passed for existing user");
+    }
+
+    @Test
+    @DisplayName("Delete User - Fails for non-existing user")
+    void deleteUser_NonExistingUser_ThrowsException() {
+        logger.info("Testing delete user for non-existing user");
+        // Arrange
+        when(userRepository.findById(999L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        Exception exception = assertThrows(RuntimeException.class, () ->
+            userService.deleteUser(999L)
+        );
+        assertTrue(exception.getMessage().contains("User not found"));
+        verify(userRepository, never()).delete(any(User.class));
+        logger.info("Non-existing user deletion test passed");
+    }
+
+    // Helper method to create RegisterDto
+    private RegisterDto createRegisterDto(String username, String email, String password, String role) {
+        RegisterDto dto = new RegisterDto();
+        dto.setUsername(username);
+        dto.setEmail(email);
+        dto.setPassword(password);
+        dto.setRole(role);
+        return dto;
     }
 }

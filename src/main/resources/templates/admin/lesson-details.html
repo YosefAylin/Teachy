@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Lesson Details - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+    <style>
+        .lesson-header {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--education-purple);
+        }
+
+        .lesson-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .lesson-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-pending {
+            background: #f59e0b;
+            color: white;
+        }
+        .status-accepted {
+            background: #10b981;
+            color: white;
+        }
+        .status-rejected {
+            background: #ef4444;
+            color: white;
+        }
+
+        .participant-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--education-green);
+        }
+
+        .participant-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .participant-details {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .actions-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-date {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        @media (max-width: 768px) {
+            .lesson-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">🎓 Lesson Details</h1>
+
+        <!-- Lesson Header -->
+        <div class="lesson-header">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                <div>
+                    <h2 style="margin: 0; color: white;" th:text="${lesson.course.title}">Course Title</h2>
+                    <p style="margin: 5px 0 0 0; color: var(--education-purple); font-weight: bold;"
+                       th:text="${lesson.course.subject}">Subject</p>
+                </div>
+                <span th:class="'lesson-status status-' + ${lesson.status.toLowerCase()}"
+                      th:text="${lesson.status}">Status</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <p style="margin: 0; font-size: 1.1rem; color: rgba(255,255,255,0.9);"
+                       th:text="${#temporals.format(lesson.timestamp, 'EEEE, MMMM dd, yyyy')}">Date</p>
+                    <p style="margin: 5px 0 0 0; font-size: 1.1rem; color: var(--education-green);"
+                       th:text="${#temporals.format(lesson.timestamp, 'HH:mm')}">Time</p>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; font-size: 0.9rem; color: rgba(255,255,255,0.7);">
+                        Lesson ID: <span th:text="${lesson.id}">123</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson Information -->
+        <div class="lesson-info-grid">
+            <!-- Student Information -->
+            <div class="info-section">
+                <h3>👨‍🎓 Student Information</h3>
+                <div class="participant-card">
+                    <div class="participant-name">
+                        <a th:href="@{/admin/users/{id}/student-profile(id=${lesson.student.id})}"
+                           style="color: var(--education-green); text-decoration: none;"
+                           th:text="${lesson.student.username}">Student Name</a>
+                    </div>
+                    <div class="participant-details">
+                        <p style="margin: 0;">Email: <span th:text="${lesson.student.email}">student@example.com</span></p>
+                        <p style="margin: 5px 0 0 0;">
+                            Status:
+                            <span th:class="'status-badge status-' + ${lesson.student.active ? 'active' : 'inactive'}"
+                                  th:text="${lesson.student.active ? 'Active' : 'Inactive'}">Active</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher Information -->
+            <div class="info-section">
+                <h3>👨‍🏫 Teacher Information</h3>
+                <div class="participant-card" style="border-left-color: var(--education-purple);">
+                    <div class="participant-name">
+                        <a th:href="@{/admin/users/{id}/teacher-profile(id=${lesson.teacher.id})}"
+                           style="color: var(--education-purple); text-decoration: none;"
+                           th:text="${lesson.teacher.username}">Teacher Name</a>
+                    </div>
+                    <div class="participant-details">
+                        <p style="margin: 0;">Email: <span th:text="${lesson.teacher.email}">teacher@example.com</span></p>
+                        <p style="margin: 5px 0 0 0;">
+                            Status:
+                            <span th:class="'status-badge status-' + ${lesson.teacher.active ? 'active' : 'inactive'}"
+                                  th:text="${lesson.teacher.active ? 'Active' : 'Inactive'}">Active</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Information -->
+        <div class="info-section" style="margin-bottom: 20px;">
+            <h3>📚 Course Information</h3>
+            <div class="info-item">
+                <span><strong>Course Title:</strong></span>
+                <span>
+                    <a th:href="@{/admin/courses/{id}/details(id=${lesson.course.id})}"
+                       style="color: var(--education-purple); text-decoration: none;"
+                       th:text="${lesson.course.title}">Course Name</a>
+                </span>
+            </div>
+            <div class="info-item">
+                <span><strong>Subject:</strong></span>
+                <span th:text="${lesson.course.subject}">Subject</span>
+            </div>
+            <div class="info-item">
+                <span><strong>Course Description:</strong></span>
+                <span th:text="${lesson.course.description}">Course description</span>
+            </div>
+        </div>
+
+        <!-- Lesson Description -->
+        <div class="info-section" style="margin-bottom: 20px;" th:if="${lesson.description}">
+            <h3>📝 Lesson Description</h3>
+            <p style="color: rgba(255,255,255,0.9); line-height: 1.6;" th:text="${lesson.description}">
+                Lesson description goes here...
+            </p>
+        </div>
+
+        <!-- Administrative Actions -->
+        <div class="actions-section">
+            <h3>⚙️ Administrative Actions</h3>
+            <div class="action-buttons">
+                <form th:if="${lesson.status == 'PENDING'}"
+                      th:action="@{/admin/lessons/{id}/approve(id=${lesson.id})}"
+                      method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-success">✅ Approve Lesson</button>
+                </form>
+
+                <form th:if="${lesson.status == 'PENDING'}"
+                      th:action="@{/admin/lessons/{id}/reject(id=${lesson.id})}"
+                      method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to reject this lesson?')">
+                        ❌ Reject Lesson
+                    </button>
+                </form>
+
+                <form th:if="${lesson.status == 'ACCEPTED'}"
+                      th:action="@{/admin/lessons/{id}/cancel(id=${lesson.id})}"
+                      method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-warning"
+                            onclick="return confirm('Are you sure you want to cancel this lesson?')">
+                        🚫 Cancel Lesson
+                    </button>
+                </form>
+
+                <form th:action="@{/admin/lessons/{id}/delete(id=${lesson.id})}"
+                      method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger"
+                            onclick="return confirm('Are you sure you want to delete this lesson? This action cannot be undone.')">
+                        🗑️ Delete Lesson
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Timeline/History -->
+        <div class="timeline-section">
+            <h3>📅 Timeline</h3>
+            <div class="timeline-item">
+                <div style="font-weight: bold; color: white;">Lesson Created</div>
+                <div class="timeline-date" th:text="${#temporals.format(lesson.timestamp, 'MMM dd, yyyy HH:mm')}">
+                    Date created
+                </div>
+            </div>
+            <div class="timeline-item" th:if="${lesson.status == 'ACCEPTED'}">
+                <div style="font-weight: bold; color: var(--education-green);">Lesson Approved</div>
+                <div class="timeline-date">Status updated to approved</div>
+            </div>
+            <div class="timeline-item" th:if="${lesson.status == 'REJECTED'}">
+                <div style="font-weight: bold; color: var(--education-red);">Lesson Rejected</div>
+                <div class="timeline-date">Status updated to rejected</div>
+            </div>
+        </div>
+
+        <div class="button-group mt-24">
+            <a th:href="@{/admin/lessons}" class="btn btn-secondary">← Back to Lessons</a>
+            <a th:href="@{/admin/courses/{id}/details(id=${lesson.course.id})}"
+               class="btn btn-primary">📚 View Course</a>
+            <a th:href="@{/admin/users/{id}/student-profile(id=${lesson.student.id})}"
+               class="btn btn-primary">👨‍🎓 View Student</a>
+            <a th:href="@{/admin/users/{id}/teacher-profile(id=${lesson.teacher.id})}"
+               class="btn btn-primary">👨‍🏫 View Teacher</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -5,6 +5,58 @@
   <title>My Students - Teachy</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+  <style>
+    .student-item {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 4px solid var(--education-green);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .student-item:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.15);
+    }
+
+    .student-name {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+      margin-bottom: 5px;
+    }
+
+    .student-name a {
+      color: var(--education-green);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .student-name a:hover {
+      color: var(--education-purple);
+    }
+
+    .student-email {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .student-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .stats-summary {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+    }
+  </style>
 </head>
 <body>
 <div class="education-bg"></div>
@@ -16,16 +68,31 @@
     <div class="role-section">
       <div th:if="${students != null and !students.empty}">
         <div th:each="student : ${students}" class="student-item">
-          <h3 th:text="${student.name}">Student Name</h3>
-          <p th:text="${student.email}">student@email.com</p>
+          <div class="student-name">
+            <a th:href="@{/teacher/students/{id}/profile(id=${student.id})}"
+               th:text="${student.username}">Student Name</a>
+          </div>
+          <div class="student-email" th:text="${student.email}">student@email.com</div>
+          <div class="student-actions">
+            <a th:href="@{/teacher/students/{id}/profile(id=${student.id})}"
+               class="btn btn-primary btn-sm">📋 View Profile</a>
+          </div>
+          <div class="stats-summary">
+            Click to view lesson history and progress with this student
+          </div>
         </div>
       </div>
       <div th:if="${students == null or students.empty}" class="text-center">
-        <p>No enrolled students yet.</p>
+        <div style="padding: 40px; color: rgba(255,255,255,0.6);">
+          <div style="font-size: 3rem; margin-bottom: 20px;">📚</div>
+          <p style="font-size: 1.1rem; margin-bottom: 10px;">No enrolled students yet.</p>
+          <p style="font-size: 0.9rem;">Students will appear here once they book lessons with you.</p>
+        </div>
       </div>
 
       <div class="button-group mt-24">
-        <a th:href="@{/teacher/home}" class="btn btn-secondary">Back to Dashboard</a>
+        <a th:href="@{/teacher/home}" class="btn btn-secondary">🏠 Back to Dashboard</a>
+        <a th:href="@{/teacher/lessons}" class="btn btn-primary">📚 View All Lessons</a>
       </div>
     </div>
   </div>

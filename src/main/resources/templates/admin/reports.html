@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>System Reports - Teachy Admin</title>
+    <title>System Reports - Admin</title>
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
     <style>
         .stats-grid {
@@ -44,18 +44,30 @@
             letter-spacing: 1px;
         }
 
-        .chart-container {
+        .breakdown-section {
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
             padding: 20px;
             margin: 20px 0;
         }
 
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
         .progress-bar {
             background: rgba(255,255,255,0.2);
             border-radius: 10px;
-            height: 20px;
-            margin: 10px 0;
+            height: 8px;
+            width: 100px;
             overflow: hidden;
         }
 
@@ -65,5 +77,106 @@
             border-radius: 10px;
             transition: width 0.5s ease;
         }
+    </style>
+</head>
+<body>
+<div class="education-bg"></div>
+<div class="container">
+    <div class="form-container">
+        <h1 class="form-title">📊 System Reports</h1>
 
-        .breakdown
+        <!-- Main Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card users">
+                <div class="stat-number" th:text="${totalUsers}">0</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card courses">
+                <div class="stat-number" th:text="${totalCourses}">0</div>
+                <div class="stat-label">Total Courses</div>
+            </div>
+            <div class="stat-card lessons">
+                <div class="stat-number" th:text="${totalLessons}">0</div>
+                <div class="stat-label">Total Lessons</div>
+            </div>
+            <div class="stat-card activity">
+                <div class="stat-number" th:text="${pendingLessons}">0</div>
+                <div class="stat-label">Pending Lessons</div>
+            </div>
+        </div>
+
+        <!-- User Breakdown -->
+        <div class="breakdown-section">
+            <h3>👥 User Breakdown</h3>
+            <div class="breakdown-item">
+                <span>Students</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span th:text="${totalStudents}">0</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${totalUsers > 0 ? (totalStudents * 100 / totalUsers) : 0} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="breakdown-item">
+                <span>Teachers</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span th:text="${totalTeachers}">0</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${totalUsers > 0 ? (totalTeachers * 100 / totalUsers) : 0} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="breakdown-item">
+                <span>Admins</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span th:text="${totalAdmins}">0</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${totalUsers > 0 ? (totalAdmins * 100 / totalUsers) : 0} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lesson Status Breakdown -->
+        <div class="breakdown-section">
+            <h3>📚 Lesson Status Breakdown</h3>
+            <div class="breakdown-item">
+                <span>Pending Lessons</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span th:text="${pendingLessons}">0</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${totalLessons > 0 ? (pendingLessons * 100 / totalLessons) : 0} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="breakdown-item">
+                <span>Accepted Lessons</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span th:text="${acceptedLessons}">0</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${totalLessons > 0 ? (acceptedLessons * 100 / totalLessons) : 0} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="breakdown-item">
+                <span>Rejected Lessons</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span th:text="${rejectedLessons}">0</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" th:style="'width: ' + ${totalLessons > 0 ? (rejectedLessons * 100 / totalLessons) : 0} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="button-group mt-24">
+            <a th:href="@{/admin/users}" class="btn btn-primary">👥 Manage Users</a>
+            <a th:href="@{/admin/courses}" class="btn btn-primary">📚 Manage Courses</a>
+            <a th:href="@{/admin/lessons}" class="btn btn-primary">🎓 Manage Lessons</a>
+            <a th:href="@{/admin/home}" class="btn btn-secondary">🏠 Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

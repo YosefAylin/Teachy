@@ -15,25 +15,47 @@
             <table style="width: 100%; border-collapse: collapse; color: white;">
                 <thead>
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
-                    <th style="padding: 12px; text-align: left;">Description</th>
+                    <th style="padding: 12px; text-align: left;">Lesson</th>
                     <th style="padding: 12px; text-align: left;">Teacher</th>
                     <th style="padding: 12px; text-align: left;">Student</th>
                     <th style="padding: 12px; text-align: left;">Date/Time</th>
                     <th style="padding: 12px; text-align: left;">Status</th>
                     <th style="padding: 12px; text-align: left;">Course</th>
+                    <th style="padding: 12px; text-align: left;">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="lesson : ${lessons.content}" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <td style="padding: 12px;" th:text="${lesson.description}">Lesson Description</td>
-                    <td style="padding: 12px;" th:text="${lesson.teacher.username}">Teacher</td>
-                    <td style="padding: 12px;" th:text="${lesson.student.username}">Student</td>
+                    <td style="padding: 12px;">
+                        <a th:href="@{/admin/lessons/{id}/details(id=${lesson.id})}"
+                           style="color: var(--education-green); text-decoration: none; font-weight: bold;">
+                            <span th:text="${lesson.description ?: 'Lesson #' + lesson.id}">Lesson Description</span>
+                        </a>
+                    </td>
+                    <td style="padding: 12px;">
+                        <a th:href="@{/admin/users/{id}/teacher-profile(id=${lesson.teacher.id})}"
+                           style="color: var(--education-purple); text-decoration: none;"
+                           th:text="${lesson.teacher.username}">Teacher</a>
+                    </td>
+                    <td style="padding: 12px;">
+                        <a th:href="@{/admin/users/{id}/student-profile(id=${lesson.student.id})}"
+                           style="color: var(--education-green); text-decoration: none;"
+                           th:text="${lesson.student.username}">Student</a>
+                    </td>
                     <td style="padding: 12px;" th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Date</td>
                     <td style="padding: 12px;">
-                            <span th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}"
-                                  th:text="${lesson.status}">Status</span>
+                        <span th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}"
+                              th:text="${lesson.status}">Status</span>
                     </td>
-                    <td style="padding: 12px;" th:text="${lesson.course.title}">Course</td>
+                    <td style="padding: 12px;">
+                        <a th:href="@{/admin/courses/{id}/details(id=${lesson.course.id})}"
+                           style="color: var(--education-purple); text-decoration: none;"
+                           th:text="${lesson.course.title}">Course</a>
+                    </td>
+                    <td style="padding: 12px;">
+                        <a th:href="@{/admin/lessons/{id}/details(id=${lesson.id})}"
+                           class="btn btn-primary btn-sm">👁️ View</a>
+                    </td>
                 </tr>
                 </tbody>
             </table>

@@ -4,6 +4,106 @@
     <meta charset="UTF-8" />
     <title>Manage Users - Admin</title>
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+    <style>
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .user-table th,
+        .user-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .user-table th {
+            background: rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .user-type-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .user-type-student {
+            background: #10b981;
+            color: white;
+        }
+
+        .user-type-teacher {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .user-type-admin {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-active {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-inactive {
+            background: #6b7280;
+            color: white;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: white;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .pagination a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .pagination .current {
+            background: var(--education-purple);
+        }
+
+        .filter-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+    </style>
 </head>
 <body>
 <div class="education-bg"></div>
@@ -11,61 +111,133 @@
     <div class="form-container">
         <h1 class="form-title">👥 User Management</h1>
 
-        <div class="card">
-            <table style="width: 100%; border-collapse: collapse; color: white;">
-                <thead>
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
-                    <th style="padding: 12px; text-align: left;">Username</th>
-                    <th style="padding: 12px; text-align: left;">Email</th>
-                    <th style="padding: 12px; text-align: left;">Role</th>
-                    <th style="padding: 12px; text-align: left;">Status</th>
-                    <th style="padding: 12px; text-align: left;">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="user : ${users.content}" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <td style="padding: 12px;" th:text="${user.username}">Username</td>
-                    <td style="padding: 12px;" th:text="${user.email}">Email</td>
-                    <td style="padding: 12px;">
-                        <span th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Admin)}" class="badge">ADMIN</span>
-                        <span th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Teacher)}" class="badge">TEACHER</span>
-                        <span th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Student)}" class="badge">STUDENT</span>
-                    </td>
-                    <td style="padding: 12px;">
-                            <span th:class="'badge ' + (${user.active} ? 'accepted' : 'rejected')"
-                                  th:text="${user.active} ? 'Active' : 'Inactive'">Status</span>
-                    </td>
-                    <td style="padding: 12px;">
-                        <form th:action="@{/admin/users/{id}/toggle-active(id=${user.id})}" method="post" style="display: inline;">
-                            <button type="submit"
-                                    th:class="'btn btn-sm ' + (${user.active} ? 'btn-accent' : 'btn-success')"
-                                    th:text="${user.active} ? 'Deactivate' : 'Activate'">Toggle</button>
-                        </form>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-
-            <!-- Pagination -->
-            <div style="margin-top: 20px; text-align: center;" th:if="${totalPages > 1}">
-                <a th:if="${currentPage > 0}"
-                   th:href="@{/admin/users(page=${currentPage - 1})}"
-                   class="btn btn-secondary btn-sm">‹ Previous</a>
-
-                <span style="margin: 0 15px; color: white;">
-                    Page <span th:text="${currentPage + 1}">1</span> of <span th:text="${totalPages}">1</span>
-                </span>
-
-                <a th:if="${currentPage < totalPages - 1}"
-                   th:href="@{/admin/users(page=${currentPage + 1})}"
-                   class="btn btn-secondary btn-sm">Next ›</a>
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <select onchange="filterByUserType(this.value)" class="form-control" style="width: auto;">
+                    <option value="">All User Types</option>
+                    <option value="STUDENT">Students</option>
+                    <option value="TEACHER">Teachers</option>
+                    <option value="ADMIN">Admins</option>
+                </select>
+                <select onchange="filterByStatus(this.value)" class="form-control" style="width: auto;">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
             </div>
         </div>
 
+        <!-- Users Table -->
+        <div class="card">
+            <div th:if="${#lists.isEmpty(users.content)}" class="text-muted text-center" style="padding: 40px;">
+                No users found.
+            </div>
+
+            <div th:if="${!#lists.isEmpty(users.content)}">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>User Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users.content}">
+                            <td th:text="${user.id}">1</td>
+                            <td>
+                                <!-- Profile Link based on user type -->
+                                <a th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Student)}"
+                                   th:href="@{/admin/users/{id}/student-profile(id=${user.id})}"
+                                   style="color: #10b981; text-decoration: none;"
+                                   th:text="${user.username}">Username</a>
+
+                                <a th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Teacher)}"
+                                   th:href="@{/admin/users/{id}/teacher-profile(id=${user.id})}"
+                                   style="color: #8b5cf6; text-decoration: none;"
+                                   th:text="${user.username}">Username</a>
+
+                                <span th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Admin)}"
+                                      th:text="${user.username}">Username</span>
+                            </td>
+                            <td th:text="${user.email}">email@example.com</td>
+                            <td>
+                                <span th:class="'user-type-badge ' +
+                                    ${user instanceof T(io.jos.onlinelearningplatform.model.Student) ? 'user-type-student' :
+                                      user instanceof T(io.jos.onlinelearningplatform.model.Teacher) ? 'user-type-teacher' : 'user-type-admin'}"
+                                      th:text="${user instanceof T(io.jos.onlinelearningplatform.model.Student) ? 'Student' :
+                                                user instanceof T(io.jos.onlinelearningplatform.model.Teacher) ? 'Teacher' : 'Admin'}">Type</span>
+                            </td>
+                            <td>
+                                <span th:class="'status-badge status-' + ${user.active ? 'active' : 'inactive'}"
+                                      th:text="${user.active ? 'Active' : 'Inactive'}">Status</span>
+                            </td>
+                            <td>
+                                <form th:action="@{/admin/users/{id}/toggle-active(id=${user.id})}"
+                                      method="post" style="display: inline;">
+                                    <button type="submit"
+                                            th:class="'btn btn-sm ' + ${user.active ? 'btn-warning' : 'btn-success'}"
+                                            th:text="${user.active ? '🚫 Deactivate' : '✅ Activate'}">
+                                        Toggle
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div th:if="${users.totalPages > 1}" class="pagination">
+            <a th:if="${users.hasPrevious()}"
+               th:href="@{/admin/users(page=${users.number - 1})}">&laquo; Previous</a>
+
+            <span th:each="pageNum : ${#numbers.sequence(0, users.totalPages - 1)}"
+                  th:class="${pageNum == users.number} ? 'current' : ''">
+                <a th:if="${pageNum != users.number}"
+                   th:href="@{/admin/users(page=${pageNum})}"
+                   th:text="${pageNum + 1}">1</a>
+                <span th:if="${pageNum == users.number}" th:text="${pageNum + 1}">1</span>
+            </span>
+
+            <a th:if="${users.hasNext()}"
+               th:href="@{/admin/users(page=${users.number + 1})}">Next &raquo;</a>
+        </div>
+
         <div class="button-group mt-24">
-            <a th:href="@{/admin/home}" class="btn btn-secondary">Back to Dashboard</a>
+            <a th:href="@{/admin/reports}" class="btn btn-primary">📊 View Reports</a>
+            <a th:href="@{/admin/home}" class="btn btn-secondary">🏠 Back to Dashboard</a>
         </div>
     </div>
 </div>
+
+<script>
+function filterByUserType(userType) {
+    const url = new URL(window.location);
+    if (userType) {
+        url.searchParams.set('userType', userType);
+    } else {
+        url.searchParams.delete('userType');
+    }
+    url.searchParams.delete('page'); // Reset to first page
+    window.location.href = url.toString();
+}
+
+function filterByStatus(status) {
+    const url = new URL(window.location);
+    if (status) {
+        url.searchParams.set('status', status);
+    } else {
+        url.searchParams.delete('status');
+    }
+    url.searchParams.delete('page'); // Reset to first page
+    window.location.href = url.toString();
+}
+</script>
 </body>
 </html>

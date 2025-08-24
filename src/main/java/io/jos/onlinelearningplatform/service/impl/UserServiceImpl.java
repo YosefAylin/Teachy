@@ -1,5 +1,7 @@
 package io.jos.onlinelearningplatform.service.impl;
 
+import io.jos.onlinelearningplatform.Factory.UserFactory;
+import io.jos.onlinelearningplatform.dto.RegisterDto;
 import io.jos.onlinelearningplatform.model.Admin;
 import io.jos.onlinelearningplatform.model.Student;
 import io.jos.onlinelearningplatform.model.Teacher;
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final  UserFactory userFactory;
 
     /**
      * Constructs a new UserServiceImpl with the required dependencies.
@@ -32,36 +35,18 @@ public class UserServiceImpl implements UserService {
      * @param passwordEncoder Encoder for securely hashing passwords
      */
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserFactory userFactory) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userFactory = userFactory;
     }
 
-    /**
-     * Registers a new user in the system with the specified role.
-     * The password is securely hashed before storage.
-     *
-     * @param username The unique username for the new user
-     * @param email The email address of the user
-     * @param rawPassword The plain text password (will be hashed)
-     * @param role The role of the user (ADMIN, TEACHER, or STUDENT)
-     * @return The newly created User entity
-     * @throws IllegalArgumentException if the username is already taken
-     */
-    public User register(String username,
-                         String email,
-                         String rawPassword,
-                         String role) {
-        String hash = passwordEncoder.encode(rawPassword);
-        User u = switch (role.toUpperCase()) {
-            case "ADMIN" -> new Admin(username, email, hash);
-            case "TEACHER" -> new Teacher(username, email, hash);
-            default -> new Student(username, email, hash);
-        };
-        if (userRepository.findByUsername(username).isPresent()) {
-            throw new IllegalArgumentException("Username '" + username + "' is already taken");
-        }
-        return userRepository.save(u);
+
+
+    public User register(RegisterDto dto) {
+        User user = userFactory.createUser(dto);
+        return userRepository.save(user);
+
     }
 
     /**

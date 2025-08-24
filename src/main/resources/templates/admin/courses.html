@@ -57,10 +57,16 @@
                     </thead>
                     <tbody>
                     <tr th:each="course : ${courses}" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                        <td style="padding: 12px;" th:text="${course.title}">Course Name</td>
+                        <td style="padding: 12px;">
+                            <a th:href="@{/admin/courses/{id}/details(id=${course.id})}"
+                               style="color: var(--education-purple); text-decoration: none; font-weight: bold;"
+                               th:text="${course.title}">Course Name</a>
+                        </td>
                         <td style="padding: 12px;" th:text="${course.subject}">Subject</td>
                         <td style="padding: 12px;" th:text="${course.description}">Description</td>
                         <td style="padding: 12px;">
+                            <a th:href="@{/admin/courses/{id}/details(id=${course.id})}"
+                               class="btn btn-primary btn-sm" style="margin-right: 8px;">👁️ View</a>
                             <form th:action="@{/admin/courses/{id}/delete(id=${course.id})}" method="post"
                                   style="display: inline;"
                                   onsubmit="return confirm('Are you sure you want to delete this course?');">

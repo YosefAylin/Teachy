@@ -1,10 +1,11 @@
 package io.jos.onlinelearningplatform.repository;
 
 import io.jos.onlinelearningplatform.model.Lesson;
+import io.jos.onlinelearningplatform.model.Student;
+import io.jos.onlinelearningplatform.model.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -75,5 +76,15 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
 
     long countByStatus(String status);
-}
 
+    // New methods for admin functionality
+    List<Lesson> findByStudentOrderByTimestampDesc(Student student);
+    List<Lesson> findByCourseOrderByTimestampDesc(Course course);
+
+    // Alternative methods using ID for compatibility
+    @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId ORDER BY l.timestamp DESC")
+    List<Lesson> findByStudentIdOrderByTimestampDesc(@Param("studentId") Long studentId);
+
+    @Query("SELECT l FROM Lesson l WHERE l.course.id = :courseId ORDER BY l.timestamp DESC")
+    List<Lesson> findByCourseIdOrderByTimestampDesc(@Param("courseId") Long courseId);
+}

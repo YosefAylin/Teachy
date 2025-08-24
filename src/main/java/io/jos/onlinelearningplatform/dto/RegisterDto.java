@@ -1,4 +1,4 @@
-package io.jos.onlinelearningplatform.dto.request;
+package io.jos.onlinelearningplatform.dto;
 
 import lombok.Getter;
 import lombok.Setter;

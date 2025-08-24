@@ -1,14 +1,10 @@
 package io.jos.onlinelearningplatform.controller;
 
-import io.jos.onlinelearningplatform.dto.request.RegisterDto;
-import io.jos.onlinelearningplatform.model.User;
+import io.jos.onlinelearningplatform.dto.RegisterDto;
 import io.jos.onlinelearningplatform.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
 @RestController
 public class UserController {
@@ -28,10 +24,7 @@ public class UserController {
     @PostMapping("/register")
     public ModelAndView processRegistration(@ModelAttribute RegisterDto dto, Model model) {
         try {
-            userService.register(dto.getUsername(),
-                    dto.getEmail(),
-                    dto.getPassword(),
-                    dto.getRole());
+            userService.register(dto);
             return new ModelAndView("redirect:/login?registered=true");
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());

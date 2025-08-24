@@ -99,9 +99,16 @@ public class TeacherServiceImpl implements TeacherService {
             throw new IllegalArgumentException("Invalid username");
         }
 
-        Teacher teacher = (Teacher) userRepository.findByUsername(teacherName)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found with username: " + teacherName));
+        User user = userRepository.findByUsername(teacherName)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with username: " + teacherName));
 
+        // Check if the user is actually a Teacher before casting
+        if (!(user instanceof Teacher)) {
+            logger.warn("User {} is not a Teacher (found type: {})", teacherName, user.getClass().getSimpleName());
+            throw new IllegalArgumentException("User " + teacherName + " is not a teacher");
+        }
+
+        Teacher teacher = (Teacher) user;
         logger.info("Found teacher ID: {} for username: {}", teacher.getId(), teacherName);
         return teacher.getId();
     }
@@ -245,4 +252,3 @@ public class TeacherServiceImpl implements TeacherService {
         return lessonRepository.findPastByTeacher(teacherId, LocalDateTime.now());
     }
 }
-
