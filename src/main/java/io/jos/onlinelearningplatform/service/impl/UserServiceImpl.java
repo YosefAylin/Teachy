@@ -1,10 +1,7 @@
 package io.jos.onlinelearningplatform.service.impl;
 
-import io.jos.onlinelearningplatform.Factory.UserFactory;
+import io.jos.onlinelearningplatform.factory.UserFactory;
 import io.jos.onlinelearningplatform.dto.RegisterDto;
-import io.jos.onlinelearningplatform.model.Admin;
-import io.jos.onlinelearningplatform.model.Student;
-import io.jos.onlinelearningplatform.model.Teacher;
 import io.jos.onlinelearningplatform.model.User;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.UserService;

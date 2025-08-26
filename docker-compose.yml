@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: online-learning-app
+    ports:
+      - "8080:8080"                       # ← חשוב, אחרת לא תראה את האפליקציה ב-localhost
+    environment:
+      SERVER_PORT: 8080                   # ← מבטיח ש-Spring מאזין ל-8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/online_learning_db
+      SPRING_DATASOURCE_USERNAME: yosefaylin
+      SPRING_DATASOURCE_PASSWORD: 123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      SPRING_FLYWAY_BASELINE_VERSION: "1"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    container_name: teachy-db
+    environment:
+      POSTGRES_DB: online_learning_db
+      POSTGRES_USER: yosefaylin
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yosefaylin -d online_learning_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: teachy-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "5050:80"                         # ← חשוב, גישה דרך http://localhost:5050
+    depends_on:
+      - db
+    volumes:
+      - pgadmindata:/var/lib/pgadmin
+    restart: unless-stopped
+
+volumes:
+  dbdata:
+  pgadmindata:

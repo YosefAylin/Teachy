@@ -1,4 +1,4 @@
-package io.jos.onlinelearningplatform.Factory;
+package io.jos.onlinelearningplatform.factory;
 
 import io.jos.onlinelearningplatform.dto.RegisterDto;
 import io.jos.onlinelearningplatform.model.Admin;

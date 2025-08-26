@@ -55,4 +55,29 @@ public class AdminController {
     public String systemReports(Model model) {
         return adminFacade.prepareReportsPage(model);
     }
+
+    @GetMapping("/courses/{id}/details")
+    public String courseDetails(@PathVariable Long id, Model model) {
+        return adminFacade.prepareCourseDetailsPage(id, model);
+    }
+
+    @GetMapping("/lessons/{id}/details")
+    public String lessonDetails(@PathVariable Long id, Model model) {
+        return adminFacade.prepareLessonDetailsPage(id, model);
+    }
+
+    @PostMapping("/lessons/{id}/approve")
+    public String approveLesson(@PathVariable Long id) {
+        return adminFacade.approveLessonRequest(id);
+    }
+
+    @PostMapping("/lessons/{id}/reject")
+    public String rejectLesson(@PathVariable Long id) {
+        return adminFacade.rejectLessonRequest(id);
+    }
+
+    @PostMapping("/lessons/{id}/cancel")
+    public String cancelLesson(@PathVariable Long id) {
+        return adminFacade.cancelLesson(id);
+    }
 }

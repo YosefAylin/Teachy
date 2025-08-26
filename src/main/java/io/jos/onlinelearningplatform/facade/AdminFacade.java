@@ -127,4 +127,83 @@ public class AdminFacade {
 
         return "admin/reports";
     }
+
+    public String prepareCourseDetailsPage(Long courseId, Model model) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        // Get course lessons
+        List<Lesson> courseLessons = lessonRepository.findByCourseIdOrderByTimestampDesc(courseId);
+
+        // Get unique students and teachers from lessons
+        List<Student> students = courseLessons.stream()
+                .map(Lesson::getStudent)
+                .distinct()
+                .toList();
+
+        List<Teacher> teachers = courseLessons.stream()
+                .map(Lesson::getTeacher)
+                .distinct()
+                .toList();
+
+        // Calculate statistics
+        long totalLessons = courseLessons.size();
+        long completedLessons = courseLessons.stream()
+                .filter(lesson -> "COMPLETED".equals(lesson.getStatus()))
+                .count();
+
+        // Get recent lessons (last 10)
+        List<Lesson> recentLessons = courseLessons.stream()
+                .limit(10)
+                .toList();
+
+        model.addAttribute("course", course);
+        model.addAttribute("students", students);
+        model.addAttribute("teachers", teachers);
+        model.addAttribute("totalStudents", students.size());
+        model.addAttribute("totalTeachers", teachers.size());
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("completedLessons", completedLessons);
+        model.addAttribute("recentLessons", recentLessons);
+
+        return "admin/course-details";
+    }
+
+    public String prepareLessonDetailsPage(Long lessonId, Model model) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+
+        model.addAttribute("lesson", lesson);
+        return "admin/lesson-details";
+    }
+
+    public String approveLessonRequest(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+
+        lesson.setStatus("ACCEPTED");
+        lessonRepository.save(lesson);
+
+        return "redirect:/admin/lessons/" + lessonId + "/details?approved=1";
+    }
+
+    public String rejectLessonRequest(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+
+        lesson.setStatus("REJECTED");
+        lessonRepository.save(lesson);
+
+        return "redirect:/admin/lessons/" + lessonId + "/details?rejected=1";
+    }
+
+    public String cancelLesson(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId)
+                .orElseThrow(() -> new IllegalArgumentException("Lesson not found"));
+
+        lesson.setStatus("CANCELLED");
+        lessonRepository.save(lesson);
+
+        return "redirect:/admin/lessons/" + lessonId + "/details?cancelled=1";
+    }
 }
