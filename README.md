@@ -84,43 +84,33 @@ All tests run automatically on **GitHub Actions CI**.
 
 ---
 
+---
+
 ## ⚙️ CI/CD Pipeline
+The project uses **GitHub Actions** to make development and deployment easier:
 
-We implemented **GitHub Actions** for automated workflows:
+- Every time code is pushed to GitHub, the system **automatically checks** that everything builds and tests pass.  
+- The app is then **packaged and prepared for deployment**.  
+- A **Docker image** is created and uploaded, so the app can run anywhere.
 
-- **CI (Continuous Integration)**  
-  - Runs on every push/PR to `main`.  
-  - Builds with Maven.  
-  - Runs all unit + integration tests.  
-  - Uploads test reports as artifacts.  
-
-- **CD (Continuous Deployment)**  
-  - Packages the app into a `.jar`.  
-  - Builds a **Docker image**.  
-  - Pushes image to **Docker Hub** with two tags:  
-    - `latest`  
-    - commit-specific `${GITHUB_SHA}`  
-
-This ensures the platform is always **buildable, testable, and deployable**.  
+This means the project is always **ready to run and deploy** without extra setup.
 
 ---
 
 ## 🐳 Docker & Deployment
+The whole platform is **containerized with Docker** to make setup simple:
 
-The platform is fully containerized with **Docker Compose**.  
+- **App** → the main Spring Boot service.  
+- **Database** → PostgreSQL database.  
+- **Admin Tool** → pgAdmin for database management.  
 
-### Services
-- **App** → Spring Boot service (`online-learning-app`).  
-- **Database** → PostgreSQL (`teachy-db`).  
-- **Admin Tool** → pgAdmin (`teachy-pgadmin`).  
-
-### Example Commands
+To run the project locally:  
 ```bash
-# Build images
-docker compose build
-
-# Run services
 docker compose up -d
+``` 
 
-# Check running containers
-docker compose ps
+Then you can access: 
+	
+ •	The app at http://localhost:8080
+	
+ •	pgAdmin (database UI) at http://localhost:5050
