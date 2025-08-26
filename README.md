@@ -38,7 +38,7 @@ The project follows the **MVC (Model–View–Controller)** architectural patter
 [📄 Use Case Model](docs/useCaseModel.pdf)
 
 #### MVC
-[📄 MVC](docs/MVC.docx)
+[📄 MVC](docs/MVC.pdf)
 
 
 
