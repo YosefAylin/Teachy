@@ -2,11 +2,12 @@ package io.jos.onlinelearningplatform.controller;
 
 import io.jos.onlinelearningplatform.dto.RegisterDto;
 import io.jos.onlinelearningplatform.facade.UserFacade;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-@RestController
+@Controller
 public class UserController {
 
     private final UserFacade userFacade;

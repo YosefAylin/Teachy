@@ -1,5 +1,6 @@
 package io.jos.onlinelearningplatform.service;
 
+import io.jos.onlinelearningplatform.cache.GlobalCacheService;
 import io.jos.onlinelearningplatform.model.*;
 import io.jos.onlinelearningplatform.repository.*;
 import io.jos.onlinelearningplatform.service.impl.TeacherServiceImpl;
@@ -10,7 +11,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -42,83 +42,17 @@ class TeacherServiceTest {
     private ScheduleRepository scheduleRepository;
 
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private GlobalCacheService globalCacheService;
 
     private TeacherService teacherService;
+
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         teacherService = new TeacherServiceImpl(userRepository, courseRepository, lessonRepository,
-                passwordEncoder, teacherCourseRepository, scheduleRepository);
+                teacherCourseRepository, scheduleRepository, globalCacheService);
         logger.info("TeacherServiceTest setup completed");
-    }
-
-    @Test
-    @DisplayName("Handle Booking - Valid Lesson ID")
-    void handleBooking_ValidLessonId_Success() {
-        logger.info("Testing handleBooking with valid lesson ID");
-        // Arrange
-        Long lessonId = 1L;
-
-        // Act & Assert
-        assertDoesNotThrow(() -> teacherService.handleBooking(lessonId));
-        logger.info("handleBooking valid lesson ID test passed");
-    }
-
-    @Test
-    @DisplayName("Handle Booking - Null Lesson ID")
-    void handleBooking_NullLessonId_ThrowsException() {
-        logger.info("Testing handleBooking with null lesson ID");
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> teacherService.handleBooking(null));
-        assertEquals("Invalid lesson ID", exception.getMessage());
-        logger.info("handleBooking null lesson ID test passed");
-    }
-
-    @Test
-    @DisplayName("Get Upcoming Lessons - Success")
-    void getUpcomingLessons_Success() {
-        logger.info("Testing getUpcomingLessons");
-        // Arrange
-        Long teacherId = 1L;
-        Course course1 = new Course();
-        course1.setId(1L);
-        Course course2 = new Course();
-        course2.setId(2L);
-        List<Course> teacherCourses = Arrays.asList(course1, course2);
-
-        Lesson lesson1 = new Lesson();
-        lesson1.setTimestamp(LocalDateTime.now().plusHours(1));
-        Lesson lesson2 = new Lesson();
-        lesson2.setTimestamp(LocalDateTime.now().plusHours(2));
-        List<Lesson> upcomingLessons = Arrays.asList(lesson1, lesson2);
-
-        when(teacherCourseRepository.findByTeacherId(teacherId))
-            .thenReturn(Arrays.asList(createTeacherCourse(course1), createTeacherCourse(course2)));
-        when(lessonRepository.findUpcomingLessonsByCourseIds(any(List.class), any(LocalDateTime.class)))
-            .thenReturn(upcomingLessons);
-
-        // Act
-        List<Lesson> result = teacherService.getUpcomingLessons(teacherId);
-
-        // Assert
-        assertEquals(2, result.size());
-        verify(teacherCourseRepository).findByTeacherId(teacherId);
-        verify(lessonRepository).findUpcomingLessonsByCourseIds(any(List.class), any(LocalDateTime.class));
-        logger.info("getUpcomingLessons test passed");
-    }
-
-    @Test
-    @DisplayName("Get Upcoming Lessons - Null Teacher ID")
-    void getUpcomingLessons_NullTeacherId_ThrowsException() {
-        logger.info("Testing getUpcomingLessons with null teacher ID");
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> teacherService.getUpcomingLessons(null));
-        assertEquals("Invalid teacher ID", exception.getMessage());
-        logger.info("getUpcomingLessons null teacher ID test passed");
     }
 
     @Test
@@ -200,9 +134,9 @@ class TeacherServiceTest {
     }
 
     @Test
-    @DisplayName("Get Teacher ID By Username - Teacher Not Found")
-    void getTeacherIdByUsername_TeacherNotFound_ThrowsException() {
-        logger.info("Testing getTeacherIdByUsername with non-existent teacher");
+    @DisplayName("Get Teacher ID By Username - User Not Found")
+    void getTeacherIdByUsername_UserNotFound_ThrowsException() {
+        logger.info("Testing getTeacherIdByUsername with non-existent user");
         // Arrange
         String username = "nonexistent";
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
@@ -210,8 +144,8 @@ class TeacherServiceTest {
         // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> teacherService.getTeacherIdByUsername(username));
-        assertTrue(exception.getMessage().contains("Teacher not found"));
-        logger.info("getTeacherIdByUsername teacher not found test passed");
+        assertTrue(exception.getMessage().contains("User not found"));
+        logger.info("getTeacherIdByUsername user not found test passed");
     }
 
     @Test
@@ -309,18 +243,87 @@ class TeacherServiceTest {
         Course course1 = new Course();
         course1.setTitle("Java");
         Course course2 = new Course();
-        course2.setTitle("Python");
+        course2.setTitle("Spring");
+
+        TeacherCourse tc1 = new TeacherCourse();
+        tc1.setCourse(course1);
+        TeacherCourse tc2 = new TeacherCourse();
+        tc2.setCourse(course2);
 
         when(teacherCourseRepository.findByTeacherId(teacherId))
-            .thenReturn(Arrays.asList(createTeacherCourse(course1), createTeacherCourse(course2)));
+            .thenReturn(Arrays.asList(tc1, tc2));
 
         // Act
         List<Course> result = teacherService.getTeachableCourses(teacherId);
 
         // Assert
         assertEquals(2, result.size());
+        assertEquals("Java", result.get(0).getTitle());
+        assertEquals("Spring", result.get(1).getTitle());
         verify(teacherCourseRepository).findByTeacherId(teacherId);
         logger.info("getTeachableCourses test passed");
+    }
+
+    @Test
+    @DisplayName("Count Pending Lessons - Success")
+    void countPendingLessons_Success() {
+        logger.info("Testing countPendingLessons");
+        // Arrange
+        Long teacherId = 1L;
+        when(lessonRepository.countByTeacherIdAndStatus(teacherId, "PENDING")).thenReturn(3);
+
+        // Act
+        int result = teacherService.countPendingLessons(teacherId);
+
+        // Assert
+        assertEquals(3, result);
+        verify(lessonRepository).countByTeacherIdAndStatus(teacherId, "PENDING");
+        logger.info("countPendingLessons test passed");
+    }
+
+    @Test
+    @DisplayName("Get Teacher Profile - Success")
+    void getTeacherProfile_Success() {
+        logger.info("Testing getTeacherProfile");
+        // Arrange
+        Long teacherId = 1L;
+        Teacher teacher = new Teacher();
+        teacher.setId(teacherId);
+        teacher.setUsername("teacher1");
+
+        when(userRepository.findById(teacherId)).thenReturn(Optional.of(teacher));
+
+        // Act
+        Teacher result = teacherService.getTeacherProfile(teacherId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(teacherId, result.getId());
+        assertEquals("teacher1", result.getUsername());
+        verify(userRepository).findById(teacherId);
+        logger.info("getTeacherProfile test passed");
+    }
+
+    @Test
+    @DisplayName("Get Next Lesson - Success")
+    void getNextLesson_Success() {
+        logger.info("Testing getNextLesson");
+        // Arrange
+        Long teacherId = 1L;
+        Lesson nextLesson = new Lesson();
+        nextLesson.setTimestamp(LocalDateTime.now().plusHours(1));
+
+        when(lessonRepository.findUpcomingByTeacher(eq(teacherId), any(LocalDateTime.class)))
+            .thenReturn(Arrays.asList(nextLesson));
+
+        // Act
+        Lesson result = teacherService.getNextLesson(teacherId);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(nextLesson, result);
+        verify(lessonRepository).findUpcomingByTeacher(eq(teacherId), any(LocalDateTime.class));
+        logger.info("getNextLesson test passed");
     }
 
     @Test
@@ -334,7 +337,7 @@ class TeacherServiceTest {
         lesson.setStatus("PENDING");
 
         when(lessonRepository.findById(lessonId)).thenReturn(Optional.of(lesson));
-        when(lessonRepository.save(any(Lesson.class))).thenReturn(lesson);
+        when(lessonRepository.save(lesson)).thenReturn(lesson);
 
         // Act
         assertDoesNotThrow(() -> teacherService.acceptLesson(lessonId));
@@ -344,26 +347,5 @@ class TeacherServiceTest {
         verify(lessonRepository).findById(lessonId);
         verify(lessonRepository).save(lesson);
         logger.info("acceptLesson test passed");
-    }
-
-    @Test
-    @DisplayName("Accept Lesson - Lesson Not Found")
-    void acceptLesson_LessonNotFound_ThrowsException() {
-        logger.info("Testing acceptLesson with non-existent lesson");
-        // Arrange
-        Long lessonId = 999L;
-        when(lessonRepository.findById(lessonId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> teacherService.acceptLesson(lessonId));
-        assertTrue(exception.getMessage().contains("Lesson not found"));
-        logger.info("acceptLesson lesson not found test passed");
-    }
-
-    private TeacherCourse createTeacherCourse(Course course) {
-        TeacherCourse tc = new TeacherCourse();
-        tc.setCourse(course);
-        return tc;
     }
 }

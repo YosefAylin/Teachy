@@ -1,106 +1,91 @@
 package io.jos.onlinelearningplatform.service.impl;
 
+import io.jos.onlinelearningplatform.cache.GlobalCacheService;
 import io.jos.onlinelearningplatform.model.Lesson;
 import io.jos.onlinelearningplatform.model.Schedule;
 import io.jos.onlinelearningplatform.repository.LessonRepository;
 import io.jos.onlinelearningplatform.repository.ScheduleRepository;
-import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.StudentService;
+import io.jos.onlinelearningplatform.util.ScheduleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class StudentServiceImpl implements StudentService {
+
     private static final Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
     private final ScheduleRepository scheduleRepository;
     private final LessonRepository lessonRepository;
+    private final GlobalCacheService globalCache;
 
-    public StudentServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, ScheduleRepository scheduleRepository, LessonRepository lessonRepository) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    public StudentServiceImpl(ScheduleRepository scheduleRepository, LessonRepository lessonRepository, GlobalCacheService globalCache) {
         this.scheduleRepository = scheduleRepository;
         this.lessonRepository = lessonRepository;
-    }
-
-    @Override
-    public void findTeacherBySubject(String subject) {
-
-    }
-
-    @Override
-    public void bookTeacher(String teacherId, String dateTime) {
-        logger.info("Student attempting to book teacher ID: {} for {}", teacherId, dateTime);
-        if (teacherId == null || teacherId.isBlank() || dateTime == null || dateTime.isBlank()) {
-            logger.warn("Invalid booking attempt with teacherId: {} and dateTime: {}", teacherId, dateTime);
-            throw new IllegalArgumentException("Invalid booking data");
-        }
-        // Logic to book a teacher for a lesson at the specified date and time
-        // This would typically involve creating a Lesson object and saving it to the database
-        // For now, we will just print a message
-        logger.info("Successfully booked teacher {} for {}", teacherId, dateTime);
-    }
-
-    @Override
-    public void cancelBooking(String lessonId) {
-        logger.info("Student attempting to cancel booking ID: {}", lessonId);
-        if (lessonId == null || lessonId.isBlank()) {
-            logger.warn("Invalid cancellation attempt with lessonId: {}", lessonId);
-            throw new IllegalArgumentException("Invalid lesson ID");
-        }
-        // Logic to cancel a booking for a lesson
-        // This would typically involve finding the Lesson object by ID and removing it from the database
-        // For now, we will just print a message
-        logger.info("Successfully cancelled booking {}", lessonId);
-    }
-
-    @Override
-    public void makePayment(String lessonId, String paymentMethod) {
-
+        this.globalCache = globalCache;
     }
 
     @Override
     public List<Schedule> getStudentSchedule(Long studentId) {
-        return scheduleRepository.findByStudentIdOrderByScheduledTimeAsc(studentId);
+        logger.debug("Getting student schedule for student ID: {}", studentId);
+        // No caching for schedules - only users and lessons are cached
+        List<Schedule> schedules = scheduleRepository.findByStudentIdOrderByScheduledTimeAsc(studentId);
+        logger.info("Retrieved {} schedule entries for student ID: {}", schedules.size(), studentId);
+        return schedules;
     }
 
     @Override
     public List<Schedule> getUpcomingSchedule(Long studentId) {
-        return scheduleRepository.findByStudentIdAndScheduledTimeAfterOrderByScheduledTimeAsc(
+        logger.debug("Getting upcoming schedule for student ID: {}", studentId);
+        List<Schedule> upcomingSchedules = scheduleRepository.findByStudentIdAndScheduledTimeAfterOrderByScheduledTimeAsc(
                 studentId, LocalDateTime.now());
+        logger.info("Found {} upcoming schedule entries for student ID: {}", upcomingSchedules.size(), studentId);
+        return upcomingSchedules;
     }
 
     @Override
     public List<Schedule> getSchedulesForMonth(Long studentId, LocalDateTime start, LocalDateTime end) {
-        // Get lessons for the month and convert to schedules
+        logger.debug("Getting schedules for student ID: {} between {} and {}", studentId, start, end);
         List<Lesson> lessons = lessonRepository.findByStudentIdAndTimestampBetweenOrderByTimestampAsc(
                 studentId, start, end);
-
-        // Convert lessons to schedules for display
-        return lessons.stream()
-                .map(lesson -> {
-                    Schedule schedule = new Schedule();
-                    schedule.setTeacher(lesson.getTeacher());
-                    schedule.setStudent(lesson.getStudent());
-                    schedule.setLesson(lesson);
-                    schedule.setScheduledTime(lesson.getTimestamp());
-                    schedule.setStatus(lesson.getStatus());
-                    return schedule;
-                })
-                .collect(Collectors.toList());
+        List<Schedule> schedules = ScheduleUtils.convertLessonsToSchedules(lessons);
+        logger.info("Converted {} lessons to {} schedule entries for student ID: {} (period: {} to {})",
+                   lessons.size(), schedules.size(), studentId, start, end);
+        return schedules;
     }
 
     @Override
     public Lesson getNextLesson(Long studentId) {
-        List<Lesson> upcomingLessons = lessonRepository.findUpcomingByStudent(studentId, LocalDateTime.now());
-        return upcomingLessons.stream().findFirst().orElse(null);
-    }
+        logger.debug("Getting next lesson for student ID: {}", studentId);
+        String cacheKey = studentId + "_next";
 
+        // Check global cache first for lesson
+        Lesson cached = globalCache.getLesson(cacheKey, Lesson.class);
+        if (cached != null) {
+            logger.debug("Found next lesson in cache for student ID: {}", studentId);
+            logger.info("Retrieved next lesson from cache for student ID: {} - lesson at {}",
+                       studentId, cached.getTimestamp());
+            return cached;
+        }
+
+        // If not in cache, fetch from database
+        logger.debug("Next lesson not in cache, fetching from database for student ID: {}", studentId);
+        List<Lesson> upcomingLessons = lessonRepository.findUpcomingByStudent(studentId, LocalDateTime.now());
+        Lesson nextLesson = upcomingLessons.stream().findFirst().orElse(null);
+
+        // Store in global cache
+        if (nextLesson != null) {
+            globalCache.putLesson(cacheKey, nextLesson);
+            logger.info("Found and cached next lesson for student ID: {} - lesson at {} with teacher: {}",
+                       studentId, nextLesson.getTimestamp(), nextLesson.getTeacher().getUsername());
+        } else {
+            logger.info("No upcoming lessons found for student ID: {}", studentId);
+        }
+
+        return nextLesson;
+    }
 }

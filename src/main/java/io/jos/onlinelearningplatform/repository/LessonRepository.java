@@ -1,8 +1,6 @@
 package io.jos.onlinelearningplatform.repository;
 
 import io.jos.onlinelearningplatform.model.Lesson;
-import io.jos.onlinelearningplatform.model.Student;
-import io.jos.onlinelearningplatform.model.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,61 +10,39 @@ import java.util.Collection;
 import java.util.List;
 
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
-    @Query("""
-    select l
-      from Lesson l
-     where l.course.id in :courseIds
-       and l.timestamp > :from
-    """)
-    List<Lesson> findUpcomingLessonsByCourseIds(
-            @Param("courseIds") List<Long> courseIds,
-            @Param("from")       LocalDateTime from
-    );
 
-    // LessonRepository.java
-    @Query("""
-        select l
-        from Lesson l
-        where l.teacher.id = :teacherId
-        order by l.timestamp asc
-    """)
-    List<Lesson> findAllByTeacherIdOrderByTimestamp(@Param("teacherId") Long teacherId);
-
-    @Query("""
-       select l
-         from Lesson l
-        where l.teacher.id = :teacherId
-          and l.timestamp >= :now
-     order by l.timestamp asc
-    """)
+    @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.timestamp >= :now ORDER BY l.timestamp ASC")
     List<Lesson> findUpcomingByTeacher(@Param("teacherId") Long teacherId,
-                                       @Param("now") java.time.LocalDateTime now);
+                                       @Param("now") LocalDateTime now);
 
-    int countByTeacherId(Long teacherId);
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.teacher.id = :teacherId")
+    int countByTeacherId(@Param("teacherId") Long teacherId);
 
-    List<Lesson> findByTeacherId(Long teacherId);
-    List<Lesson> findByTeacherIdAndStatus(Long teacherId, String status);
-    int countByTeacherIdAndStatus(Long teacherId, String status);
-    List<Lesson> findByStudent_IdAndTimestampLessThanAndStatusInOrderByTimestampDesc(Long studentId, LocalDateTime today, List<String> accepted);
-    List<Lesson> findByStudent_IdAndStatusInAndTimestampGreaterThanEqualOrderByTimestampAsc(Long studentId, List<String> statuses, LocalDateTime now);
+    @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId")
+    List<Lesson> findByTeacherId(@Param("teacherId") Long teacherId);
 
-    // All lessons for a student (latest first)
-    List<Lesson> findByStudent_IdOrderByTimestampDesc(Long studentId);
+    @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = :status")
+    List<Lesson> findByTeacherIdAndStatus(@Param("teacherId") Long teacherId, @Param("status") String status);
 
-    // Upcoming for student (today or later) with status PENDING/ACCEPTED
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.teacher.id = :teacherId AND l.status = :status")
+    int countByTeacherIdAndStatus(@Param("teacherId") Long teacherId, @Param("status") String status);
+
+    @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId AND l.status IN :statuses AND l.timestamp >= :from ORDER BY l.timestamp ASC")
     List<Lesson> findByStudent_IdAndStatusInAndTimestampGreaterThanEqualOrderByTimestampAsc(
-            Long studentId, Collection<String> statuses, LocalDateTime from);
+            @Param("studentId") Long studentId, @Param("statuses") Collection<String> statuses, @Param("from") LocalDateTime from);
 
-    // Past for student (before today) with selected statuses
+    @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId AND l.status IN :statuses AND l.timestamp < :before ORDER BY l.timestamp DESC")
     List<Lesson> findByStudent_IdAndStatusInAndTimestampLessThanOrderByTimestampDesc(
-            Long studentId, Collection<String> statuses, LocalDateTime before);
+            @Param("studentId") Long studentId, @Param("statuses") Collection<String> statuses, @Param("before") LocalDateTime before);
 
-    // Convenience: all REJECTED for student (any date)
-    List<Lesson> findByStudent_IdAndStatusOrderByTimestampDesc(Long studentId, String status);
-    List<Lesson> findByTeacherIdAndTimestampBetweenOrderByTimestampAsc(Long teacherId, LocalDateTime start, LocalDateTime end);
+    @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId AND l.status = :status ORDER BY l.timestamp DESC")
+    List<Lesson> findByStudent_IdAndStatusOrderByTimestampDesc(@Param("studentId") Long studentId, @Param("status") String status);
 
+    @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.timestamp BETWEEN :start AND :end ORDER BY l.timestamp ASC")
+    List<Lesson> findByTeacherIdAndTimestampBetweenOrderByTimestampAsc(@Param("teacherId") Long teacherId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
-    List<Lesson> findByStudentIdAndTimestampBetweenOrderByTimestampAsc(Long studentId, LocalDateTime start, LocalDateTime end);
+    @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId AND l.timestamp BETWEEN :start AND :end ORDER BY l.timestamp ASC")
+    List<Lesson> findByStudentIdAndTimestampBetweenOrderByTimestampAsc(@Param("studentId") Long studentId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 
     @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId AND l.timestamp > :now ORDER BY l.timestamp ASC")
     List<Lesson> findUpcomingByStudent(@Param("studentId") Long studentId, @Param("now") LocalDateTime now);
@@ -74,17 +50,12 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.timestamp < :now ORDER BY l.timestamp DESC")
     List<Lesson> findPastByTeacher(@Param("teacherId") Long teacherId, @Param("now") LocalDateTime now);
 
-
-    long countByStatus(String status);
-
-    // New methods for admin functionality
-    List<Lesson> findByStudentOrderByTimestampDesc(Student student);
-    List<Lesson> findByCourseOrderByTimestampDesc(Course course);
-
-    // Alternative methods using ID for compatibility
-    @Query("SELECT l FROM Lesson l WHERE l.student.id = :studentId ORDER BY l.timestamp DESC")
-    List<Lesson> findByStudentIdOrderByTimestampDesc(@Param("studentId") Long studentId);
-
     @Query("SELECT l FROM Lesson l WHERE l.course.id = :courseId ORDER BY l.timestamp DESC")
     List<Lesson> findByCourseIdOrderByTimestampDesc(@Param("courseId") Long courseId);
+
+    @Query("SELECT COUNT(l) FROM Lesson l WHERE l.status = :status")
+    long countByStatus(@Param("status") String status);
+
+    @Query("SELECT l FROM Lesson l WHERE l.teacher.id = :teacherId AND l.student.id = :studentId ORDER BY l.timestamp DESC")
+    List<Lesson> findByTeacherIdAndStudentIdOrderByTimestampDesc(@Param("teacherId") Long teacherId, @Param("studentId") Long studentId);
 }

@@ -16,7 +16,7 @@ public class AdminInitializer implements ApplicationRunner {
     private static final Logger log = LoggerFactory.getLogger(AdminInitializer.class);
     private final UserService userService;
     private final UserRepository userRepository;
-    private final RegisterDto dto = null;
+    private final RegisterDto dto;
 
     public AdminInitializer(
             UserService userService,
@@ -27,9 +27,11 @@ public class AdminInitializer implements ApplicationRunner {
     ) {
         this.userService    = userService;
         this.userRepository  = userRepository;
+        this.dto = new RegisterDto();
         this.dto.setUsername(adminUsername);
         this.dto.setPassword(adminPassword);
         this.dto.setEmail(adminEmail);
+        this.dto.setRole("ADMIN");
     }
 
     @Override

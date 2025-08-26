@@ -7,6 +7,10 @@
   <link rel="stylesheet" th:href="@{/css/modern-style.css}"/>
 </head>
 <body>
+
+<!-- Include Navigation -->
+<div th:replace="~{fragments/navigation :: top-nav}"></div>
+
 <div class="education-bg"></div>
 <div class="container">
   <div class="form-container">
@@ -34,5 +38,9 @@
     <p th:if="${teacher == null}" class="alert">Teacher not found.</p>
   </div>
 </div>
+
+<!-- Include Navigation Script -->
+<script th:replace="~{fragments/navigation :: nav-script}"></script>
+
 </body>
 </html>

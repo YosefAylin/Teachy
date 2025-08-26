@@ -8,6 +8,10 @@
     <link rel="stylesheet" th:href="@{/css/modern-style.css}">
 </head>
 <body>
+
+<!-- Include Navigation for authenticated users -->
+<div sec:authorize="isAuthenticated()" th:replace="fragments/navigation :: top-nav"></div>
+
     <div class="education-bg"></div>
     <div class="container">
         <div class="home-content">
@@ -35,7 +39,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Authenticated user content -->
             <div sec:authorize="isAuthenticated()">
                 <h1 class="app-name">🎓 Teachy</h1>
@@ -61,7 +65,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- Teacher Content -->
                 <div sec:authorize="hasRole('TEACHER')" class="role-section">
                     <div class="education-icon icon-teacher">👩‍🏫</div>
@@ -79,7 +83,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <!-- Admin Content -->
                 <div sec:authorize="hasRole('ADMIN')" class="role-section">
                     <div class="education-icon icon-admin">⚡</div>
@@ -100,5 +104,9 @@
             </div>
         </div>
     </div>
+
+<!-- Include Navigation Script for authenticated users -->
+<script sec:authorize="isAuthenticated()" th:replace="fragments/navigation :: nav-script"></script>
+
 </body>
 </html>

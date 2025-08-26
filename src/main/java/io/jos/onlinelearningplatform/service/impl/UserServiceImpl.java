@@ -44,8 +44,14 @@ public class UserServiceImpl implements UserService {
 
 
     public User register(RegisterDto dto) {
+        logger.debug("Registering new user with username: {} and email: {}", dto.getUsername(), dto.getEmail());
+
         User user = userFactory.createUser(dto);
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+
+        logger.info("Successfully registered new user with ID: {}, username: {}, type: {}",
+                   savedUser.getId(), savedUser.getUsername(), savedUser.getClass().getSimpleName());
+        return savedUser;
 
     }
 
@@ -57,9 +63,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void deleteUser(Long userId) {
+        logger.debug("Attempting to delete user with ID: {}", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         userRepository.delete(user);
-        logger.info("User with ID {} has been deleted", userId);
+        logger.info("User with ID {} (username: {}) has been deleted", userId, user.getUsername());
     }
 
     /**
@@ -70,8 +77,10 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User viewProfile(Long userId) {
+        logger.debug("Viewing profile for user ID: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+        logger.info("Retrieved profile for user: {} ({})", user.getUsername(), user.getClass().getSimpleName());
         logger.debug("User Profile: {}", user);
         return user;
     }
@@ -86,13 +95,17 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        logger.debug("Attempting to change password for user ID: {}", userId);
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
         if (passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
             user.setPasswordHash(passwordEncoder.encode(newPassword));
             userRepository.save(user);
-            logger.info("Password changed successfully for user: {}", user.getUsername());
+            logger.info("Password changed successfully for user: {} (ID: {})", user.getUsername(), userId);
             return true;
         } else {
+            logger.warn("Failed password change attempt for user: {} (ID: {}) - incorrect old password",
+                       user.getUsername(), userId);
             throw new RuntimeException("Old password is incorrect");
         }
     }

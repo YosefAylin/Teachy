@@ -4,94 +4,235 @@
     <meta charset="UTF-8" />
     <title>My Lessons - Teachy</title>
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
-    <style>
-        .student-link { color: var(--education-green); text-decoration: none; font-weight: 600; }
-        .student-link:hover { color: var(--education-purple); }
-    </style>
 </head>
 <body>
+
+<!-- Include Navigation -->
+<div th:replace="~{fragments/navigation :: top-nav}"></div>
+
 <div class="education-bg"></div>
 <div class="container">
     <div class="form-container">
-        <h1 class="form-title">📚 My Teaching Lessons</h1>
+        <!-- Modern Header -->
+        <div style="text-align: center; margin-bottom: 40px;">
+            <div style="font-size: 4rem; margin-bottom: 16px; background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">📚</div>
+            <h1 class="form-title" style="background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px;">My Teaching Lessons</h1>
+            <p style="color: #a1a1aa; font-size: 18px; font-weight: 300;">Manage your upcoming and past lessons</p>
+        </div>
 
-        <!-- Upcoming Lessons -->
-        <div class="card mt-16" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--education-green);">
-            <h3 class="mb-8">⏰ Upcoming Lessons</h3>
+        <!-- Upcoming Lessons Section -->
+        <div style="margin-bottom: 48px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 16px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05)); border-radius: 12px; border-left: 4px solid #10b981;">
+                <div style="font-size: 2rem;">⏰</div>
+                <h2 style="color: #10b981; margin: 0; font-size: 24px; font-weight: 700;">Upcoming Lessons</h2>
+            </div>
 
-            <div th:if="${upcoming != null and !#lists.isEmpty(upcoming)}">
-                <div class="lessons-grid">
-                    <div th:each="lesson : ${upcoming}" class="lesson-card">
-                        <span class="lesson-status badge" th:text="${lesson.status}" th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}">STATUS</span>
+            <div th:if="${upcoming != null && !#lists.isEmpty(upcoming)}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+                <div th:each="lesson : ${upcoming}" style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 24px; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-6px)'; this.style.boxShadow='0 12px 32px rgba(16, 185, 129, 0.2)'; this.style.borderColor='rgba(16, 185, 129, 0.5)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='rgba(16, 185, 129, 0.3)'">
 
-                        <div class="lesson-title" th:text="${lesson.description}">Lesson</div>
+                    <!-- Decorative Background -->
+                    <div style="position: absolute; top: -30%; right: -30%; width: 80%; height: 80%; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), transparent); border-radius: 50%; z-index: 0;"></div>
 
-                        <div class="lesson-details">
-                            <span>📅 <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
-                            <span>👨‍🎓 <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" th:text="${lesson.student.username}" class="student-link">Student</a></span>
+                    <!-- Content -->
+                    <div style="position: relative; z-index: 1;">
+                        <!-- Status Badge -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span th:if="${lesson.status == 'PENDING'}" style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;" th:text="${lesson.status}">STATUS</span>
+                            <span th:if="${lesson.status == 'ACCEPTED'}" style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;" th:text="${lesson.status}">STATUS</span>
+                            <span th:if="${lesson.status == 'REJECTED'}" style="background: linear-gradient(135deg, #ef4444, #f87171); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;" th:text="${lesson.status}">STATUS</span>
+                            <span th:if="${lesson.status != 'PENDING' and lesson.status != 'ACCEPTED' and lesson.status != 'REJECTED'}" style="background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;" th:text="${lesson.status}">STATUS</span>
                         </div>
 
-                        <div class="lesson-actions" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                            <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}" class="btn-subtle btn-action">👁️ View Details</a>
-                            <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" class="btn-subtle btn-action">👨‍🎓 Profile</a>
+                        <!-- Lesson Title -->
+                        <h3 style="color: white; margin-bottom: 16px; font-size: 20px; font-weight: 600;" th:text="${lesson.description}">Lesson</h3>
 
-                            <!-- Actions only if status == PENDING -->
-                            <div th:if="${lesson.status == 'PENDING'}" style="display: flex; gap: 6px;">
-                                <form th:action="@{/teacher/lessons/{id}/accept(id=${lesson.id})}" method="post" style="display:inline;">
-                                    <input type="hidden" th:if="${_csrf != null}"
-                                           th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                                    <button type="submit" class="btn-subtle btn-success">✅ Accept</button>
-                                </form>
-
-                                <form th:action="@{/teacher/lessons/{id}/reject(id=${lesson.id})}" method="post" style="display:inline;">
-                                    <input type="hidden" th:if="${_csrf != null}"
-                                           th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                                    <button type="submit" class="btn-subtle btn-danger">❌ Reject</button>
-                                </form>
+                        <!-- Lesson Details -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #d1d5db;">
+                                <span style="font-size: 16px;">📅</span>
+                                <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #d1d5db;">
+                                <span style="font-size: 16px;">👨‍🎓</span>
+                                <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}"
+                                   style="color: #34d399; text-decoration: none; font-weight: 600; transition: all 0.3s ease;"
+                                   onmouseover="this.style.color='#6ee7b7'; this.style.textDecoration='underline'"
+                                   onmouseout="this.style.color='#34d399'; this.style.textDecoration='none'"
+                                   th:text="${lesson.student.username}">Student</a>
                             </div>
                         </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;">
+                            <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}"
+                               style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.2));
+                                      color: #34d399;
+                                      border: 2px solid rgba(16, 185, 129, 0.3);
+                                      padding: 8px 16px;
+                                      border-radius: 8px;
+                                      text-decoration: none;
+                                      font-weight: 600;
+                                      font-size: 12px;
+                                      transition: all 0.3s ease;"
+                               onmouseover="this.style.background='linear-gradient(135deg, #10b981, #34d399)'; this.style.color='white'"
+                               onmouseout="this.style.background='linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.2))'; this.style.color='#34d399'">
+                                👁️ View Details
+                            </a>
+                            <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}"
+                               style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.2));
+                                      color: #a78bfa;
+                                      border: 2px solid rgba(139, 92, 246, 0.3);
+                                      padding: 8px 16px;
+                                      border-radius: 8px;
+                                      text-decoration: none;
+                                      font-weight: 600;
+                                      font-size: 12px;
+                                      transition: all 0.3s ease;"
+                               onmouseover="this.style.background='linear-gradient(135deg, #8b5cf6, #a78bfa)'; this.style.color='white'"
+                               onmouseout="this.style.background='linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(167, 139, 250, 0.2))'; this.style.color='#a78bfa'">
+                                👨‍🎓 Profile
+                            </a>
+                        </div>
+
+                        <!-- Accept/Reject Actions for PENDING lessons -->
+                        <div th:if="${lesson.status == 'PENDING'}" style="display: flex; gap: 8px;">
+                            <form th:action="@{/teacher/lessons/{id}/accept(id=${lesson.id})}" method="post" style="flex: 1;">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                                <button type="submit" style="background: linear-gradient(135deg, #10b981, #34d399); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; width: 100%; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    ✅ Accept
+                                </button>
+                            </form>
+                            <form th:action="@{/teacher/lessons/{id}/reject(id=${lesson.id})}" method="post" style="flex: 1;">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                                <button type="submit" style="background: linear-gradient(135deg, #ef4444, #f87171); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; width: 100%; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                    ❌ Reject
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <p th:if="${upcoming == null or #lists.isEmpty(upcoming)}" class="text-muted">
-                No upcoming lessons scheduled.
-            </p>
+            <!-- Empty State for Upcoming -->
+            <div th:if="${upcoming == null || #lists.isEmpty(upcoming)}" style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(16, 185, 129, 0.02)); border-radius: 16px; border: 2px dashed rgba(16, 185, 129, 0.3);">
+                <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.6;">⏰</div>
+                <h3 style="color: #d1d5db; margin-bottom: 8px; font-size: 18px;">No Upcoming Lessons</h3>
+                <p style="color: #9ca3af; font-size: 14px;">Students will request lessons that will appear here.</p>
+            </div>
         </div>
 
-        <!-- Past Lessons -->
-        <div class="card mt-16" style="background: rgba(107, 114, 128, 0.1); border-left: 4px solid #6b7280;">
-            <h3 class="mb-8">📋 Past Lessons</h3>
+        <!-- Past Lessons Section -->
+        <div style="margin-bottom: 48px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px; padding: 16px; background: linear-gradient(135deg, rgba(107, 114, 128, 0.1), rgba(107, 114, 128, 0.05)); border-radius: 12px; border-left: 4px solid #6b7280;">
+                <div style="font-size: 2rem;">📋</div>
+                <h2 style="color: #6b7280; margin: 0; font-size: 24px; font-weight: 700;">Past Lessons</h2>
+            </div>
 
-            <div th:if="${past != null and !#lists.isEmpty(past)}">
-                <div class="lessons-grid">
-                    <div th:each="lesson : ${past}" class="lesson-card">
-                        <span class="lesson-status badge" th:text="${lesson.status}" th:class="'badge ' + ${#strings.toLowerCase(lesson.status)}">STATUS</span>
+            <div th:if="${past != null && !#lists.isEmpty(past)}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 24px;">
+                <div th:each="lesson : ${past}" style="background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04)); border: 2px solid rgba(107, 114, 128, 0.2); border-radius: 16px; padding: 24px; transition: all 0.3s ease; position: relative; overflow: hidden; opacity: 0.9;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 24px rgba(107, 114, 128, 0.15)'; this.style.opacity='1'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.opacity='0.9'">
 
-                        <div class="lesson-title" th:text="${lesson.description}">Lesson</div>
+                    <!-- Decorative Background -->
+                    <div style="position: absolute; top: -30%; right: -30%; width: 80%; height: 80%; background: linear-gradient(135deg, rgba(107, 114, 128, 0.08), transparent); border-radius: 50%; z-index: 0;"></div>
 
-                        <div class="lesson-details">
-                            <span>📅 <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span></span>
-                            <span>👨‍🎓 <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" th:text="${lesson.student.username}" class="student-link">Student</a></span>
+                    <!-- Content -->
+                    <div style="position: relative; z-index: 1;">
+                        <!-- Status Badge -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <span style="background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;" th:text="${lesson.status}">STATUS</span>
+                            <div style="font-size: 1.5rem;">✅</div>
                         </div>
 
-                        <div class="lesson-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}" class="btn-subtle btn-action">👁️ View Details</a>
-                            <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}" class="btn-subtle btn-action">👨‍🎓 Profile</a>
+                        <!-- Lesson Title -->
+                        <h3 style="color: #d1d5db; margin-bottom: 16px; font-size: 20px; font-weight: 600;" th:text="${lesson.description}">Lesson</h3>
+
+                        <!-- Lesson Details -->
+                        <div style="margin-bottom: 20px;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #9ca3af;">
+                                <span style="font-size: 16px;">📅</span>
+                                <span th:text="${#temporals.format(lesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #9ca3af;">
+                                <span style="font-size: 16px;">👨‍🎓</span>
+                                <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}"
+                                   style="color: #9ca3af; text-decoration: none; font-weight: 600; transition: all 0.3s ease;"
+                                   onmouseover="this.style.color='#d1d5db'; this.style.textDecoration='underline'"
+                                   onmouseout="this.style.color='#9ca3af'; this.style.textDecoration='none'"
+                                   th:text="${lesson.student.username}">Student</a>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 8px;">
+                            <a th:href="@{/teacher/lessons/{id}(id=${lesson.id})}"
+                               style="background: linear-gradient(135deg, rgba(107, 114, 128, 0.3), rgba(156, 163, 175, 0.3));
+                                      color: #9ca3af;
+                                      border: 2px solid rgba(107, 114, 128, 0.4);
+                                      padding: 8px 16px;
+                                      border-radius: 8px;
+                                      text-decoration: none;
+                                      font-weight: 600;
+                                      font-size: 12px;
+                                      transition: all 0.3s ease;
+                                      flex: 1;
+                                      text-align: center;"
+                               onmouseover="this.style.background='linear-gradient(135deg, #6b7280, #9ca3af)'; this.style.color='white'"
+                               onmouseout="this.style.background='linear-gradient(135deg, rgba(107, 114, 128, 0.3), rgba(156, 163, 175, 0.3))'; this.style.color='#9ca3af'">
+                                👁️ Review Details
+                            </a>
+                            <a th:href="@{/teacher/students/{id}/profile(id=${lesson.student.id})}"
+                               style="background: linear-gradient(135deg, rgba(107, 114, 128, 0.3), rgba(156, 163, 175, 0.3));
+                                      color: #9ca3af;
+                                      border: 2px solid rgba(107, 114, 128, 0.4);
+                                      padding: 8px 16px;
+                                      border-radius: 8px;
+                                      text-decoration: none;
+                                      font-weight: 600;
+                                      font-size: 12px;
+                                      transition: all 0.3s ease;
+                                      flex: 1;
+                                      text-align: center;"
+                               onmouseover="this.style.background='linear-gradient(135deg, #6b7280, #9ca3af)'; this.style.color='white'"
+                               onmouseout="this.style.background='linear-gradient(135deg, rgba(107, 114, 128, 0.3), rgba(156, 163, 175, 0.3))'; this.style.color='#9ca3af'">
+                                👨‍🎓 Profile
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <p th:if="${past == null or #lists.isEmpty(past)}" class="text-muted">
-                No past lessons yet.
-            </p>
+            <!-- Empty State for Past -->
+            <div th:if="${past == null || #lists.isEmpty(past)}" style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, rgba(107, 114, 128, 0.05), rgba(107, 114, 128, 0.02)); border-radius: 16px; border: 2px dashed rgba(107, 114, 128, 0.3);">
+                <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.6;">📋</div>
+                <h3 style="color: #d1d5db; margin-bottom: 8px; font-size: 18px;">No Past Lessons Yet</h3>
+                <p style="color: #9ca3af; font-size: 14px;">Your completed lessons will appear here.</p>
+            </div>
         </div>
 
-        <div class="button-group mt-24">
-            <a th:href="@{/teacher/home}" class="btn btn-secondary">Back to Dashboard</a>
+        <!-- Modern Back Button -->
+        <div style="text-align: center; margin-top: 40px;">
+            <a th:href="@{/teacher/home}"
+               style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+                      color: #d1d5db;
+                      border: 2px solid rgba(255,255,255,0.2);
+                      padding: 12px 24px;
+                      border-radius: 12px;
+                      text-decoration: none;
+                      font-weight: 600;
+                      transition: all 0.3s ease;
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;"
+               onmouseover="this.style.background='rgba(255,255,255,0.1)'; this.style.color='white'; this.style.transform='translateY(-2px)'"
+               onmouseout="this.style.background='linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))'; this.style.color='#d1d5db'; this.style.transform='translateY(0)'">
+                <span>🏠</span>
+                Back to Dashboard
+            </a>
         </div>
     </div>
 </div>
+
+<!-- Include Navigation Script -->
+<script th:replace="~{fragments/navigation :: nav-script}"></script>
+
 </body>
 </html>

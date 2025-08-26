@@ -6,6 +6,10 @@
   <link rel="stylesheet" th:href="@{/css/modern-style.css}">
 </head>
 <body>
+
+<!-- Include Navigation -->
+<div th:replace="~{fragments/navigation :: top-nav}"></div>
+
   <div class="education-bg"></div>
   <div class="container">
     <div class="left-content">
@@ -22,7 +26,7 @@
         🌟 Global learning community
       </p>
     </div>
-    
+
     <div class="right-content">
       <div class="form-container">
         <div class="education-icon icon-student">✨</div>
@@ -73,9 +77,13 @@
       </div>
     </div>
   </div>
-  
+
   <div class="footer" style="position: fixed; bottom: 0; width: 100%; text-align: center; padding: 16px; color: var(--text-muted); font-size: 14px;">
     <p>Teachy © 2025 - Empowering Education Through Technology 🌟</p>
   </div>
+
+<!-- Include Navigation Script -->
+<script th:replace="~{fragments/navigation :: nav-script}"></script>
+
 </body>
 </html>

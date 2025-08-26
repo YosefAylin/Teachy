@@ -6,10 +6,9 @@ import io.jos.onlinelearningplatform.repository.MessageRepository;
 import io.jos.onlinelearningplatform.repository.StudyMaterialRepository;
 import io.jos.onlinelearningplatform.repository.UserRepository;
 import io.jos.onlinelearningplatform.service.TeacherService;
+import io.jos.onlinelearningplatform.util.UserUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,26 +25,28 @@ public class TeacherFacade {
     private final MessageRepository messageRepository;
     private final StudyMaterialRepository studyMaterialRepository;
     private final UserRepository userRepository;
+    private final UserUtils userUtils;
 
     public TeacherFacade(TeacherService teacherService, LessonRepository lessonRepository,
                         MessageRepository messageRepository, StudyMaterialRepository studyMaterialRepository,
-                        UserRepository userRepository) {
+                        UserRepository userRepository, UserUtils userUtils) {
         this.teacherService = teacherService;
         this.lessonRepository = lessonRepository;
         this.messageRepository = messageRepository;
         this.studyMaterialRepository = studyMaterialRepository;
         this.userRepository = userRepository;
+        this.userUtils = userUtils;
     }
 
     public String prepareHomePage(Model model) {
-        Long teacherId = getCurrentTeacherId();
+        Long teacherId = userUtils.getCurrentTeacherId();
         model.addAttribute("nextLesson", teacherService.getNextLesson(teacherId));
         model.addAttribute("lessonCount", teacherService.getLessonCount(teacherId));
         return "teacher/home";
     }
 
     public String prepareStudentsPage(Model model) {
-        model.addAttribute("students", teacherService.getStudents(getCurrentTeacherId()));
+        model.addAttribute("students", teacherService.getStudents(userUtils.getCurrentTeacherId()));
         return "teacher/students";
     }
 
@@ -54,7 +55,7 @@ public class TeacherFacade {
     }
 
     public String prepareLessonsPage(Model model) {
-        Long teacherId = getCurrentTeacherId();
+        Long teacherId = userUtils.getCurrentTeacherId();
         List<Lesson> upcoming = teacherService.getUpcomingLessonsForTeacher(teacherId);
         List<Lesson> past = teacherService.getPastLessonsForTeacher(teacherId);
 
@@ -64,11 +65,11 @@ public class TeacherFacade {
     }
 
     public int getNewLessonRequestCount() {
-        return teacherService.countPendingLessons(getCurrentTeacherId());
+        return teacherService.countPendingLessons(userUtils.getCurrentTeacherId());
     }
 
     public String prepareProfilePage(Model model) {
-        Long teacherId = getCurrentTeacherId();
+        Long teacherId = userUtils.getCurrentTeacherId();
 
         Teacher teacher = teacherService.getTeacherProfile(teacherId);
         List<Course> current = teacherService.getTeachableCourses(teacherId);
@@ -85,12 +86,12 @@ public class TeacherFacade {
     }
 
     public String addTeachableCourse(Long courseId) {
-        teacherService.addTeachableCourse(getCurrentTeacherId(), courseId);
+        teacherService.addTeachableCourse(userUtils.getCurrentTeacherId(), courseId);
         return "redirect:/teacher/profile?updated";
     }
 
     public String removeTeachableCourse(Long courseId) {
-        teacherService.removeTeachableCourse(getCurrentTeacherId(), courseId);
+        teacherService.removeTeachableCourse(userUtils.getCurrentTeacherId(), courseId);
         return "redirect:/teacher/profile?updated";
     }
 
@@ -107,7 +108,7 @@ public class TeacherFacade {
     }
 
     public String prepareSchedulePage(Integer year, Integer month, Model model) {
-        Long teacherId = getCurrentTeacherId();
+        Long teacherId = userUtils.getCurrentTeacherId();
 
         LocalDateTime now = LocalDateTime.now();
         int currentYear = year != null ? year : now.getYear();
@@ -137,7 +138,7 @@ public class TeacherFacade {
         model.addAttribute("lesson", lesson);
         model.addAttribute("messages", messageRepository.findByLessonIdOrderBySentAtAsc(lessonId));
         model.addAttribute("materials", studyMaterialRepository.findByLessonIdOrderByUploadedAtDesc(lessonId));
-        model.addAttribute("currentUserId", getCurrentTeacherId());
+        model.addAttribute("currentUserId", userUtils.getCurrentTeacherId());
         model.addAttribute("userType", "teacher");
 
         return "teacher/lesson-detail";
@@ -151,7 +152,7 @@ public class TeacherFacade {
 
         Message message = new Message();
         message.setLesson(lesson);
-        message.setSender(teacherService.getTeacherProfile(getCurrentTeacherId()));
+        message.setSender(teacherService.getTeacherProfile(userUtils.getCurrentTeacherId()));
         message.setContent(content);
         messageRepository.save(message);
 
@@ -171,7 +172,7 @@ public class TeacherFacade {
         try {
             StudyMaterial material = new StudyMaterial();
             material.setLesson(lesson);
-            material.setUploader(teacherService.getTeacherProfile(getCurrentTeacherId()));
+            material.setUploader(teacherService.getTeacherProfile(userUtils.getCurrentTeacherId()));
             material.setFileName(file.getOriginalFilename());
             material.setFileSize(file.getSize());
             material.setDescription(description);
@@ -196,8 +197,6 @@ public class TeacherFacade {
     }
 
     public String prepareStudentProfile(Long studentId, Model model) {
-        Long currentTeacherId = getCurrentTeacherId();
-
         User user = userRepository.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found"));
 
@@ -205,17 +204,45 @@ public class TeacherFacade {
             throw new IllegalArgumentException("User is not a student");
         }
 
-        model.addAttribute("student", user);
+        Student student = (Student) user;
+
+        // Get lessons this teacher has with this student
+        Long currentTeacherId = userUtils.getCurrentTeacherId();
+        List<Lesson> sharedLessons = teacherService.getLessonsWithStudent(currentTeacherId, studentId);
+
+        // Calculate statistics
+        int totalLessons = sharedLessons.size();
+        long completedLessons = sharedLessons.stream()
+                .filter(lesson -> "COMPLETED".equals(lesson.getStatus()))
+                .count();
+        long pendingLessons = sharedLessons.stream()
+                .filter(lesson -> "PENDING".equals(lesson.getStatus()))
+                .count();
+
+        // Get unique courses they've worked on together
+        List<Course> courses = sharedLessons.stream()
+                .map(Lesson::getCourse)
+                .distinct()
+                .toList();
+
+        // Get recent lessons (last 10)
+        List<Lesson> recentLessons = sharedLessons.stream()
+                .limit(10)
+                .toList();
+
+        model.addAttribute("student", student);
+        model.addAttribute("sharedLessons", sharedLessons);
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("completedLessons", completedLessons);
+        model.addAttribute("pendingLessons", pendingLessons);
+        model.addAttribute("courses", courses);
+        model.addAttribute("recentLessons", recentLessons);
+
         return "teacher/student-profile";
     }
 
-    private Long getCurrentTeacherId() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return teacherService.getTeacherIdByUsername(auth.getName());
-    }
-
     private void validateTeacherAccess(Lesson lesson) {
-        if (!lesson.getTeacher().getId().equals(getCurrentTeacherId())) {
+        if (!lesson.getTeacher().getId().equals(userUtils.getCurrentTeacherId())) {
             throw new IllegalArgumentException("Access denied");
         }
     }

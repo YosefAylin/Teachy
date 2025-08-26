@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <title>My Profile - Teachy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
+    <style>
+        .profile-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(99, 102, 241, 0.2));
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--education-green), var(--education-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 20px auto;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .profile-role {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border-left: 4px solid var(--education-green);
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-card.lessons { border-left-color: #10b981; }
+        .stat-card.teachers { border-left-color: #8b5cf6; }
+        .stat-card.courses { border-left-color: #f59e0b; }
+        .stat-card.completed { border-left-color: #06b6d4; }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .profile-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--education-green);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .teacher-item, .course-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+
+        .teacher-item:hover, .course-item:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .teacher-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--education-purple), var(--education-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .course-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--education-orange), var(--education-green));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--education-green), var(--education-blue));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 10px auto;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 4;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-ring .progress {
+            stroke: #10b981;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Include Navigation -->
+<div th:replace="~{fragments/navigation :: top-nav}"></div>
+
+<div class="education-bg"></div>
+<div class="container">
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar" th:text="${student.username != null ? #strings.substring(student.username, 0, 1).toUpperCase() : 'S'}">S</div>
+            <div class="profile-name" th:text="${student.username}">Student Name</div>
+            <div class="profile-role">🎓 Student</div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${param.success}" class="alert success">
+            ✅ Profile updated successfully!
+        </div>
+
+        <div th:if="${param.error}" class="alert error">
+            <span th:if="${param.error[0] == 'current_password_required'}">❌ Current password is required to change password.</span>
+            <span th:if="${param.error[0] == 'password_mismatch'}">❌ New password and confirmation do not match.</span>
+            <span th:if="${param.error[0] == 'password_too_short'}">❌ Password must be at least 6 characters long.</span>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card lessons">
+                <div class="stat-number" th:text="${totalLessons}">0</div>
+                <div class="stat-label">Total Lessons</div>
+            </div>
+            <div class="stat-card completed">
+                <div class="stat-number" th:text="${completedLessons}">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-card teachers">
+                <div class="stat-number" th:text="${teachersCount}">0</div>
+                <div class="stat-label">Teachers</div>
+            </div>
+            <div class="stat-card courses">
+                <div class="stat-number" th:text="${coursesCount}">0</div>
+                <div class="stat-label">Courses</div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Account Settings -->
+            <div class="profile-section">
+                <h3 class="section-title">
+                    ⚙️ Account Settings
+                </h3>
+
+                <form th:action="@{/student/profile}" method="post">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" th:value="${student.username}" class="form-control" disabled>
+                        <small style="color: rgba(255,255,255,0.6); font-size: 12px;">Username cannot be changed</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" th:value="${student.email}" class="form-control"
+                               placeholder="Enter your email address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" class="form-control"
+                               placeholder="Enter current password (required to change password)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" class="form-control"
+                               placeholder="Enter new password (leave blank to keep current)">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+                               placeholder="Confirm new password">
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        💾 Update Profile
+                    </button>
+                </form>
+            </div>
+
+            <!-- Learning Progress -->
+            <div class="profile-section">
+                <h3 class="section-title">
+                    📊 Learning Progress
+                </h3>
+
+                <!-- Completion Rate -->
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div class="progress-ring">
+                        <svg width="60" height="60">
+                            <circle class="bg" cx="30" cy="30" r="26" stroke-dasharray="163.36" stroke-dashoffset="0"></circle>
+                            <circle class="progress" cx="30" cy="30" r="26"
+                                    th:attr="stroke-dasharray=163.36, stroke-dashoffset=${163.36 - (totalLessons > 0 ? (completedLessons * 163.36 / totalLessons) : 0)}"></circle>
+                        </svg>
+                    </div>
+                    <div style="font-size: 18px; font-weight: bold; color: white;">
+                        <span th:text="${totalLessons > 0 ? T(java.lang.Math).round(completedLessons * 100.0 / totalLessons) : 0}">0</span>%
+                    </div>
+                    <div style="color: rgba(255,255,255,0.7); font-size: 12px;">Completion Rate</div>
+                </div>
+
+                <!-- Progress Details -->
+                <div style="space-y: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: rgba(255,255,255,0.8);">Total Lessons:</span>
+                        <span style="color: white; font-weight: bold;" th:text="${totalLessons}">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: rgba(255,255,255,0.8);">Completed:</span>
+                        <span style="color: #10b981; font-weight: bold;" th:text="${completedLessons}">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <span style="color: rgba(255,255,255,0.8);">Pending:</span>
+                        <span style="color: #f59e0b; font-weight: bold;" th:text="${pendingLessons}">0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0;">
+                        <span style="color: rgba(255,255,255,0.8);">Teachers Worked With:</span>
+                        <span style="color: #8b5cf6; font-weight: bold;" th:text="${teachersCount}">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Teachers -->
+            <div class="profile-section">
+                <h3 class="section-title">
+                    👩‍🏫 My Teachers
+                </h3>
+
+                <div th:if="${teachers != null and !#lists.isEmpty(teachers)}">
+                    <div th:each="teacher : ${teachers}" class="teacher-item">
+                        <div class="teacher-avatar" th:text="${#strings.substring(teacher.username, 0, 1).toUpperCase()}">T</div>
+                        <div style="flex: 1;">
+                            <div style="color: white; font-weight: 500;" th:text="${teacher.username}">Teacher Name</div>
+                            <div style="color: rgba(255,255,255,0.6); font-size: 12px;" th:text="${teacher.email}">teacher@email.com</div>
+                        </div>
+                        <a th:href="@{/student/teacher/profile/{id}(id=${teacher.id})}"
+                           style="color: var(--education-green); text-decoration: none; font-size: 12px;">
+                            👁️ View Profile
+                        </a>
+                    </div>
+                </div>
+
+                <div th:if="${teachers == null or #lists.isEmpty(teachers)}" style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">
+                    <div style="font-size: 24px; margin-bottom: 8px;">📚</div>
+                    <div>No teachers yet</div>
+                    <div style="font-size: 12px;">Book your first lesson to get started!</div>
+                </div>
+            </div>
+
+            <!-- My Courses -->
+            <div class="profile-section">
+                <h3 class="section-title">
+                    📚 My Courses
+                </h3>
+
+                <div th:if="${courses != null and !#lists.isEmpty(courses)}">
+                    <div th:each="course : ${courses}" class="course-item">
+                        <div class="course-icon">📖</div>
+                        <div style="flex: 1;">
+                            <div style="color: white; font-weight: 500;" th:text="${course.title}">Course Name</div>
+                            <div style="color: rgba(255,255,255,0.6); font-size: 12px;" th:text="${course.subject}">Subject</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${courses == null or #lists.isEmpty(courses)}" style="text-align: center; padding: 20px; color: rgba(255,255,255,0.6);">
+                    <div style="font-size: 24px; margin-bottom: 8px;">🎯</div>
+                    <div>No courses yet</div>
+                    <div style="font-size: 12px;">
+                        <a th:href="@{/student/search}" style="color: var(--education-green); text-decoration: none;">
+                            Search for teachers →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="button-group mt-24">
+            <a th:href="@{/student/search}" class="btn btn-primary">🔍 Find Teachers</a>
+            <a th:href="@{/student/lessons}" class="btn btn-secondary">📚 My Lessons</a>
+            <a th:href="@{/student/schedule}" class="btn btn-secondary">📅 Schedule</a>
+            <a th:href="@{/student/home}" class="btn btn-secondary">🏠 Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<!-- Include Navigation Script -->
+<script th:replace="~{fragments/navigation :: nav-script}"></script>
+
+</body>
+</html>

@@ -1,11 +1,13 @@
 package io.jos.onlinelearningplatform.Factory;
 
 import io.jos.onlinelearningplatform.dto.RegisterDto;
-import io.jos.onlinelearningplatform.model.*;
+import io.jos.onlinelearningplatform.model.Admin;
+import io.jos.onlinelearningplatform.model.Student;
+import io.jos.onlinelearningplatform.model.Teacher;
+import io.jos.onlinelearningplatform.model.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 
 @Component
 public class DefaultUserFactory implements UserFactory {

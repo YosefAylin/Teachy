@@ -77,4 +77,17 @@ public class StudentController {
     public ResponseEntity<byte[]> downloadMaterial(@PathVariable Long materialId) {
         return studentFacade.downloadMaterial(materialId);
     }
+
+    @GetMapping("/profile")
+    public String viewProfile(Model model) {
+        return studentFacade.prepareProfilePage(model);
+    }
+
+    @PostMapping("/profile")
+    public String updateProfile(@RequestParam String email,
+                               @RequestParam(required = false) String currentPassword,
+                               @RequestParam(required = false) String newPassword,
+                               @RequestParam(required = false) String confirmPassword) {
+        return studentFacade.updateProfile(email, currentPassword, newPassword, confirmPassword);
+    }
 }

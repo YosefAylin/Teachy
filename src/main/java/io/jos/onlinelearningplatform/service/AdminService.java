@@ -1,6 +1,9 @@
 package io.jos.onlinelearningplatform.service;
 
-import io.jos.onlinelearningplatform.model.*;
+import io.jos.onlinelearningplatform.model.Course;
+import io.jos.onlinelearningplatform.model.Lesson;
+import io.jos.onlinelearningplatform.model.User;
+
 import java.util.List;
 
 public interface AdminService {

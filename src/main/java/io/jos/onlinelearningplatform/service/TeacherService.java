@@ -1,13 +1,15 @@
 package io.jos.onlinelearningplatform.service;
 
-import io.jos.onlinelearningplatform.model.*;
+import io.jos.onlinelearningplatform.model.Course;
+import io.jos.onlinelearningplatform.model.Lesson;
+import io.jos.onlinelearningplatform.model.Schedule;
+import io.jos.onlinelearningplatform.model.Student;
+import io.jos.onlinelearningplatform.model.Teacher;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TeacherService {
-    void handleBooking(Long lessonId);
-    List<Lesson> getUpcomingLessons(Long teacherId);
     List<Student> getStudents(Long teacherId);
     Long getTeacherIdByUsername(String teacherName);
     List<Course> getAvailableCourses();
@@ -18,7 +20,6 @@ public interface TeacherService {
     List<Lesson> getPendingLessons(Long teacherId);
     int countPendingLessons(Long teacherId);
     Teacher getTeacherProfile(Long teacherId);
-    List<Lesson> getAllLessonsOrdered(Long teacherId);
     Lesson getNextLesson(Long teacherId);
     int getLessonCount(Long teacherId);
     List<Teacher> findTeachersByCourse(Long courseId);
@@ -28,6 +29,5 @@ public interface TeacherService {
     List<Schedule> getSchedulesForMonth(Long teacherId, LocalDateTime start, LocalDateTime end);
     List<Lesson> getUpcomingLessonsForTeacher(Long teacherId);
     List<Lesson> getPastLessonsForTeacher(Long teacherId);
-
-
+    List<Lesson> getLessonsWithStudent(Long teacherId, Long studentId);
 }

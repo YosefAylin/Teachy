@@ -11,4 +11,5 @@ public interface LessonService {
     Lesson requestLesson(Long studentId, Long teacherId, Long courseId, LocalDateTime timestamp);
     List<Lesson> getUpcomingForStudent(Long studentId);
     List<Lesson> getPastForStudent(Long studentId);
+    List<Lesson> getAllLessonsForStudent(Long studentId);
 }

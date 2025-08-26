@@ -5,9 +5,9 @@ import io.jos.onlinelearningplatform.repository.*;
 import io.jos.onlinelearningplatform.service.LessonService;
 import io.jos.onlinelearningplatform.service.StudentService;
 import io.jos.onlinelearningplatform.service.TeacherService;
+import io.jos.onlinelearningplatform.util.UserUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.Model;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +27,13 @@ public class StudentFacade {
     private final LessonRepository lessonRepository;
     private final MessageRepository messageRepository;
     private final StudyMaterialRepository studyMaterialRepository;
+    private final UserUtils userUtils;
 
     public StudentFacade(CourseRepository courseRepository, TeacherService teacherService,
                         LessonService lessonService, UserRepository userRepository,
                         StudentService studentService, LessonRepository lessonRepository,
-                        MessageRepository messageRepository, StudyMaterialRepository studyMaterialRepository) {
+                        MessageRepository messageRepository, StudyMaterialRepository studyMaterialRepository,
+                        UserUtils userUtils) {
         this.courseRepository = courseRepository;
         this.teacherService = teacherService;
         this.lessonService = lessonService;
@@ -40,10 +42,11 @@ public class StudentFacade {
         this.lessonRepository = lessonRepository;
         this.messageRepository = messageRepository;
         this.studyMaterialRepository = studyMaterialRepository;
+        this.userUtils = userUtils;
     }
 
     public String prepareHomePage(Model model) {
-        Long studentId = getCurrentStudentId();
+        Long studentId = userUtils.getCurrentStudentId();
         model.addAttribute("courseCount", courseRepository.count());
         model.addAttribute("nextLesson", studentService.getNextLesson(studentId));
         return "student/home";
@@ -62,7 +65,7 @@ public class StudentFacade {
     }
 
     public String prepareLessonsPage(Model model) {
-        Long studentId = getCurrentStudentId();
+        Long studentId = userUtils.getCurrentStudentId();
         List<Lesson> upcoming = lessonService.getUpcomingForStudent(studentId);
         List<Lesson> past = lessonService.getPastForStudent(studentId);
         model.addAttribute("upcoming", upcoming);
@@ -72,6 +75,10 @@ public class StudentFacade {
 
     public String prepareTeacherProfile(Long teacherId, Model model) {
         Teacher teacher = teacherService.getTeacherProfile(teacherId);
+        if (teacher == null) {
+            throw new IllegalArgumentException("Teacher not found");
+        }
+
         List<Course> courses = teacherService.getTeachableCourses(teacherId);
         model.addAttribute("teacher", teacher);
         model.addAttribute("teacherCourses", courses);
@@ -89,13 +96,13 @@ public class StudentFacade {
 
     public String submitLessonRequest(Long teacherId, Long courseId, int month, int day, int hour) {
         LocalDateTime date = LocalDateTime.of(2025, month, day, hour, 0);
-        Long studentId = getCurrentStudentId();
+        Long studentId = userUtils.getCurrentStudentId();
         lessonService.requestLesson(studentId, teacherId, courseId, date);
         return "redirect:/student/lessons?requested=1";
     }
 
     public String prepareSchedulePage(Integer year, Integer month, Model model) {
-        Long studentId = getCurrentStudentId();
+        Long studentId = userUtils.getCurrentStudentId();
         LocalDateTime now = LocalDateTime.now();
         int currentYear = year != null ? year : now.getYear();
         int currentMonth = month != null ? month : now.getMonthValue();
@@ -124,7 +131,7 @@ public class StudentFacade {
         model.addAttribute("lesson", lesson);
         model.addAttribute("messages", messageRepository.findByLessonIdOrderBySentAtAsc(lessonId));
         model.addAttribute("materials", studyMaterialRepository.findByLessonIdOrderByUploadedAtDesc(lessonId));
-        model.addAttribute("currentUserId", getCurrentStudentId());
+        model.addAttribute("currentUserId", userUtils.getCurrentStudentId());
         model.addAttribute("userType", "student");
 
         return "student/lesson-detail";
@@ -138,7 +145,7 @@ public class StudentFacade {
 
         Message message = new Message();
         message.setLesson(lesson);
-        message.setSender(userRepository.findById(getCurrentStudentId()).orElseThrow());
+        message.setSender(userRepository.findById(userUtils.getCurrentStudentId()).orElseThrow());
         message.setContent(content);
         messageRepository.save(message);
 
@@ -158,7 +165,7 @@ public class StudentFacade {
         try {
             StudyMaterial material = new StudyMaterial();
             material.setLesson(lesson);
-            material.setUploader(userRepository.findById(getCurrentStudentId()).orElseThrow());
+            material.setUploader(userRepository.findById(userUtils.getCurrentStudentId()).orElseThrow());
             material.setFileName(file.getOriginalFilename());
             material.setFileSize(file.getSize());
             material.setDescription(description);
@@ -182,20 +189,92 @@ public class StudentFacade {
                 .body(material.getFileData());
     }
 
-    private Long getCurrentStudentId() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalStateException("Logged-in user not found: " + username));
+    public String prepareProfilePage(Model model) {
+        Long studentId = userUtils.getCurrentStudentId();
+        User user = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
 
         if (!(user instanceof Student)) {
-            throw new IllegalStateException("Logged-in user is not a STUDENT: " + username);
+            throw new IllegalArgumentException("User is not a student");
         }
 
-        return user.getId();
+        Student student = (Student) user;
+
+        // Get student's lesson statistics
+        List<Lesson> allLessons = lessonService.getAllLessonsForStudent(studentId);
+        long totalLessons = allLessons.size();
+        long completedLessons = allLessons.stream()
+                .filter(lesson -> "COMPLETED".equals(lesson.getStatus()))
+                .count();
+        long pendingLessons = allLessons.stream()
+                .filter(lesson -> "PENDING".equals(lesson.getStatus()))
+                .count();
+
+        // Get unique teachers the student has worked with
+        List<Teacher> teachers = allLessons.stream()
+                .map(Lesson::getTeacher)
+                .distinct()
+                .toList();
+
+        // Get unique courses the student has taken
+        List<Course> courses = allLessons.stream()
+                .map(Lesson::getCourse)
+                .distinct()
+                .toList();
+
+        model.addAttribute("student", student);
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("completedLessons", completedLessons);
+        model.addAttribute("pendingLessons", pendingLessons);
+        model.addAttribute("teachersCount", teachers.size());
+        model.addAttribute("coursesCount", courses.size());
+        model.addAttribute("teachers", teachers);
+        model.addAttribute("courses", courses);
+
+        return "student/profile";
+    }
+
+    public String updateProfile(String email, String currentPassword, String newPassword, String confirmPassword) {
+        Long studentId = userUtils.getCurrentStudentId();
+        User user = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        if (!(user instanceof Student)) {
+            throw new IllegalArgumentException("User is not a student");
+        }
+
+        Student student = (Student) user;
+
+        // Update email
+        if (email != null && !email.trim().isEmpty()) {
+            student.setEmail(email.trim());
+        }
+
+        // Update password if provided
+        if (newPassword != null && !newPassword.trim().isEmpty()) {
+            if (currentPassword == null || currentPassword.trim().isEmpty()) {
+                return "redirect:/student/profile?error=current_password_required";
+            }
+
+            if (!newPassword.equals(confirmPassword)) {
+                return "redirect:/student/profile?error=password_mismatch";
+            }
+
+            if (newPassword.length() < 6) {
+                return "redirect:/student/profile?error=password_too_short";
+            }
+
+            // Here you would normally verify the current password with a password encoder
+            // For now, we'll just set the new password
+            student.setPasswordHash(newPassword); // In real app, use BCryptPasswordEncoder
+        }
+
+        userRepository.save(student);
+        return "redirect:/student/profile?success=1";
     }
 
     private void validateStudentAccess(Lesson lesson) {
-        if (!lesson.getStudent().getId().equals(getCurrentStudentId())) {
+        if (!lesson.getStudent().getId().equals(userUtils.getCurrentStudentId())) {
             throw new IllegalArgumentException("Access denied");
         }
     }

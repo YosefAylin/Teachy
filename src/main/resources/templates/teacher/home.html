@@ -7,15 +7,19 @@
     <link rel="stylesheet" th:href="@{/css/modern-style.css}" />
 </head>
 <body>
+
+<!-- Include Navigation -->
+<div th:replace="~{fragments/navigation :: top-nav}"></div>
+
 <div class="education-bg"></div>
 <div class="container">
     <div class="form-container">
         <div class="education-icon icon-teacher">🎓</div>
         <h1 class="form-title">Teaching Center</h1>
 
-        <p class="text-center text-muted mb-24">
-            Welcome <span class="text-white" th:text="${#strings.capitalize(#authentication.name)}">Teacher</span>!
-            Manage your lessons and specializations from here.
+        <p class="text-center text-muted mb-24" style="font-size: 18px; font-weight: 300; letter-spacing: 0.5px; background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); padding: 16px; border-radius: 10px; margin-bottom: 30px;">
+            Welcome <span class="text-white" style="font-weight: 600; background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" th:text="${#strings.toUpperCase(#authentication.name)}">Teacher</span>!
+            <br><span style="font-size: 16px; opacity: 0.8;">Manage your lessons and specializations from here.</span>
         </p>
 
         <!-- Main hub -->
@@ -40,46 +44,88 @@
             </div>
 
             <!-- Next Lesson card -->
-            <div class="teacher-next-lesson">
-                <h3>⏭️ Next Lesson</h3>
+            <div class="teacher-next-lesson" style="border: 3px solid rgba(99, 102, 241, 0.5); border-radius: 16px; padding: 24px; margin: 24px auto; max-width: 500px; text-align: center; background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.08)); box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);">
+                <h3 style="color: #6366f1; font-size: 24px; font-weight: 700; margin-bottom: 20px;">⏭️ Next Lesson</h3>
 
                 <div th:if="${nextLesson != null}">
-                    <div class="lesson-title" th:text="${nextLesson.description}">Lesson Title</div>
-                    <div class="lesson-meta">
-                        <span th:text="${#temporals.format(nextLesson.timestamp, 'yyyy-MM-dd HH:mm')}">Time</span>
-                        • with <span th:text="${nextLesson.student.username}">Student</span>
+                    <!-- Highlighted Lesson Details -->
+                    <div style="background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08)); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 2px solid rgba(255,255,255,0.2);">
+                        <div class="lesson-title" style="color: white; font-size: 20px; font-weight: 600; margin-bottom: 12px;" th:text="${nextLesson.description}">Lesson Title</div>
+                        <div class="lesson-meta" style="color: #d1d5db; font-size: 16px; margin-bottom: 16px;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px;">
+                                <span style="font-size: 18px;">📅</span>
+                                <span th:text="${#temporals.format(nextLesson.timestamp, 'EEEE, MMM dd, yyyy - HH:mm')}">Time</span>
+                            </div>
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                <span style="font-size: 18px;">👨‍🎓</span>
+                                <span>with </span>
+                                <a th:href="@{/teacher/students/{id}/profile(id=${nextLesson.student.id})}"
+                                   style="color: #a78bfa; text-decoration: none; font-weight: 600; transition: all 0.3s ease;"
+                                   onmouseover="this.style.color='#c4b5fd'; this.style.textDecoration='underline'"
+                                   onmouseout="this.style.color='#a78bfa'; this.style.textDecoration='none'"
+                                   th:text="${#strings.toUpperCase(nextLesson.student.username)}">Student</a>
+                            </div>
+                            <div th:if="${nextLesson.course}" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 8px;">
+                                <span style="font-size: 18px;">📚</span>
+                                <span th:text="${nextLesson.course.title}">Course</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Countdown by days -->
                     <div th:with="daysUntil=${T(java.time.temporal.ChronoUnit).DAYS.between(T(java.time.LocalDateTime).now(), nextLesson.timestamp)}">
                         <div th:if="${daysUntil == 0}"
                              class="lesson-countdown"
-                             style="background: rgba(245, 158, 11, 0.2); color: #fbbf24;">
-                            📅 Today!
+                             style="background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; padding: 14px 24px; border-radius: 25px; margin: 15px 0; font-weight: 600; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4); display: inline-block; transform: scale(1.05); animation: pulse 2s infinite;">
+                            📅 Starting Today!
                         </div>
                         <div th:if="${daysUntil == 1}"
                              class="lesson-countdown"
-                             style="background: rgba(16, 185, 129, 0.2); color: #10b981;">
-                            📅 Tomorrow
+                             style="background: linear-gradient(135deg, #10b981, #34d399); color: white; padding: 14px 24px; border-radius: 25px; margin: 15px 0; font-weight: 600; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); display: inline-block;">
+                            ⭐ Tomorrow
                         </div>
                         <div th:if="${daysUntil > 1}"
                              class="lesson-countdown"
-                             style="background: rgba(99, 102, 241, 0.2); color: #6366f1;">
-                            📅 In <span th:text="${daysUntil}">X</span> days
+                             style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 14px 24px; border-radius: 25px; margin: 15px 0; font-weight: 600; box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); display: inline-block;">
+                            📅 <span th:text="${daysUntil}">X</span> days remaining
                         </div>
                         <div th:if="${daysUntil < 0}"
                              class="lesson-countdown"
-                             style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">
-                            ⚠️ Past due
+                             style="background: linear-gradient(135deg, #ef4444, #f87171); color: white; padding: 14px 24px; border-radius: 25px; margin: 15px 0; font-weight: 600; box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4); display: inline-block; animation: pulse 2s infinite;">
+                            ⚠️ Overdue
                         </div>
                     </div>
 
-                    <div class="mt-8">
-                        <a th:href="@{/teacher/lessons}" class="btn btn-primary btn-sm">Open Lessons</a>
+                    <div class="mt-8" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                        <a th:href="@{'/teacher/lessons/' + ${nextLesson.id}}"
+                           style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 700; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);"
+                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(99, 102, 241, 0.4)'"
+                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(99, 102, 241, 0.3)'">
+                            <span style="font-size: 16px;">📝</span>
+                            View Details
+                        </a>
+                        <a th:href="@{/teacher/lessons}"
+                           style="background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05)); color: #d1d5db; border: 2px solid rgba(255,255,255,0.2); padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;"
+                           onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='white'"
+                           onmouseout="this.style.background='linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))'; this.style.color='#d1d5db'">
+                            <span style="font-size: 16px;">📚</span>
+                            Open Lessons
+                        </a>
                     </div>
                 </div>
 
-                <p th:if="${nextLesson == null}" class="text-muted">No upcoming lessons.</p>
+                <div th:if="${nextLesson == null}" style="padding: 40px 20px;">
+                    <div style="font-size: 3rem; margin-bottom: 16px; opacity: 0.6;">📅</div>
+                    <h3 style="color: #d1d5db; margin-bottom: 8px; font-size: 18px;">No Upcoming Lessons</h3>
+                    <p style="color: #9ca3af; font-size: 14px; margin-bottom: 16px;">Students will request lessons that will appear here.</p>
+                    <a th:href="@{/teacher/lessons}"
+                       style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;"
+                       onmouseover="this.style.transform='translateY(-2px)'"
+                       onmouseout="this.style.transform='translateY(0)'">
+                        <span>📚</span>
+                        View All Lessons
+                    </a>
+                </div>
             </div>
 
             <!-- Actions -->
@@ -90,11 +136,16 @@
         </div>
 
         <div class="mt-24 text-center">
-            <p class="text-muted">
-                💡 "Teaching is the profession that teaches all other professions." - Unknown
+            <p style="font-style: italic; font-size: 16px; color: #a1a1aa; background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); padding: 20px; border-radius: 15px; border-left: 4px solid #6366f1; margin: 20px auto; max-width: 600px; line-height: 1.6;">
+                💡 <span style="font-weight: 500;">"Teaching is the profession that teaches all other professions."</span>
+                <br><span style="font-size: 14px; opacity: 0.7; margin-top: 8px; display: inline-block;">— Unknown</span>
             </p>
         </div>
     </div>
 </div>
+
+<!-- Include Navigation Script -->
+<script th:replace="~{fragments/navigation :: nav-script}"></script>
+
 </body>
 </html>

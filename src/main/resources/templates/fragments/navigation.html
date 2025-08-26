@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+<!-- Navigation Fragment -->
+<div th:fragment="top-nav" class="top-nav">
+    <div class="top-nav-inner">
+        <!-- Brand/Logo -->
+        <a href="/" class="nav-brand">
+            <div class="nav-logo">🎓</div>
+            <span class="nav-brand-text">Teachy</span>
+        </a>
+
+        <!-- Actions -->
+        <div class="nav-actions">
+            <!-- Home Button - Use Spring Security to detect role -->
+            <a sec:authorize="hasRole('STUDENT')" th:href="@{/student/home}" class="nav-home-btn">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a sec:authorize="hasRole('TEACHER')" th:href="@{/teacher/home}" class="nav-home-btn">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/home}" class="nav-home-btn">
+                <span>🏠</span>
+                <span>Home</span>
+            </a>
+
+            <!-- Profile Dropdown -->
+            <div class="profile-dropdown" id="profileDropdown">
+                <button class="profile-trigger" onclick="toggleProfileMenu()">
+                    <div class="profile-avatar" th:text="${#authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
+                    <span class="profile-dropdown-arrow">▼</span>
+                </button>
+
+                <div class="profile-menu" id="profileMenu">
+                    <!-- User Info Header -->
+                    <div class="profile-menu-header">
+                        <div class="profile-menu-user">
+                            <div class="profile-menu-avatar" th:text="${#authentication.name != null ? #strings.substring(#authentication.name, 0, 1).toUpperCase() : 'U'}">U</div>
+                            <div class="profile-menu-info">
+                                <h4 th:text="${#authentication.name ?: 'User'}">Username</h4>
+                                <p sec:authorize="hasRole('STUDENT')" class="role-student">Student</p>
+                                <p sec:authorize="hasRole('TEACHER')" class="role-teacher">Teacher</p>
+                                <p sec:authorize="hasRole('ADMIN')" class="role-admin">Admin</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Student Menu Items -->
+                    <div sec:authorize="hasRole('STUDENT')">
+                        <div class="profile-menu-section">
+                            <div class="profile-menu-section-title">Learning</div>
+                            <a th:href="@{/student/search}" class="profile-menu-item">
+                                <span class="profile-menu-icon">🔍</span>
+                                Find Teachers
+                            </a>
+                            <a th:href="@{/student/lessons}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📚</span>
+                                My Lessons
+                            </a>
+                            <a th:href="@{/student/schedule}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📅</span>
+                                My Schedule
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Teacher Menu Items -->
+                    <div sec:authorize="hasRole('TEACHER')">
+                        <div class="profile-menu-section">
+                            <div class="profile-menu-section-title">Teaching</div>
+                            <a th:href="@{/teacher/students}" class="profile-menu-item">
+                                <span class="profile-menu-icon">👥</span>
+                                My Students
+                            </a>
+                            <a th:href="@{/teacher/lessons}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📖</span>
+                                Lessons
+                            </a>
+                            <a th:href="@{/teacher/schedule}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📅</span>
+                                Teaching Schedule
+                            </a>
+                            <a th:href="@{/teacher/content}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📝</span>
+                                Create Content
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Admin Menu Items -->
+                    <div sec:authorize="hasRole('ADMIN')">
+                        <div class="profile-menu-section">
+                            <div class="profile-menu-section-title">Administration</div>
+                            <a th:href="@{/admin/users}" class="profile-menu-item">
+                                <span class="profile-menu-icon">👤</span>
+                                Manage Users
+                            </a>
+                            <a th:href="@{/admin/courses}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📋</span>
+                                Manage Courses
+                            </a>
+                            <a th:href="@{/admin/lessons}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📚</span>
+                                All Lessons
+                            </a>
+                            <a th:href="@{/admin/reports}" class="profile-menu-item">
+                                <span class="profile-menu-icon">📊</span>
+                                Reports
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Profile & Settings Section -->
+                    <div class="profile-menu-section">
+                        <div class="profile-menu-section-title">Account</div>
+                        <a sec:authorize="hasRole('STUDENT')" th:href="@{/student/profile}" class="profile-menu-item">
+                            <span class="profile-menu-icon">⚙️</span>
+                            Profile Settings
+                        </a>
+                        <a sec:authorize="hasRole('TEACHER')" th:href="@{/teacher/profile}" class="profile-menu-item">
+                            <span class="profile-menu-icon">⚙️</span>
+                            Profile Settings
+                        </a>
+                        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/profile}" class="profile-menu-item">
+                            <span class="profile-menu-icon">⚙️</span>
+                            Profile Settings
+                        </a>
+                    </div>
+
+                    <!-- Logout -->
+                    <div class="profile-menu-section">
+                        <form th:action="@{/logout}" method="post" style="margin: 0;">
+                            <button type="submit" class="profile-menu-item danger" style="width: 100%; border: none; background: none; text-align: left; cursor: pointer;">
+                                <span class="profile-menu-icon">🚪</span>
+                                Log Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for dropdown functionality -->
+<script th:fragment="nav-script">
+    function toggleProfileMenu() {
+        const dropdown = document.getElementById('profileDropdown');
+        dropdown.classList.toggle('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.getElementById('profileDropdown');
+        const trigger = dropdown.querySelector('.profile-trigger');
+
+        if (!dropdown.contains(event.target)) {
+            dropdown.classList.remove('open');
+        }
+    });
+
+    // Add body class for proper spacing
+    document.body.classList.add('with-nav');
+</script>
+
+</body>
+</html>

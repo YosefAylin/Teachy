@@ -94,8 +94,13 @@
         .lesson-time {
             font-weight: bold;
         }
-    </style></head>
+    </style>
+</head>
 <body>
+
+<!-- Include Navigation -->
+<div th:replace="~{fragments/navigation :: top-nav}"></div>
+
 <div class="education-bg"></div>
 <div class="container">
     <div class="form-container">
@@ -140,11 +145,13 @@
                     <!-- Lessons for this day -->
                     <div th:each="schedule : ${schedules}"
                          th:if="${#temporals.day(schedule.scheduledTime) == day}">
-                        <div th:class="'lesson-item ' + ${#strings.toLowerCase(schedule.status)}"
-                             th:title="${schedule.lesson?.description + ' with ' + schedule.teacher?.username}">
+                        <a th:href="@{/student/lessons/{id}(id=${schedule.lesson?.id})}"
+                           th:class="'lesson-item ' + ${#strings.toLowerCase(schedule.status)}"
+                           th:title="${schedule.lesson?.description + ' with ' + schedule.teacher?.username}"
+                           style="text-decoration: none; display: block;">
                             <div class="lesson-time" th:text="${#temporals.format(schedule.scheduledTime, 'HH:mm')}">09:00</div>
-                            <div th:text="${#strings.abbreviate(schedule.teacher?.username, 8)}">Student</div>
-                        </div>
+                            <div th:text="${#strings.abbreviate(schedule.teacher?.username, 8)}">Teacher</div>
+                        </a>
                     </div>
                 </div>
 
@@ -175,5 +182,9 @@
         </div>
     </div>
 </div>
+
+<!-- Include Navigation Script -->
+<script th:replace="~{fragments/navigation :: nav-script}"></script>
+
 </body>
 </html>

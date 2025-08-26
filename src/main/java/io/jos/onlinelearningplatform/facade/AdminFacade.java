@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import java.util.List;
@@ -70,6 +71,7 @@ public class AdminFacade {
         return "redirect:/admin/courses?created=1";
     }
 
+    @Transactional
     public String deleteCourse(Long courseId) {
         List<Lesson> courseLessons = lessonRepository.findByCourseIdOrderByTimestampDesc(courseId);
 
