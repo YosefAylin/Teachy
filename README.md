@@ -97,7 +97,7 @@ This means the project is always **ready to run and deploy** without extra setup
 
 ---
 
-## 🐳 Docker & Deployment
+[🐳 Docker & Deployment](https://hub.docker.com/r/josaylin/online-learning-platform/tags)
 The whole platform is **containerized with Docker** to make setup simple:
 
 - **App** → the main Spring Boot service.  
@@ -106,6 +106,7 @@ The whole platform is **containerized with Docker** to make setup simple:
 
 To run the project locally:  
 ```bash
+docker pull josaylin/online-learning-platform:latest
 docker compose up -d
 ``` 
 
