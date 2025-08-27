@@ -11,11 +11,6 @@ target/
 .settings/
 .vscode/
 
-# Maven wrapper artifacts
-.mvn/
-mvnw
-mvnw.cmd
-
 # Git metadata
 .git/
 .gitignore
@@ -25,14 +20,30 @@ mvnw.cmd
 Thumbs.db
 
 # Logs, temporary files
+logs/
 *.log
+*.log.*
 *.tmp
 *.swp
+*~
 
 # Environment files
 .env
 .env.local
+.env.*.local
 
-# Dockerfile itself (not strictly necessary to ignore, but prevents recursion)
-Dockerfile
-docker-compose.yml
+# Documentation (not needed in container)
+docs/
+README.md
+*.md
+
+# Test resources (not needed in production container)
+src/test/
+
+# Compressed files that aren't needed in container
+*.gz
+*.zip
+
+# Node modules if any exist
+node_modules/
+

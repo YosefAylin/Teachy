@@ -8,24 +8,12 @@
         <version>3.5.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>Jos</groupId>
+    <groupId>io.jos</groupId>
     <artifactId>online-learning-platform</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>online-learning-platform</name>
-    <description>online-learning-platform</description>
-    <url/>
-    <licenses>
-        <license/>
-    </licenses>
-    <developers>
-        <developer/>
-    </developers>
-    <scm>
-        <connection/>
-        <developerConnection/>
-        <tag/>
-        <url/>
-    </scm>
+    <description>Online Learning Platform - A comprehensive platform for managing courses, lessons, and student-teacher interactions</description>
+
     <properties>
         <java.version>17</java.version>
     </properties>

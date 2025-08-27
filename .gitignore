@@ -33,5 +33,21 @@ build/
 .vscode/
 
 ### MACOS ###
-**.DS_Store
+.DS_Store
+
+### Logs ###
+logs/
+*.log
+*.log.*
+*.gz
+
+### Temporary files ###
+*.tmp
+*.swp
+*~
+
+### Environment files ###
+.env
+.env.local
+.env.*.local
 
