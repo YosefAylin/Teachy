@@ -80,8 +80,10 @@ public class StudentServiceImpl implements StudentService {
         // Store in global cache
         if (nextLesson != null) {
             globalCache.putLesson(cacheKey, nextLesson);
+            // Add null check for teacher
+            String teacherInfo = nextLesson.getTeacher() != null ? nextLesson.getTeacher().getUsername() : "Unknown Teacher";
             logger.info("Found and cached next lesson for student ID: {} - lesson at {} with teacher: {}",
-                       studentId, nextLesson.getTimestamp(), nextLesson.getTeacher().getUsername());
+                       studentId, nextLesson.getTimestamp(), teacherInfo);
         } else {
             logger.info("No upcoming lessons found for student ID: {}", studentId);
         }

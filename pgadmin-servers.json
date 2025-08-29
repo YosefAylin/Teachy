@@ -1,0 +1,16 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Teachy Database",
+      "Group": "Servers",
+      "Host": "db",
+      "Port": 5432,
+      "MaintenanceDB": "online_learning_db",
+      "Username": "yosefaylin",
+      "Password": "123",
+      "SSLMode": "prefer",
+      "Favorite": true
+    }
+  }
+}
+

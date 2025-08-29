@@ -222,8 +222,10 @@ public class TeacherServiceImpl implements TeacherService {
         // Store lesson in global cache
         if (nextLesson != null) {
             globalCache.putLesson(cacheKey, nextLesson);
+            // Add null check for student
+            String studentInfo = nextLesson.getStudent() != null ? nextLesson.getStudent().getUsername() : "Unknown Student";
             logger.info("Found and cached next lesson for teacher ID: {} at {} with student: {}",
-                       teacherId, nextLesson.getTimestamp(), nextLesson.getStudent().getUsername());
+                       teacherId, nextLesson.getTimestamp(), studentInfo);
         } else {
             logger.info("No upcoming lessons found for teacher ID: {}", teacherId);
         }
@@ -258,8 +260,11 @@ public class TeacherServiceImpl implements TeacherService {
                 .orElseThrow(() -> new IllegalArgumentException("Lesson not found: " + lessonId));
         lesson.setStatus("ACCEPTED");
         lessonRepository.save(lesson);
+
+        // Add null check for student
+        String studentInfo = lesson.getStudent() != null ? lesson.getStudent().getUsername() : "Unknown Student";
         logger.info("Successfully accepted lesson ID: {} for student: {} at {}",
-                   lessonId, lesson.getStudent().getUsername(), lesson.getTimestamp());
+                   lessonId, studentInfo, lesson.getTimestamp());
     }
 
     @Override

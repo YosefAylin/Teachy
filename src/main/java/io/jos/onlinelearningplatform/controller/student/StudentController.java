@@ -45,8 +45,16 @@ public class StudentController {
 
     @PostMapping("/lessons/request")
     public String submitLessonRequest(@RequestParam Long teacherId, @RequestParam Long courseId,
-                                      @RequestParam int month, @RequestParam int day, @RequestParam int hour) {
-        return studentFacade.submitLessonRequest(teacherId, courseId, month, day, hour);
+                                      @RequestParam String month, @RequestParam String day, @RequestParam String hour) {
+        try {
+            int monthInt = Integer.parseInt(month);
+            int dayInt = Integer.parseInt(day);
+            int hourInt = Integer.parseInt(hour);
+            return studentFacade.submitLessonRequest(teacherId, courseId, monthInt, dayInt, hourInt);
+        } catch (NumberFormatException e) {
+            // Handle invalid number format
+            return "redirect:/student/search?error=invalid_date";
+        }
     }
 
     @GetMapping("/schedule")

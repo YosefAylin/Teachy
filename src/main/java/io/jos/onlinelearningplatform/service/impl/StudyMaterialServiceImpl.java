@@ -115,7 +115,10 @@ public class StudyMaterialServiceImpl implements StudyMaterialService {
         logger.debug("Fetching study material with ID: {}", materialId);
         StudyMaterial material = studyMaterialRepository.findById(materialId)
                 .orElseThrow(() -> new IllegalArgumentException("Study material not found"));
-        logger.info("Found study material: {} (uploaded by: {})", material.getFileName(), material.getUploader().getUsername());
+
+        // Add null check for uploader
+        String uploaderInfo = material.getUploader() != null ? material.getUploader().getUsername() : "Unknown User";
+        logger.info("Found study material: {} (uploaded by: {})", material.getFileName(), uploaderInfo);
         return material;
     }
 }

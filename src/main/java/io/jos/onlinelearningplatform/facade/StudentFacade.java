@@ -95,10 +95,23 @@ public class StudentFacade {
     }
 
     public String submitLessonRequest(Long teacherId, Long courseId, int month, int day, int hour) {
-        LocalDateTime date = LocalDateTime.of(2025, month, day, hour, 0);
-        Long studentId = userUtils.getCurrentStudentId();
-        lessonService.requestLesson(studentId, teacherId, courseId, date);
-        return "redirect:/student/lessons?requested=1";
+        try {
+            // Use current year instead of hardcoded 2025
+            int currentYear = LocalDateTime.now().getYear();
+            LocalDateTime date = LocalDateTime.of(currentYear, month, day, hour, 0);
+
+            // Validate that the requested date is in the future
+            if (date.isBefore(LocalDateTime.now())) {
+                return "redirect:/student/search?error=past_date";
+            }
+
+            Long studentId = userUtils.getCurrentStudentId();
+            lessonService.requestLesson(studentId, teacherId, courseId, date);
+            return "redirect:/student/lessons?requested=1";
+        } catch (Exception e) {
+            // Handle any date creation errors (invalid date combinations)
+            return "redirect:/student/search?error=invalid_date";
+        }
     }
 
     public String prepareSchedulePage(Integer year, Integer month, Model model) {

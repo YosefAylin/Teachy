@@ -206,4 +206,142 @@ public class AdminFacade {
 
         return "redirect:/admin/lessons/" + lessonId + "/details?cancelled=1";
     }
+
+    public String prepareTeacherProfilePage(Long teacherId, Model model) {
+        User user = userRepository.findById(teacherId)
+                .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
+
+        if (!(user instanceof Teacher teacher)) {
+            throw new IllegalArgumentException("User is not a teacher");
+        }
+
+        // Get teacher's lessons using the correct repository method
+        List<Lesson> teacherLessons = lessonRepository.findByTeacherId(teacherId);
+
+        // Calculate statistics
+        long totalLessons = teacherLessons.size();
+        long completedLessons = teacherLessons.stream()
+                .filter(lesson -> "COMPLETED".equals(lesson.getStatus()))
+                .count();
+        long pendingLessons = teacherLessons.stream()
+                .filter(lesson -> "PENDING".equals(lesson.getStatus()))
+                .count();
+
+        // Get unique students
+        List<Student> uniqueStudents = teacherLessons.stream()
+                .map(Lesson::getStudent)
+                .distinct()
+                .toList();
+
+        // Get teachable courses
+        List<TeacherCourse> teacherCourses = teacherCourseRepository.findByTeacherId(teacherId);
+        List<Course> teachableCourses = teacherCourses.stream()
+                .map(TeacherCourse::getCourse)
+                .toList();
+
+        // Sort lessons by timestamp descending for recent lessons
+        List<Lesson> recentLessons = teacherLessons.stream()
+                .sorted((l1, l2) -> l2.getTimestamp().compareTo(l1.getTimestamp()))
+                .limit(10)
+                .toList();
+
+        model.addAttribute("teacher", teacher);
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("completedLessons", completedLessons);
+        model.addAttribute("pendingLessons", pendingLessons);
+        model.addAttribute("uniqueStudents", uniqueStudents.size());
+        model.addAttribute("teachableCourses", teachableCourses);
+        model.addAttribute("recentLessons", recentLessons);
+        model.addAttribute("students", uniqueStudents);
+
+        return "admin/teacher-profile";
+    }
+
+    public String prepareStudentProfilePage(Long studentId, Model model) {
+        User user = userRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+
+        if (!(user instanceof Student student)) {
+            throw new IllegalArgumentException("User is not a student");
+        }
+
+        // Get student's lessons - we need to create a query to find by student ID
+        // For now, get all lessons and filter by student ID
+        List<Lesson> allLessons = lessonRepository.findAll();
+        List<Lesson> studentLessons = allLessons.stream()
+                .filter(lesson -> lesson.getStudent().getId().equals(studentId))
+                .sorted((l1, l2) -> l2.getTimestamp().compareTo(l1.getTimestamp()))
+                .toList();
+
+        // Calculate statistics
+        long totalLessons = studentLessons.size();
+        long completedLessons = studentLessons.stream()
+                .filter(lesson -> "COMPLETED".equals(lesson.getStatus()))
+                .count();
+        long pendingLessons = studentLessons.stream()
+                .filter(lesson -> "PENDING".equals(lesson.getStatus()))
+                .count();
+
+        // Get unique teachers
+        List<Teacher> uniqueTeachers = studentLessons.stream()
+                .map(Lesson::getTeacher)
+                .distinct()
+                .toList();
+
+        // Get courses the student has taken lessons in
+        List<Course> courses = studentLessons.stream()
+                .map(Lesson::getCourse)
+                .distinct()
+                .toList();
+
+        // Get recent lessons (last 10)
+        List<Lesson> recentLessons = studentLessons.stream()
+                .limit(10)
+                .toList();
+
+        model.addAttribute("student", student);
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("completedLessons", completedLessons);
+        model.addAttribute("pendingLessons", pendingLessons);
+        model.addAttribute("uniqueTeachers", uniqueTeachers.size());
+        model.addAttribute("courses", courses);
+        model.addAttribute("recentLessons", recentLessons);
+        model.addAttribute("teachers", uniqueTeachers);
+
+        return "admin/student-profile";
+    }
+
+    public String prepareAdminProfilePage(Long adminId, Model model) {
+        User user = userRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("Admin not found"));
+
+        if (!(user instanceof Admin admin)) {
+            throw new IllegalArgumentException("User is not an admin");
+        }
+
+        // Get system statistics
+        long totalUsers = userRepository.count();
+        long totalStudents = userRepository.countByUserType(Student.class);
+        long totalTeachers = userRepository.countByUserType(Teacher.class);
+        long totalLessons = lessonRepository.count();
+        long totalCourses = courseRepository.count();
+        long pendingLessons = lessonRepository.countByStatus("PENDING");
+
+        // Get recent lessons for system activity overview (last 10)
+        List<Lesson> recentLessons = lessonRepository.findAll().stream()
+                .sorted((l1, l2) -> l2.getTimestamp().compareTo(l1.getTimestamp()))
+                .limit(10)
+                .toList();
+
+        model.addAttribute("admin", admin);
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("totalStudents", totalStudents);
+        model.addAttribute("totalTeachers", totalTeachers);
+        model.addAttribute("totalLessons", totalLessons);
+        model.addAttribute("totalCourses", totalCourses);
+        model.addAttribute("pendingLessons", pendingLessons);
+        model.addAttribute("recentLessons", recentLessons);
+
+        return "admin/admin-profile";
+    }
 }

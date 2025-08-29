@@ -165,8 +165,10 @@
                                    style="color: #8b5cf6; text-decoration: none;"
                                    th:text="${user.username}">Username</a>
 
-                                <span th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Admin)}"
-                                      th:text="${user.username}">Username</span>
+                                <a th:if="${user instanceof T(io.jos.onlinelearningplatform.model.Admin)}"
+                                   th:href="@{/admin/users/{id}/admin-profile(id=${user.id})}"
+                                   style="color: #f59e0b; text-decoration: none;"
+                                   th:text="${user.username}">Username</a>
                             </td>
                             <td th:text="${user.email}">email@example.com</td>
                             <td>

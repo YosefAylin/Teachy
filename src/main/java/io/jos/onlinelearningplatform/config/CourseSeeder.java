@@ -17,24 +17,26 @@ public class CourseSeeder implements ApplicationRunner {
     private final UserRepository userRepo;
     private final LessonRepository lessonRepo;
     private final MessageRepository messageRepo;
+    private final TeacherCourseRepository teacherCourseRepo;
     private final PasswordEncoder passwordEncoder;
 
     private final Random random = new Random();
 
     public CourseSeeder(CourseRepository courseRepo, UserRepository userRepo,
                        LessonRepository lessonRepo, MessageRepository messageRepo,
-                       PasswordEncoder passwordEncoder) {
+                       TeacherCourseRepository teacherCourseRepo, PasswordEncoder passwordEncoder) {
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.lessonRepo = lessonRepo;
         this.messageRepo = messageRepo;
+        this.teacherCourseRepo = teacherCourseRepo;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(ApplicationArguments args) {
         // Only seed if database is empty
-        if (courseRepo.count() > 0) return;
+        if (userRepo.count() > 2) return;
 
         // Create courses
         List<Course> courses = createCourses();
@@ -45,6 +47,9 @@ public class CourseSeeder implements ApplicationRunner {
 
         // Create lessons
         List<Lesson> lessons = createLessons(courses, students, teachers);
+
+        // Create teacher-course relationships based on lessons
+        createTeacherCourseRelationships(lessons);
 
         // Create messages
         createMessages(lessons);
@@ -185,6 +190,15 @@ public class CourseSeeder implements ApplicationRunner {
         lesson.setStatus(status);
         lesson.setTimestamp(timestamp);
         return lesson;
+    }
+
+    private void createTeacherCourseRelationships(List<Lesson> lessons) {
+        for (Lesson lesson : lessons) {
+            TeacherCourse teacherCourse = new TeacherCourse();
+            teacherCourse.setTeacher(lesson.getTeacher());
+            teacherCourse.setCourse(lesson.getCourse());
+            teacherCourseRepo.save(teacherCourse);
+        }
     }
 
     private String getRandomTeacherMessage() {
